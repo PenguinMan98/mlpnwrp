@@ -1,4 +1,12 @@
 <?php
+spl_autoload_register(function ($className){
+	$className = str_replace("_","/",$className);
+	if(strpos($className, "Controller") !== false){
+		if(file_exists(CONTROLLER_ROOT.$className.".php")){
+			include CONTROLLER_ROOT . $className . ".php";
+		}
+	}
+});
 
 //fetch the passed request
 $uriSplit = explode("?",$_SERVER['REQUEST_URI']);
@@ -13,12 +21,12 @@ $GET = (count($uriSplit) > 1) ? $uriSplit[1] : null;
 // Variable separation
 $routeSplit = explode("/", $URI);
 
-if(count($routeSplit) == 4){ // module only
+if(count($routeSplit) == 4){ // action only
 	$MODULE = "Index";
 	$CONTROLLER = "Index";
-	$ACTION = $routeSplit[3];
+	$ACTION = (!empty($routeSplit[3])) ? $routeSplit[3] : "Index";
 	$URI_PARAMS = array();
-}elseif(count($routeSplit) == 5){ // module / controller
+}elseif(count($routeSplit) == 5){ // controller / action
 	$MODULE = "Index";
 	$CONTROLLER = $routeSplit[3];
 	$ACTION = $routeSplit[4];
@@ -75,24 +83,30 @@ $URI_PARAMS = $temp;
 if(file_exists(CONTROLLER_ROOT . $MODULE . "/")){ // Does the module directory exist?
 	$CONTROLLER_PATH = CONTROLLER_ROOT . $MODULE . "/" . $CONTROLLER . "Controller.php";
 	if(file_exists($CONTROLLER_PATH)){ // Does the controller file exist?
-		require_once($CONTROLLER_PATH);
+		require_once($CONTROLLER_PATH); // include the controller file
 		$CONTROLLER_CLASS_NAME = $MODULE."_".$CONTROLLER."Controller";
 		if(class_exists($CONTROLLER_CLASS_NAME)){ // Does the chosen controller class exist?
-			$_controller = new $CONTROLLER_CLASS_NAME();
+			$_controller = new $CONTROLLER_CLASS_NAME(); // create the controller class
 			$ACTION_NAME = $ACTION . "Action";
 			if(is_object($_controller) && method_exists($_controller, $ACTION_NAME)){ // does the controller class have the right action?
 				$_controller->$ACTION_NAME(); // execute it!
+				$VIEW_PATH = VIEW_ROOT . $_controller->getView();
+				if(file_exists($VIEW_PATH)){
+					include($VIEW_PATH);
+				}else{
+					error404("The specified view ".$_controller->getView()." does not exist!");
+				}
 			}else{
-				echo "The specified action $ACTION_NAME does not exist!<br>";
+				error404("The specified action $ACTION_NAME does not exist!");
 			}
 		}else{
-			echo("The specified class $CONTROLLER_CLASS_NAME does not exist!");
+			error404("The specified class $CONTROLLER_CLASS_NAME does not exist!");
 		}
 	}else{
-		echo("The specified controller $CONTROLLER does not exist!");
+		error404("The specified controller $CONTROLLER does not exist!");
 	}
 }else{
-	echo("The specified module $MODULE does not exist!");
+	error404("The specified module $MODULE does not exist!");
 }
 
 
@@ -100,3 +114,4 @@ function error404($errMessage){
 	$_SESSION['SYSTEM_MESSAGE'] = $errMessage;
 	header("Location: http://" . SITE_ROOT . "/oops404.php");
 }
+
