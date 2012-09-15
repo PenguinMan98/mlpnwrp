@@ -91,8 +91,8 @@ if(file_exists(CONTROLLER_ROOT . $MODULE . "/")){ // Does the module directory e
 			if(is_object($_controller) && method_exists($_controller, $ACTION_NAME)){ // does the controller class have the right action?
 				$_controller->$ACTION_NAME(); // execute it!
 				$VIEW_PATH = VIEW_ROOT . $_controller->getView();
-				if(file_exists($VIEW_PATH)){
-					include($VIEW_PATH);
+				if(file_exists($VIEW_PATH)){// is the view there?
+					include($VIEW_PATH); // run it!
 				}else{
 					error404("The specified view ".$_controller->getView()." does not exist!");
 				}
