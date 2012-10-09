@@ -13,5 +13,15 @@ class Index_IndexController extends Index_BaseController{
 	public function TestAction(){
 		echo "Test Action called correctly!<br>";
 		$this->vars->someVariable = false;
+		
+		echo "Database Test<br>";
+		//$result = $this->_DB->query("SHOW TABLES;");
+		
+		echo "<pre>";
+		//print_r($result);
+		foreach($this->_DB->query('SELECT * FROM author') as $row) {
+			print_r($row);
+		}
+		echo "</pre>";
 	}
 }

@@ -1,4 +1,8 @@
 <?php
+// load the config
+require_once 'Config.php';
+
+// start the autoloader
 spl_autoload_register(function ($className){
 	$className = str_replace("_","/",$className);
 	if(strpos($className, "Controller") !== false){
@@ -8,7 +12,18 @@ spl_autoload_register(function ($className){
 	}
 });
 
-//fetch the passed request
+// include the database functionality
+require_once 'DbCn.php';
+DbCn::getInstance(array(
+    'dsn'=>'mysql:dbname=' . Core_Config::$DB_DATABASE . ';host=' . Core_Config::$DB_SERVER,
+    'user' => Core_Config::$DB_USERNAME,
+    'password' => Core_Config::$DB_PASSWORD,
+    'driver_options' => array(
+        PDO::MYSQL_ATTR_INIT_COMMAND =>  "SET NAMES utf8"
+    )));
+
+
+// fetch the passed request
 $uriSplit = explode("?",$_SERVER['REQUEST_URI']);
 
 if(count($uriSplit) == 0){
@@ -78,7 +93,6 @@ foreach($URI_PARAMS as $name=>$value){
 $URI_PARAMS = $temp;
 
 // ROUTE!
-
 
 if(file_exists(CONTROLLER_ROOT . $MODULE . "/")){ // Does the module directory exist?
 	$CONTROLLER_PATH = CONTROLLER_ROOT . $MODULE . "/" . $CONTROLLER . "Controller.php";
