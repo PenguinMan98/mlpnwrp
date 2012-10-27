@@ -19,20 +19,20 @@ class DaoScripter
         // CONFIGURATION PARAMETER
 		$sDbServer = 'localhost';
 		$sDbUser = 'root';
-		$sDbName = 'PengyProgramming';
+		$sDbName = 'gt_clean';
 		$sGeneratePath = 'C:\Users\Pengy\Desktop\Projects\generated';
 		$sNamespace = '';
-        $sDbPw = '';
+        $sDbPw = 'PengyProgramming';
 
 		// Connect to the database
 		$this->_connectToDb($sDbServer, $sDbUser, $sDbPw, $sDbName);
 		$arrTableList = $this->_arrGetQueryResults("show tables");
-
+		
         // Create base directories
         $baseDirectories = array(
             '\\Model',
             '\\Model\\Structure',
-            '\\Model\\Structure\\Amazon',
+            /*'\\Model\\Structure\\Amazon',
             '\\Model\\Structure\\Inventory',
         	'\\Model\\Structure\\Job',
             '\\Model\\Structure\\Manufacturer',
@@ -41,9 +41,9 @@ class DaoScripter
             '\\Model\\Structure\\Po',
             '\\Model\\Structure\\Product',
             '\\Model\\Structure\\ShoppingCart',
-            '\\Model\\Structure\\Steal',
+            '\\Model\\Structure\\Steal',*/
             '\\Model\\Data',
-            '\\Model\\Data\\Amazon',
+            /*'\\Model\\Data\\Amazon',
             '\\Model\\Data\\Inventory',
         	'\\Model\\Data\\Job',
             '\\Model\\Data\\Manufacturer',
@@ -52,18 +52,18 @@ class DaoScripter
             '\\Model\\Data\\Po',
             '\\Model\\Data\\Product',
             '\\Model\\Data\\ShoppingCart',
-            '\\Model\\Data\\Steal'
+            '\\Model\\Data\\Steal'*/
 
         );
 
         foreach($baseDirectories as $directory) {
-            if (!file_exists($sGeneratePath . $directory)) {
+        	if (!file_exists($sGeneratePath . $directory)) {
                 mkdir($sGeneratePath . $directory);
             }
         }
 
         $lookupTable = array(
-            'inventory_adjustment_type',
+            /*'inventory_adjustment_type',
             'inventory_froom_status',
             'inventory_froom_reason',
             'order_issue_type',
@@ -89,7 +89,7 @@ class DaoScripter
             'job_result',
             'catalog',
             'email_type',
-            'inventory_status'
+            'inventory_status'*/
         );
 
 		// Cycle through each table
@@ -677,7 +677,7 @@ class DaoScripter
     function bScriptTable($sGeneratePath, $sNamespace, $sTableName, $bForceOverwrite)
     {
 		// Get field information for this table
-		$arrFields = $this->_arrGetQueryResults("show fields from " . $sTableName);
+		$arrFields = $this->_arrGetQueryResults("show fields from `" . $sTableName . "`");
 		$arrFieldNameAccessors = array();
 		$arrFieldDefaults = array();
 		$arrFieldNames = array();
@@ -739,7 +739,7 @@ class DaoScripter
     function _arrGetQueryResults($sQuery)
     {
 		$result = mysql_query($sQuery);
-
+		
         // Get the results into an array
         $arrResults = array();
         while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
