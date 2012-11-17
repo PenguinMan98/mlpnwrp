@@ -19,7 +19,7 @@ class DaoScripter
         // CONFIGURATION PARAMETER
 		$sDbServer = 'localhost';
 		$sDbUser = 'root';
-		$sDbName = 'gt_clean';
+		$sDbName = 'maids_lookup';
 		$sGeneratePath = 'C:\Users\Pengy\Desktop\Projects\generated';
 		$sNamespace = '';
         $sDbPw = 'PengyProgramming';

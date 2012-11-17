@@ -31,7 +31,10 @@ class Dao
 
 		if (!(isset($objDbCn))) {
 			$objProvider = DbCn::getInstance();
+			echo "testing getCn<br>";
+			print_r($objProvider);
 			$objDbCn = $objProvider->getMySqliCn('rw');
+			print_r($objDbCn);
 			if ($objDbCn === null) {
                 include($_SERVER['DOCUMENT_ROOT'] . '/admin/templates/error.phtml');
                 header('Internal Server Error', TRUE, 500);

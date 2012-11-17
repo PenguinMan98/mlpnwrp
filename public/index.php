@@ -12,6 +12,7 @@ define('CORE_ROOT' , APP_ROOT . 'Core/');
 define('MODEL_ROOT' , APP_ROOT . 'Model/');
 define('VIEW_ROOT' , APP_ROOT . 'View/');
 define('CONTROLLER_ROOT' , APP_ROOT . 'Controller/');
+define('LIBRARY_ROOT' , APP_ROOT . 'Library/');
 
 //yoursite.com is your webserver
 define('SITE_ROOT' , 'localhost/myframework/public'); 

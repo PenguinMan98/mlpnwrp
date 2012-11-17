@@ -4,11 +4,16 @@ require_once 'Config.php';
 
 // start the autoloader
 spl_autoload_register(function ($className){
-	$className = str_replace("_","/",$className);
+	$className = str_replace("_", "/", $className);
+	echo __FILE__ . " on line " . __LINE__ . " ".MODEL_ROOT." $className <br>";
 	if(strpos($className, "Controller") !== false){
-		if(file_exists(CONTROLLER_ROOT.$className.".php")){
+		if(file_exists(CONTROLLER_ROOT . $className . ".php")){ // check the controllers
 			include CONTROLLER_ROOT . $className . ".php";
 		}
+	}elseif(file_exists(MODEL_ROOT . $className . ".php")){ // check the models
+		include MODEL_ROOT . $className . ".php";
+	}elseif(file_exists(LIBRARY_ROOT . $className . ".php")){ // check the library
+		include LIBRARY_ROOT . $className . ".php";
 	}
 });
 

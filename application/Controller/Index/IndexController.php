@@ -15,13 +15,10 @@ class Index_IndexController extends Index_BaseController{
 		$this->vars->someVariable = false;
 		
 		echo "Database Test<br>";
-		//$result = $this->_DB->query("SHOW TABLES;");
+		$playerProvider = new Data_PlayerProvider();
+		$player = $playerProvider->getOneByPk(1);
+		print_r($player);
 		
-		echo "<pre>";
-		//print_r($result);
-		foreach($this->_DB->query('SELECT * FROM author') as $row) {
-			print_r($row);
-		}
 		echo "</pre>";
 	}
 }
