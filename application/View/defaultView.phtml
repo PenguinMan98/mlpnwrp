@@ -1,11 +1,71 @@
-<?php
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<title>My Little Pony: Friendship is Adventure!</title>
+	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+	<meta name="description" content="A roleplaying community set in the My Little Pony Universe" />
+	<meta name="keywords" content="" />
+	<meta name="robots" content="index, follow" />
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="<?=SITE_ROOT?>/css/three_col_2_6_2.css" type="text/css" /> 
+	<!--[if lt IE 7]>
+    <style media="screen" type="text/css">
+    .col1 {
+        width:100%;
+    }
+    </style>
+    <![endif]-->
+	<script type="text/javascript" src="<?=SITE_ROOT?>/js/main.js" > </script>
+</head>
+<body>
 
-if($_controller->vars->someVariable){
-	echo "The variable is true<br>";
-}else{
-	echo "The variable is false<br>";
-}
+<div id="header">
+	<a href=""><img src="<?=SITE_ROOT?>/images/Newworlds.png" alt="Friendship is Adventure!"/></a>
+    <h2>A roleplaying community focused on the players and set in the My Little Pony: Friendship is Magic Universe!</h2>
+    <?php include(VIEW_ROOT . "subViews/mainmenu.phtml"); ?>
+</div>
+<div class="colmask holygrail">
+    <div class="colmid">
+        <div class="colleft">
+            <div class="col1wrap">
+                <div class="col1">
+					<!-- Column 1 start -->
+					<?php foreach($_controller->vars->blogPosts as $blogPost): ?>
+					<span class="blog_heading"><?=$blogPost->getTitle()?></span>&nbsp;&nbsp;&nbsp;<span class="blog_tag"><?=$blogPost->getPublishDate()?></span><br>
+				    <p><?=$blogPost->getText()?></p>
+				    <?php endforeach;?>
+				<!-- Column 1 end -->
+                </div>
+            </div>
+            <div class="col2">
+				<!-- Column 2 start -->
+				<h2>Hot Forum Threads!</h2>
+                <p>Thread 1</p>
+                <p>Thread 2</p>
+                <p>Thread 3</p>
+                <h2>Newest Characters!</h2>
+                <p><a href="/characters/char_name">Character</a> (Player)</p>
+                <p><a href="/characters/char_name">Character</a> (Player)</p>
+                <p><a href="/characters/char_name">Character</a> (Player)</p>
+                <h2>Calendar?</h2>
+                <p>Calendar</p>
+                <!-- Column 2 end -->
+            </div>
+            <div class="col3">
+				<!-- Column 3 start -->
+                <h2>Possible Ads to pay the bills</h2>
+				<p>stuff</p>
 
-?>
+				<h2>Newest Gallery Images</h2>
+				<p>Image!</p>
+				<!-- Column 3 end -->
+			</div>
+		</div>
+	</div>
+</div>
+<div id="footer">
+    <p>Some footer stuff.  Legalese and Disclaimers.</p>
+</div>
 
-This is the default View.  You may make all the changes you like to it.
+</body>
+</html>

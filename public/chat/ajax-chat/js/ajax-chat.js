@@ -158,7 +158,7 @@ function chat_login(asuser)
   if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden */
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
-		  popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true)
+		  popup_show('glogin', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true)
 	  }else{
 		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true)
 	  }
@@ -278,6 +278,9 @@ function chat_msgs_add()
 
 function chat_msgs_get()
 {
+  //var playDing = false;
+  var playDing = false;
+  // alert(document.getElementById('pingOnNew').checked);
   chat_tout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
   if (chat_XMLHttp_get.readyState % 4) return;
   chat_rand += 1;
@@ -346,7 +349,13 @@ function chat_msgs_get()
           message = message.replace(/\[u\]/i, '<u>');
           message = message.replace(/\[\/u\]/i, '</u>');
           
-          //message = message.replace(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/, '</u>');
+          var dingTest = message.match($('#guser').val());
+          if(dingTest != null){
+        	  playDing = true;
+        	  
+          }
+          
+          message = replaceURLWithHTMLLinks(message);
 
           if (data[i+6] == '.')
             chat_msgs['.']                  += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
@@ -360,6 +369,14 @@ function chat_msgs_get()
           }
           i += 8;
         }
+
+      }
+      if(document.getElementById('pingOnNew').checked && data.length > 1){
+    	  playDing = true;
+      }
+      if(playDing){
+          var ding = $('#audio_ding');
+          ding = ding.get(0).play();
       }
 
       if (data.length > 1)
@@ -369,6 +386,7 @@ function chat_msgs_get()
       }
     }
   }
+  
 }
 
 
@@ -471,3 +489,11 @@ function chat_out_usrs()
   document.getElementById('users_othr').innerHTML = users;
   document.getElementById('users_othr').style.display = users ? 'block' : 'none';
 }
+
+//***** replaceURLWithHTMLLinks **********************************************************
+
+function replaceURLWithHTMLLinks(text) {
+	  var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
+	  return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
+}
+

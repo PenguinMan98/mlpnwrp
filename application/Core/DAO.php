@@ -30,23 +30,12 @@ class Dao
 		static $objDbCn;
 
 		if (!(isset($objDbCn))) {
-			$objProvider = DbCn::getInstance();
-			echo "testing getCn<br>";
-			print_r($objProvider);
-			$objDbCn = $objProvider->getMySqliCn('rw');
-			print_r($objDbCn);
+			$objDbCn = DbCn::getInstance();
 			if ($objDbCn === null) {
                 include($_SERVER['DOCUMENT_ROOT'] . '/admin/templates/error.phtml');
                 header('Internal Server Error', TRUE, 500);
 				exit(1);
 			}
-			/*if (::getIsProduction()) {
-				// Reset the database to be in the same timezone as the web server(s)
-				$blnResult = @$objDbCn->real_query('SET time_zone=MST7MDT');
-				if (!($blnResult)) {
-					die('Error #2.');
-				}
-			}*/
 		}
 
 		return($objDbCn);
@@ -56,35 +45,44 @@ class Dao
 	{
         $arrResults = array();
 		$objDbCn = self::getCn();
-
+		
 		// Prepare the actual text of the query
+		$objRes = $objDbCn->prepare($strSql);
 		$strQueryString = self::getQueryString($objDbCn, $strSql, $arrParams);
 		if (DAO_PROFILE) {
 			self::logQuery($strQueryString);
 		}
-
+		//echo $strQueryString . '<br>';
+		
 		// Execute the query
 		self::$_intQueryCount++;
 		$dblStart = microtime(true);
-		$objRes = @$objDbCn->query($strQueryString);
-		$dblEnd = microtime(true);
-		self::$_dblQueryTime += ($dblEnd - $dblStart);
-		if ($objRes === false) {
-			$strMessage = mysqli_error($objDbCn);
-			$arrErrors[] = 'Error: ' . $strMessage;
-			self::logError($strMessage, $strQueryString);
+		try {
+			$objRes->execute($arrParams);
+		}catch (Exception $e) {
+			$arrErrors = $objDbCn->errorInfo();
+			self::logError(implode("|",$arrErrors), $strQueryString);
 			return(false);
 		}
+		$dblEnd = microtime(true);
+		self::$_dblQueryTime += ($dblEnd - $dblStart);
 		self::logSlowQuery($strQueryString, ($dblEnd - $dblStart));
 
+		if ($objRes->errorCode() != "00000") {
+			$arrErrors = $objRes->errorInfo();
+			self::logError(implode("|",$arrErrors), $strQueryString);
+			return(false);
+		}
+		
+		$objRes->setFetchMode(PDO::FETCH_ASSOC);
 		// Get the results into an array
 		$dblStart = microtime(true);
-        while ($arrLine = $objRes->fetch_assoc()) {
+        while ($arrLine = $objRes->fetch()) {
         	$arrResults[] = $arrLine;
         }
 		$dblEnd = microtime(true);
 		self::$_dblFetchTime += ($dblEnd - $dblStart);
-    	@$objRes->free_result();
+    	//@$objRes->free_result();
 
 		return(true);
 	}
@@ -140,17 +138,24 @@ class Dao
 		if (DAO_PROFILE) {
 			self::logQuery($strQueryString);
 		}
-
+		$blnResult = $objDbCn->prepare($strSql);
+		
 		// Execute the query
 		self::$_intQueryCount++;
 		$dblStart = microtime(true);
-		$blnResult = @$objDbCn->real_query($strQueryString);
+		try {
+			$blnResult->execute($arrParams);
+			
+		}catch (Exception $e) {
+			$arrErrors = $objDbCn->errorInfo();
+			self::logError(implode("|",$arrErrors), $strQueryString);
+			return(false);
+		}
 		$dblEnd = microtime(true);
 		self::$_dblQueryTime += ($dblEnd - $dblStart);
-		if ($blnResult === false) {
-			$strMessage = mysqli_error($objDbCn);
-			$arrErrors[] = 'Error: ' . $strMessage;
-			self::logError($strMessage, $strQueryString);
+		if ($blnResult->errorCode() != "00000") {
+			$arrErrors = $blnResult->errorInfo();
+			self::logError(implode("|",$arrErrors), $strQueryString);
 			return(false);
 		}
 		self::logSlowQuery($strQueryString, ($dblEnd - $dblStart));
@@ -173,7 +178,7 @@ class Dao
 				// Deliberately empty; no need to surround this in quotes
 			}
 			elseif (!(is_numeric($arrParams[$i])) || is_string($arrParams[$i])) {
-				$arrParams[$i] = "'" . $objDbCn->real_escape_string($arrParams[$i]) . "'";
+				$arrParams[$i] = "'" . addslashes($arrParams[$i]) . "'";
 			}
 		}
 
@@ -238,7 +243,7 @@ class Dao
 	public static function getInsertId()
 	{
 		$objDbCn = self::getCn();
-		return(mysqli_insert_id($objDbCn));
+		return($objDbCn->lastInsertId());
 	}
 
 

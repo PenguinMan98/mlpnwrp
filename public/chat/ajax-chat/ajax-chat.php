@@ -25,6 +25,7 @@ include_once dirname(__FILE__) . '/php/init.php';
 var chat_path    = <?="'$chat_path'";   ?>;
 var chat_timeout = <?=  $chat_t_refresh;?>;
 var autofocus    = true;
+var dingOnNew    = false;
 var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 
 </script>
@@ -44,6 +45,7 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 
 <div class="main">
 
+<a   class="main" target="_blank" href="<?=SITE_ROOT?>">Home</a>
 <?php if ($chat_show['login'  ]) { ?>
 <a id="ajaxChatLogin" class="main" href="javascript:chat_login(true);">Login</a>
 <?php } ?>
@@ -59,7 +61,7 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 
 <table class="main">
 <tr>
-  <td><div id="header_messages"><?=$chat_list[0];?></div><div id="messages"></div></td>
+  <td><div id="header_messages"><?=$current_room->getRoomName()?></div><div id="messages"></div></td>
   <td>
     <div id="header_users">Users</div>
     <div id="users">
@@ -82,7 +84,7 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
   <tr>
     <td><div class="form_input"><div class="input"><input id="send" type="text" autocomplete="off" /></div></div></td>
     <td><input id="submit_send" class="submit" type="submit" value="" /></td>
-    <td>&nbsp;&nbsp;Autofocus&nbsp;<input id="autofocus" checked=true class="input" type="checkbox" onclick="autofocus = this.checked;" /></td>
+    <td>&nbsp;&nbsp;Autofocus&nbsp;<input id="autofocus" checked=true class="input" type="checkbox" onclick="autofocus = this.checked;" />&nbsp;&nbsp;Ping On New&nbsp;<input id="pingOnNew" class="input" type="checkbox" onclick="pingOnNew = this.checked;" /></td>
   </tr>
   </table>
   </form>
@@ -125,6 +127,10 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 </ul>
 </p>
 <h1>About</h1>
+<p>
+Copyright &copy; 2013 Pengy Programming.<br />
+Script based on:
+</p>
 <p>
 Copyright &copy; 2008 I.S. Lyubinskiy.<br />
 Ajax chat <a href="http://www.php-development.ru/javascripts/ajax-chat.php">homepage</a>.
@@ -243,9 +249,9 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 		if(name.indexOf("fuck") != -1
 			|| name.indexOf("shit") != -1
 			|| name.indexOf("bitch") != -1
-			|| name.indexOf("hell") != -1
+			/*|| name.indexOf("hell") != -1*/
 			|| name.indexOf("damn") != -1
-			|| name.indexOf("ass") != -1
+			/*|| name.indexOf("ass") != -1*/
 			|| name.indexOf("pussy") != -1
 			|| name.indexOf("penis") != -1
 			|| name.indexOf("dick") != -1
@@ -263,8 +269,8 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 <!-- ***** Rooms *********************************************************** -->
 
 <div class="room" id="room_child" style="display: none;">
-<?php foreach ($chat_list as $i => $room) { ?>
-<a class="main" href="javascript:chat_api_onload('<?=$room;?>', true, chat_user, chat_pass);"><?=$room;?></a>
+<?php foreach ($chat_list as $chatRoom) { ?>
+<a class="main" href="javascript:chat_api_onload('<?=$chatRoom->getRoomName();?>', true, chat_user, chat_pass);"><?=$chatRoom->getRoomName();?></a>
 <?php } ?>
 </div>
 

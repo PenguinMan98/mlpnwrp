@@ -1,5 +1,19 @@
 <?php
 
+require_once 'Bootstrap.php'; // load everything
+$_bootstrap = Bootstrap::getInstance();
+
+
+	// get chat room info
+	$chatRoomProvider = new Model_Data_ChatRoomProvider();
+	$chat_list = $chatRoomProvider->getChatList();
+	$current_room = false;
+	foreach($chat_list as $chatRoom){
+		if(!$current_room) $current_room = $chatRoom;
+	}
+
+
+
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
 //
@@ -48,11 +62,25 @@ $FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
 // Use this function to validate registered users' login information.
 function chat_chk($username, $password, &$gender, &$status)
 {
-  $gender = 'none';
+	GLOBAL $user;
+	if($user->data['user_id'] != ANONYMOUS) // already logged in from the forum
+		return true;
+	
+	$username = request_var('username', $username);
+	$password = request_var('password', $password);
+	
+	if(isset($username) && isset($password))
+	{
+		$auth->login($username, $password, true);
+	}else{
+		return false;
+	}
+	
+  /*$gender = 'none';
   $status = 'none';
 
   // Remove this line
-  return true;
+  //return true;
 
   // Enter MySQL access information
   $MySQL_username = '';
@@ -64,7 +92,7 @@ function chat_chk($username, $password, &$gender, &$status)
   $MySQL_username_field = '';
   $MySQL_password_field = '';
 
-  // The code bellow should work without modification for most users
+  // The code below should work without modification for most users
   mysql_connect('localhost', $MySQL_username, $MySQL_password);
   mysql_select_db($MySQL_database);
   $username = isset($username) ? mysql_real_escape_string($username) : '';
@@ -75,7 +103,7 @@ function chat_chk($username, $password, &$gender, &$status)
   return mysql_fetch_assoc($result) ||
          isset($chat_data['user'][$username]) &&
          isset($chat_data['pass'][$username]) &&
-              ($chat_data['pass'][$username] == $password);
+              ($chat_data['pass'][$username] == $password);*/
 }
 
 

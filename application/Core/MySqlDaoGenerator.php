@@ -17,12 +17,12 @@ class DaoScripter
 	function bScriptDatabase()
 	{
         // CONFIGURATION PARAMETER
-		$sDbServer = 'localhost';
-		$sDbUser = 'root';
-		$sDbName = 'maids_lookup';
-		$sGeneratePath = 'C:\Users\Pengy\Desktop\Projects\generated';
+		$sDbServer = '127.0.0.1';
+		$sDbUser = 'fia_user';
+		$sDbName = 'mlpfia';
+		$sGeneratePath = 'D:\wamp\site_data\mlpnwrp\generated';
 		$sNamespace = '';
-        $sDbPw = 'PengyProgramming';
+        $sDbPw = 'P1ngu1n0FIA98';
 
 		// Connect to the database
 		$this->_connectToDb($sDbServer, $sDbUser, $sDbPw, $sDbName);
@@ -32,8 +32,8 @@ class DaoScripter
         $baseDirectories = array(
             '\\Model',
             '\\Model\\Structure',
-            /*'\\Model\\Structure\\Amazon',
-            '\\Model\\Structure\\Inventory',
+            '\\Model\\Structure\\Phpbb',
+            /*'\\Model\\Structure\\Inventory',
         	'\\Model\\Structure\\Job',
             '\\Model\\Structure\\Manufacturer',
             '\\Model\\Structure\\Notification',
@@ -43,8 +43,8 @@ class DaoScripter
             '\\Model\\Structure\\ShoppingCart',
             '\\Model\\Structure\\Steal',*/
             '\\Model\\Data',
-            /*'\\Model\\Data\\Amazon',
-            '\\Model\\Data\\Inventory',
+            '\\Model\\Data\\Phpbb',
+            /*'\\Model\\Data\\Inventory',
         	'\\Model\\Data\\Job',
             '\\Model\\Data\\Manufacturer',
             '\\Model\\Data\\Notification',
@@ -112,6 +112,12 @@ class DaoScripter
                        if (substr($table, 0, 9) == 'inventory') {
                             if (strlen($table) > 9) {
                                 $this->_setNamespace('Inventory');
+                            } else {
+                                $this->setBaseNamespace();
+                            }
+                        } else if (substr($table, 0, 5) == 'phpbb') {
+                            if (strlen($table) > 5) {
+                                $this->_setNamespace('Phpbb');
                             } else {
                                 $this->setBaseNamespace();
                             }
@@ -215,6 +221,7 @@ class DaoScripter
         } else {
             $names = array (
                 'Po',
+            	'Phpbb',
                 'Inventory',
                 'Manufacturer',
                 'Notification',
@@ -275,6 +282,16 @@ class DaoScripter
         $this->providerDirRequire = 'Model/Data/Product/';
         $this->modelPrefix = 'Model_Structure_Product_';
         $this->providerPrefix = 'Model_Data_Product_';
+    }
+
+    private function _setPhpbbNamespace()
+    {
+        $this->modelDir = 'Model\\Structure\\Phpbb\\';
+        $this->providerDir = 'Model\\Data\\Phpbb\\';
+        $this->modelDirRequire = 'Model/Structure/Phpbb/';
+        $this->providerDirRequire = 'Model/Data/Phpbb/';
+        $this->modelPrefix = 'Model_Structure_Phpbb_';
+        $this->providerPrefix = 'Model_Data_Phpbb_';
     }
 
     private function setBaseNamespace()
@@ -365,7 +382,7 @@ class DaoScripter
 		array_push($arrLines, '* AUTO-GENERATED');
 		array_push($arrLines, '* DO NOT EDIT');
 		array_push($arrLines, '*/');
-        array_push($arrLines, "require_once 'DaoStealNetwork.php';");
+        array_push($arrLines, "require_once CORE_ROOT . 'DAO.php';");
 		array_push($arrLines, "class $sClassName");
 		array_push($arrLines, '{');
 
@@ -373,7 +390,7 @@ class DaoScripter
 		array_push($arrLines, "    " . '{');
 		array_push($arrLines, "        " . '$arrResults = array();');
 		array_push($arrLines, "        " . '$arrErrors = array();');
-		array_push($arrLines, "        " . 'if (DaoStealNetwork::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
+		array_push($arrLines, "        " . 'if (DAO::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
 		array_push($arrLines, "            " . 'if (count($arrResults) > 0) {');
 		array_push($arrLines, "                " . 'return new ' . $this->modelPrefix . $sObjectName . '($arrResults[0]);');
 		array_push($arrLines, "            " . '}');
@@ -386,7 +403,7 @@ class DaoScripter
 		array_push($arrLines, "    " . '{');
 		array_push($arrLines, "        " . '$arrResults = array();');
 		array_push($arrLines, "        " . '$arrErrors = array();');
-		array_push($arrLines, "        " . 'if (DaoStealNetwork::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
+		array_push($arrLines, "        " . 'if (DAO::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
 		array_push($arrLines, "            " . '$arrRecordList = array();');
 		array_push($arrLines, "            " . 'foreach ($arrResults as $arrRecord) {');
 		array_push($arrLines, "                " . '$arrRecordList[] = new ' . $this->modelPrefix . $sObjectName . '($arrRecord);');
@@ -401,7 +418,7 @@ class DaoScripter
 		array_push($arrLines, "    " . 'public function getOneByPk($' . join($arrKeys, ', $') . ')');
 		array_push($arrLines, "    " . '{');
 		$strFullSql = "        " . '$strSql = \'';
-		$strFullSql .= "SELECT * FROM $sTableName";
+		$strFullSql .= "SELECT * FROM `$sTableName`";
 		$sJoinClause = " WHERE ";
 		foreach ($arrKeys as $sKey) {
 			$strFullSql .= $sJoinClause . "$sKey=?";
@@ -419,7 +436,7 @@ class DaoScripter
 		array_push($arrLines, "    " . 'public function insertOne(&$objRecord, &$arrErrors)');
 		array_push($arrLines, "    " . '{');
 		$strFullSql = "        " . '$strSql = \'';
-		$strFullSql .= " INSERT INTO $sTableName (\n";
+		$strFullSql .= " INSERT INTO `$sTableName` (\n";
 		$strFullSql .= "            " . join($arrFieldNames, ",\n            ") . "\n        )";
 		$strFullSql .= " VALUES ";
 		$strFullSql .= " (?" . str_repeat(", ?", count($arrFieldNames) - 1) . ")";
@@ -433,12 +450,12 @@ class DaoScripter
 		}
 		array_push($arrLines, "        " . $sParamValues);
 		array_push($arrLines, "        " . '$arrErrors = array();');
-		array_push($arrLines, "        " . '$blnResult = DaoStealNetwork::execute($strSql, $params, $arrErrors);');
+		array_push($arrLines, "        " . '$blnResult = DAO::execute($strSql, $params, $arrErrors);');
 
 		// Handle retrieval of any auto increment (identity) column values
 		if ($sAutoIncrement != '') {
 			array_push($arrLines, "        " . 'if ($blnResult) {');
-			array_push($arrLines, "            " . '$objRecord->set' . $this->sCleanDbObjectName($sAutoIncrement) . '(DaoStealNetwork::getInsertId());');
+			array_push($arrLines, "            " . '$objRecord->set' . $this->sCleanDbObjectName($sAutoIncrement) . '(DAO::getInsertId());');
 			/* OLD STYLE
 			$strFullSql = "            " . '$strSql = \'';
 			$strFullSql .= "SELECT LAST_INSERT_ID() AS lngNewId";
@@ -447,7 +464,7 @@ class DaoScripter
 			$strFullSql = '';
 			array_push($arrLines, "            " . '$params = array();');
 			array_push($arrLines, "            " . '$arrResults = array();');
-			array_push($arrLines, "            " . 'if (DaoStealNetwork::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
+			array_push($arrLines, "            " . 'if (DAO::getAssoc($strSql, $params, $arrResults, $arrErrors)) {');
 			array_push($arrLines, "                " . 'if (count($arrResults) > 0) {');
 			array_push($arrLines, "                    " . '$objRecord->set' . $this->sCleanDbObjectName($sAutoIncrement) . '($arrResults[0][\'lngNewId\']);');
 			array_push($arrLines, "                " . '}');
@@ -464,7 +481,7 @@ class DaoScripter
 		array_push($arrLines, "    " . 'public function updateOne($objRecord, &$arrErrors)');
 		array_push($arrLines, "    " . '{');
 		$strFullSql = "        " . '$strSql = \'';
-		$strFullSql .= "UPDATE $sTableName";
+		$strFullSql .= "UPDATE `$sTableName`";
 		$sJoinClause = " SET ";
 		foreach ($arrFieldNames as $sField) {
 			$strFullSql .= $sJoinClause . "\n            $sField=?";
@@ -482,7 +499,7 @@ class DaoScripter
 		array_push($arrLines, "        " . '$arrKeyParams = array($objRecord->getOrig' . join($arrKeyAccessors, '(), $objRecord->getOrig') . '());');
 		array_push($arrLines, "        " . '$params = array_merge($arrSetParams, $arrKeyParams);');
 		array_push($arrLines, "        " . '$arrErrors = array();');
-		array_push($arrLines, "        " . '$blnResult = DaoStealNetwork::execute($strSql, $params, $arrErrors);');
+		array_push($arrLines, "        " . '$blnResult = DAO::execute($strSql, $params, $arrErrors);');
 		array_push($arrLines, "        " . 'return $blnResult;');
 		array_push($arrLines, "    " . '}');
 		array_push($arrLines, '');
@@ -491,7 +508,7 @@ class DaoScripter
 		array_push($arrLines, "    " . 'public function deleteOne($objRecord, &$arrErrors)');
 		array_push($arrLines, "    " . '{');
 		$strFullSql = "        " . '$strSql = \'';
-		$strFullSql .= "DELETE FROM $sTableName";
+		$strFullSql .= "DELETE FROM `$sTableName`";
 		$sJoinClause = " WHERE ";
 		foreach ($arrKeys as $sKey) {
 			$strFullSql .= $sJoinClause . "$sKey=?";
@@ -502,7 +519,7 @@ class DaoScripter
 		$strFullSql = '';
 		array_push($arrLines, "        " . '$params = array($objRecord->get' . join($arrKeyAccessors, '(), $objRecord->get') . '());');
 		array_push($arrLines, "        " . '$arrErrors = array();');
-		array_push($arrLines, "        " . '$blnResult = DaoStealNetwork::execute($strSql, $params, $arrErrors);');
+		array_push($arrLines, "        " . '$blnResult = DAO::execute($strSql, $params, $arrErrors);');
 		array_push($arrLines, "        " . 'return $blnResult;');
 		array_push($arrLines, "    " . '}');
 

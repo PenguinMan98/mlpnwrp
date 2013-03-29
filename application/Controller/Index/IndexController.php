@@ -6,19 +6,73 @@ class Index_IndexController extends Index_BaseController{
 	}
 	
 	public function IndexAction(){
-		echo "This is the default page!<br>";
-		$this->vars->someVariable = true;
+		//echo "This is the default page!<br><a href=\"./forum\">Our Forum</a>";
+		//$this->vars->someVariable = true;
+		
+		// get the blog data
+		$blogPostProvider = new Model_Data_BlogPostProvider();
+		$blogPosts = $blogPostProvider->getCurrent(5);
+		$this->vars->blogPosts = $blogPosts;
 	}
 	
 	public function TestAction(){
 		echo "Test Action called correctly!<br>";
 		$this->vars->someVariable = false;
+		$this->view = false; // do not render a view
 		
-		echo "Database Test<br>";
-		$playerProvider = new Data_PlayerProvider();
-		$player = $playerProvider->getOneByPk(1);
-		print_r($player);
+		echo "<br>Letsa go!<br><pre>";
 		
-		echo "</pre>";
+		$chatRoomProvider = new Model_Data_ChatRoomProvider();
+		$chatRoom = $chatRoomProvider->getOneByPk(9);
+		
+		$chatLogProvider = new Model_Data_ChatLogProvider();
+		print_r($chatLogProvider->search("2013-03-17", "2013-03-19", "test", $chatRoom));
+		
+		echo "</pre><br>End!<br>";
+	}
+	
+	public function ChatLogAction(){
+		$this->view = "Chat/logSearchFormView.phtml";
+		
+		$startDate = $characterId = $character = $roomId = $room = $text = null;
+		
+		if(isset($_POST['searchForm'])){
+			/*echo "<pre>";
+			print_r($_POST);
+			echo "</pre>";*/
+			$startDate = isset($_POST['startDate']) ? $_POST['startDate'] : null;
+			$character = isset($_POST['character']) ? $_POST['character'] : null;
+			$roomId = isset($_POST['room']) ? $_POST['room'] : null;
+			$text = isset($_POST['text']) ? $_POST['text'] : null;
+			
+			//if(isset($startDate)) $startDate = date_format(date_create($time, $object));
+		}
+		
+		// get chatrooms
+		$chatRoomProvider = new Model_Data_ChatRoomProvider();
+		$rooms = $chatRoomProvider->getChatList();
+		$this->vars->roomList = array();
+		foreach($rooms as $room){
+			$this->vars->roomList[$room->getChatRoomId()] = $room->getRoomName();
+		}
+		if(isset($roomId)){
+			$room = $chatRoomProvider->getOneByPk($roomId);
+		}
+		
+		// get characters
+		$characterProvider = new Model_Data_CharacterProvider();
+		$this->vars->characters = $characterProvider->getAll();
+		/*if(isset($characterId)){
+			$character = $characterProvider->getOneByPk($characterId);
+			if(!is_object($character)) $character = null;
+		}*/
+		
+		// get results
+		$chatLogProvider = new Model_Data_ChatLogProvider();
+		$this->vars->results = $chatLogProvider->search($startDate,null,$text,$room,$character);
+		/*echo "<pre>";
+		print_r($this->vars->results);
+		echo "</pre>";*/
+		
 	}
 }
