@@ -1,7 +1,7 @@
 <?php
 // start up PHPBB Session
 define('IN_PHPBB', true);
-$phpbb_root_path = "d:/wamp/www/mlpnwrp/public/forum/";
+$phpbb_root_path = "d:/wamp/www/mlpnwrpdev/public/forum/";
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
 $user->session_begin();
@@ -40,7 +40,7 @@ class Bootstrap{
 		 * WEB_ROOT_FOLDER is the name of the parent folder you created these
 		 * documents in.
 		 */
-		define('SERVER_ROOT' , 'd:/wamp/www/mlpnwrp');
+		define('SERVER_ROOT' , 'd:/wamp/www/mlpnwrpdev');
 		define('APP_ROOT' , SERVER_ROOT . '/application/');
 		define('CORE_ROOT' , APP_ROOT . 'Core/');
 		define('MODEL_ROOT' , APP_ROOT . 'Model/');
@@ -49,7 +49,7 @@ class Bootstrap{
 		define('LIBRARY_ROOT' , APP_ROOT . 'Library/');
 		
 		//yoursite.com is your webserver
-		define('SITE_ROOT' , '/mlpnwrp/public');
+		define('SITE_ROOT' , '/mlpnwrpdev/public');
 	}
 	
 	public function startAutoloader(){

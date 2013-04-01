@@ -6,6 +6,6 @@ class Core_Config
 	public static $DB_USERNAME = 'fia_user';
 	public static $DB_PASSWORD = 'P1ngu1n0FIA98';
 	public static $DB_DATABASE = 'mlpfia';
-}
+	}
 
 //include 'ConfigLocal.php'; // Used to overwrite the value of production configuration values

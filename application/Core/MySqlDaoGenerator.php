@@ -20,7 +20,7 @@ class DaoScripter
 		$sDbServer = '127.0.0.1';
 		$sDbUser = 'fia_user';
 		$sDbName = 'mlpfia';
-		$sGeneratePath = 'D:\wamp\site_data\mlpnwrp\generated';
+		$sGeneratePath = 'D:\wamp\site_data\mlpnwrpdev\generated';
 		$sNamespace = '';
         $sDbPw = 'P1ngu1n0FIA98';
 
