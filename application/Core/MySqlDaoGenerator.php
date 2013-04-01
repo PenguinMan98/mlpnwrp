@@ -18,11 +18,11 @@ class DaoScripter
 	{
         // CONFIGURATION PARAMETER
 		$sDbServer = '127.0.0.1';
-		$sDbUser = 'fia_user';
-		$sDbName = 'mlpfia';
+		$sDbUser = 'nwrpuser';
+		$sDbName = 'mlpnwrp';
 		$sGeneratePath = 'D:\wamp\site_data\mlpnwrp\generated';
 		$sNamespace = '';
-        $sDbPw = 'P1ngu1n0FIA98';
+        $sDbPw = 'P1ngu1n0NWRP98';
 
 		// Connect to the database
 		$this->_connectToDb($sDbServer, $sDbUser, $sDbPw, $sDbName);

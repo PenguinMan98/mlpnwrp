@@ -4,9 +4,9 @@
 $dbms = 'mysqli';
 $dbhost = 'localhost';
 $dbport = '';
-$dbname = 'mlpfia';
-$dbuser = 'fia_user';
-$dbpasswd = 'P1ngu1n0FIA98';
+$dbname = 'mlpnwrp';
+$dbuser = 'nwrpuser';
+$dbpasswd = 'P1ngu1n0NWRP98';
 $table_prefix = 'phpbb_';
 $acm_type = 'file';
 $load_extensions = '';
