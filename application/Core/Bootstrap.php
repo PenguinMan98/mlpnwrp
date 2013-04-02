@@ -36,10 +36,6 @@ class Bootstrap{
 	}
 	
 	public function setPathing(){
-		/**
-		 * WEB_ROOT_FOLDER is the name of the parent folder you created these
-		 * documents in.
-		 */
 		define('SERVER_ROOT' , 'd:/wamp/www/mlpnwrp');
 		define('APP_ROOT' , SERVER_ROOT . '/application/');
 		define('CORE_ROOT' , APP_ROOT . 'Core/');
@@ -48,7 +44,6 @@ class Bootstrap{
 		define('CONTROLLER_ROOT' , APP_ROOT . 'Controller/');
 		define('LIBRARY_ROOT' , APP_ROOT . 'Library/');
 		
-		//yoursite.com is your webserver
 		define('SITE_ROOT' , '/mlpnwrp/public');
 	}
 	
