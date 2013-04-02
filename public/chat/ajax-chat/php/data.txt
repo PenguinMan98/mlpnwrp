@@ -1,4 +1,4 @@
-a:10:{s:4:"time";a:1:{s:4:"GT-V";i:1364803378;}s:4:"away";a:1:{s:4:"GT-V";b:1;}s:4:"gndr";a:1:{s:4:"GT-V";s:4:"none";}s:4:"stat";a:1:{s:4:"GT-V";s:4:"none";}s:4:"room";a:1:{s:4:"GT-V";s:33:"OOC Game Room 3 Kiteys Pathfinder";}s:4:"user";a:1:{s:4:"GT-V";d:1364810228.1838500499725341796875;}s:4:"pass";a:1:{s:4:"GT-V";s:32:"e464f78f1b3fa6bfe6d887029bf66f0c";}s:4:"data";a:1003:{i:6649;a:7:{s:4:"time";i:1364361397;s:4:"guid";s:14:"Virga4064Virga";s:4:"room";s:33:"OOC Game Room 3 Kiteys Pathfinder";s:4:"user";s:5:"Virga";s:4:"priv";s:1:".";s:4:"addr";s:11:"68.110.6.32";s:4:"data";s:169:"m
+a:10:{s:4:"time";a:0:{}s:4:"away";a:0:{}s:4:"gndr";a:0:{}s:4:"stat";a:0:{}s:4:"room";a:0:{}s:4:"user";a:0:{}s:4:"pass";a:0:{}s:4:"data";a:1012:{i:6649;a:7:{s:4:"time";i:1364361397;s:4:"guid";s:14:"Virga4064Virga";s:4:"room";s:33:"OOC Game Room 3 Kiteys Pathfinder";s:4:"user";s:5:"Virga";s:4:"priv";s:1:".";s:4:"addr";s:11:"68.110.6.32";s:4:"data";s:169:"m
 #d03030
 none
 none
@@ -4958,4 +4958,30 @@ Variety
 GT-V
 -";i:7651;s:45:"-
 OOC Game Room 3 Kiteys Pathfinder
-Variety";}s:4:"kick";a:0:{}s:4:"mute";a:0:{}}
+Variety";i:7652;s:38:"+
+Main Room
+GT-Dragonshy
+none
+none";i:7653;s:26:"-
+Main Room
+GT-Dragonshy";i:7654;s:62:"+
+OOC Game Room 3 Kiteys Pathfinder
+GT-Dragonshy
+none
+none";i:7655;s:42:"-
+OOC Game Room 3 Kiteys Pathfinder
+GT-V";i:7656;s:50:"-
+OOC Game Room 3 Kiteys Pathfinder
+GT-Dragonshy";i:7657;s:35:"+
+Main Room
+GT-Archer
+none
+none";i:7658;s:23:"-
+Main Room
+GT-Archer";i:7659;s:32:"+
+Main Room
+GT-Tek
+none
+none";i:7660;s:20:"-
+Main Room
+GT-Tek";}s:4:"kick";a:0:{}s:4:"mute";a:0:{}}
