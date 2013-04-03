@@ -1,5 +1,6 @@
 <?php
-require_once 'd:/wamp/www/mlpnwrp/application/Core/Bootstrap.php'; // load everything
+
+require_once '../../../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
 
@@ -10,8 +11,6 @@ $_bootstrap = Bootstrap::getInstance();
 	foreach($chat_list as $chatRoom){
 		if(!$current_room) $current_room = $chatRoom;
 	}
-
-
 
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
