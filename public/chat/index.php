@@ -1,5 +1,5 @@
 <?php 
-require_once 'Bootstrap.php'; // load everything
+require_once '../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 ?><html>
 <head>
