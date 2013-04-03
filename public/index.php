@@ -10,5 +10,5 @@ if($_SERVER['REQUEST_URI'][strlen($_SERVER['REQUEST_URI'])-1] == '/'){
 require_once '../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
-require_once '../application/Core/router.php';
+require_once CORE_ROOT . 'router.php';
 ?>
