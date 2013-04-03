@@ -12,8 +12,6 @@ $_bootstrap = Bootstrap::getInstance();
 		if(!$current_room) $current_room = $chatRoom;
 	}
 
-
-
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
 //
