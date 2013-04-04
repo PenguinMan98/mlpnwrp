@@ -7,17 +7,18 @@
         padding:0;
         border:0;           /* This removes the border around the viewport in old versions of IE */
         width:100%;
-        background:#fff url(../images/80s_fluttershy_tile) repeat scroll top left;
+        background:#81C8E1;
         min-width:600px;    /* Minimum width of layout - remove line if not required */
                             /* The min-width property does not work in old versions of Internet Explorer */
         font-size:90%;
+        font-family: 'Linden Hill', serif;
     }
     a {
         color:#369;
     }
     a:hover {
         color:#000;
-        background:#fff;
+        background:#81C8E1;
         text-decoration:none;
     }
     h1, h2, h3 {
@@ -36,6 +37,7 @@
         clear:both;
         float:left;
         width:100%;
+        text-align: center;
     }
     #header {
         border-bottom:1px solid #000;
@@ -176,6 +178,10 @@
         font-size: 10px;
         margin: .8em 0 .2em 0;
         padding: 0;
+    }
+    #banner{
+        width: 800px;
+        margin: 0px auto;
     }
     
     /* --> */
