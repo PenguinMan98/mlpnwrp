@@ -1,15 +1,14 @@
 <?php
-require_once '/wamp/www/mlpnwrp/application/Core/Bootstrap.php'; // load everything
+require_once '/wamp/www/mlpnwrpdev/application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
-
-	// get chat room info
-	$chatRoomProvider = new Model_Data_ChatRoomProvider();
-	$chat_list = $chatRoomProvider->getChatList();
-	$current_room = false;
-	foreach($chat_list as $chatRoom){
-		if(!$current_room) $current_room = $chatRoom;
-	}
+// get chat room info
+$chatRoomProvider = new Model_Data_ChatRoomProvider();
+$chat_list = $chatRoomProvider->getChatList();
+$current_room = false;
+foreach($chat_list as $chatRoom){
+	if(!$current_room) $current_room = $chatRoom;
+}
 
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
