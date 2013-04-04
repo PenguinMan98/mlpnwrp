@@ -18,6 +18,10 @@ include("TokenOperation.php");
 // This code is provided "as is" without warranty of any kind.
 // You expressly acknowledge and agree that use of this code is at your own risk.
 
+$response = new stdClass();
+$response->success = true;
+$response->text = "";
+
 if (isset($_GET['user']) && $_GET['user'] &&
     isset($_GET['pass']) && $_GET['pass'] &&
     isset($_GET['priv']) && $_GET['priv'] &&
@@ -74,7 +78,8 @@ if (isset($_GET['user']) && $_GET['user'] &&
   if ($chat_data['mute'][$user] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] ||
       $chat_data['kick'][$user] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])
   {
-    echo $chat_err_mute;
+    $response->text = $chat_err_mute;
+    $response->success = false;
     die;
   }
 
@@ -97,14 +102,16 @@ if (isset($_GET['user']) && $_GET['user'] &&
       $cmd_time = $matches[3];
       if ($cmd_type == 'kick') $chat_data['kick'][$cmd_user] = time()+$cmd_time*24*3600;
       if ($cmd_type == 'mute') $chat_data['mute'][$cmd_user] = time()+$cmd_time*24*3600;
-      if ($cmd_type == 'kick') echo "User <b>" . htmlentities($cmd_user) . "</b> is kicked for " . $cmd_time . " day(s)";
-      if ($cmd_type == 'mute') echo "User <b>" . htmlentities($cmd_user) . "</b> is  muted for " . $cmd_time . " day(s)";
+      if ($cmd_type == 'kick') $response->text = "User <b>" . htmlentities($cmd_user) . "</b> is kicked for " . $cmd_time . " day(s)";
+      if ($cmd_type == 'mute') $response->text = "User <b>" . htmlentities($cmd_user) . "</b> is  muted for " . $cmd_time . " day(s)";
+      $response->success = false;
     }
     elseif (in_array($_GET['user'], $chat_admins) &&
             preg_match("/^\\s*\\/(list)\\s*(kick|mute)\\s*$/", $_GET['data'], $matches))
     {
-      if ($matches[2] == 'kick') echo count($chat_data['kick']) . " user(s) kicked: " . implode(', ', array_keys($chat_data['kick']));
-      if ($matches[2] == 'mute') echo count($chat_data['mute']) . " user(s)  muted: " . implode(', ', array_keys($chat_data['mute']));
+      if ($matches[2] == 'kick') $response->text = count($chat_data['kick']) . " user(s) kicked: " . implode(', ', array_keys($chat_data['kick']));
+      if ($matches[2] == 'mute') $response->text = count($chat_data['mute']) . " user(s)  muted: " . implode(', ', array_keys($chat_data['mute']));
+      $response->success = false;
     }
     else
     {
@@ -145,7 +152,8 @@ if (isset($_GET['user']) && $_GET['user'] &&
 	        unset($chat_data['data'][$i]);
 	      }
         }elseif($timeDiff <= $FLOODCUTOFFTIME){
-        	echo "Your post \"$data\" was not registered due to flood protection.";
+        	$response->text = "Your post \"$data\" was not registered due to flood protection.";
+        	$response->success = false;
         }
     }
   }
@@ -195,9 +203,10 @@ if (isset($_GET['user']) && $_GET['user'] &&
   	
   	$chatLogProvider->insertOne($chatLog, $arrErrors);
   	if(!empty($arrErrors)){
-  		echo "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
+  		$response->success = false;
+  		$response->text = "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
   	}
   }
 }
-
+echo json_encode($response);
 ?>

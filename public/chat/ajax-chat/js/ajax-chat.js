@@ -246,31 +246,66 @@ function chat_msgs_add()
   if (!document.getElementById('send').value || chat_XMLHttp_add.readyState % 4) return;
 
   chat_rand += 1;
-  var url = chat_path+"php/msg_add.php?rand="+chat_rand+
-			  "&addr="+encodeURIComponent(chat_addr)+
-			  "&user="+encodeURIComponent(chat_user)+
-			  "&pass="+encodeURIComponent(chat_pass)+
-			  "&priv="+encodeURIComponent(chat_priv)+
-			  "&colr="+encodeURIComponent(chat_colr)+
-			  "&data="+encodeURIComponent(document.getElementById('send').value);
-  chat_XMLHttp_add.open("get", url);
-  chat_XMLHttp_add.send(null);
-  chat_XMLHttp_add.onreadystatechange = function()
-  {
-    if(chat_XMLHttp_add.readyState == 4 && chat_XMLHttp_add.status == 200)
-    {
-      document.getElementById('log_add').innerHTML = chat_XMLHttp_add.responseText;
-
-      if (chat_XMLHttp_add.responseText)
-      {
-        chat_msgs['.'] += '<b>System:</b> '+chat_XMLHttp_add.responseText+'<br />';
-        chat_out_msgs();
-      }
-    }
-  }
+  var rand = chat_rand;
+  var addr = encodeURIComponent(chat_addr);
+  var user = encodeURIComponent(chat_user);
+  var pass = encodeURIComponent(chat_pass);
+  var priv = encodeURIComponent(chat_priv);
+  var colr = encodeURIComponent(chat_colr);
+  var data = encodeURIComponent($('#send').val());
+	$.ajax({
+		url: chat_path+"php/msg_add.php",
+		data: {rand: rand,
+			addr: addr,
+			user: user,
+			pass: pass,
+			priv: priv,
+			colr: colr,
+			data: data},
+		dataType: "JSON"
+	})
+	.done(function(response) {
+		if(response.success){
+			document.getElementById('log_add').innerHTML = response.text;
+		}else{
+	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+	        chat_out_msgs();
+		}
+	});
 
   document.getElementById('send').value = '';
   if (chat_focu) document.getElementById('send').focus();
+}
+
+function chat_msgs_add2(){
+	var rand = chat_rand;
+	var addr = encodeURIComponent(chat_addr);
+	var user = encodeURIComponent(chat_user);
+	var pass = encodeURIComponent(chat_pass);
+	var priv = encodeURIComponent(chat_priv);
+	var colr = encodeURIComponent(chat_colr);
+	var data = encodeURIComponent($('#send').val());
+
+	$.ajax({
+		url: chat_path+"php/msg_add.php",
+		data: {rand: rand,
+			addr: addr,
+			user: user,
+			pass: pass,
+			priv: priv,
+			colr: colr,
+			data: data},
+		dataType: "JSON"
+	})
+	.done(function(response) {
+		if(response.success){
+			document.getElementById('log_add').innerHTML = response.text;
+		}else{
+	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+	        chat_out_msgs();
+		}
+	});
+
 }
 
 
