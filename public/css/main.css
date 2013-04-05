@@ -53,19 +53,20 @@
         clear:left;
         float:left;
         width:100%;
-        list-style:none;
+        /*list-style: none;*/
+        list-style-position:inside;
         margin:10px 0 0 0;
         padding:0;
     }
     #header ul li {
-        display:inline;
+        display: inline-block;
         list-style:none;
         margin:0;
         padding:0;
-        height: 24px;
+        height: 45px;
     }
     #header ul li a {
-        display:block;
+        display:inline-block;
         float:left;
         margin:0 0 0 1px;
         padding:3px 10px;
@@ -89,7 +90,7 @@
         font-weight:bold;
     }
     #header ul li a span {
-        display:block;
+        display:inline-block;
     }
     /* 'widths' sub menu */
     #layoutdims {
