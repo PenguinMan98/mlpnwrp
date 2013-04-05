@@ -277,24 +277,33 @@ function chat_msgs_add()
   if (chat_focu) document.getElementById('send').focus();
 }
 
-function chat_msgs_add2(){
-	var rand = chat_rand;
-	var addr = encodeURIComponent(chat_addr);
-	var user = encodeURIComponent(chat_user);
-	var pass = encodeURIComponent(chat_pass);
-	var priv = encodeURIComponent(chat_priv);
-	var colr = encodeURIComponent(chat_colr);
-	var data = encodeURIComponent($('#send').val());
+// ***** chat_msgs_get **********************************************************
 
+function chat_msgs_get()
+{
+  //var playDing = false;
+  var playDing = false;
+  // alert(document.getElementById('pingOnNew').checked);
+  chat_tout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
+  if (chat_XMLHttp_get.readyState % 4) return;
+  chat_rand += 1;
+  var rand = chat_rand;
+  var room = chat_room;
+  var user = chat_user;
+  var pass = chat_pass;
+  var mptr = chat_mptr;
+  chat_XMLHttp_get.open("get", chat_path+"php/msg_get.php?rand="+chat_rand+
+                                                        "&room="+encodeURIComponent(chat_room)+
+                                                        "&user="+encodeURIComponent(chat_user)+
+                                                        "&pass="+encodeURIComponent(chat_pass)+
+                                                        "&mptr="+chat_mptr);
 	$.ajax({
 		url: chat_path+"php/msg_add.php",
 		data: {rand: rand,
-			addr: addr,
+			room: room,
 			user: user,
 			pass: pass,
-			priv: priv,
-			colr: colr,
-			data: data},
+			mptr: mptr},
 		dataType: "JSON"
 	})
 	.done(function(response) {
@@ -306,24 +315,6 @@ function chat_msgs_add2(){
 		}
 	});
 
-}
-
-
-// ***** chat_msgs_get **********************************************************
-
-function chat_msgs_get()
-{
-  //var playDing = false;
-  var playDing = false;
-  // alert(document.getElementById('pingOnNew').checked);
-  chat_tout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
-  if (chat_XMLHttp_get.readyState % 4) return;
-  chat_rand += 1;
-  chat_XMLHttp_get.open("get", chat_path+"php/msg_get.php?rand="+chat_rand+
-                                                        "&room="+encodeURIComponent(chat_room)+
-                                                        "&user="+encodeURIComponent(chat_user)+
-                                                        "&pass="+encodeURIComponent(chat_pass)+
-                                                        "&mptr="+chat_mptr);
   chat_XMLHttp_get.send(null);
   chat_XMLHttp_get.onreadystatechange = function()
   {
@@ -424,6 +415,10 @@ function chat_msgs_get()
   
 }
 
+function process_posts(){
+	
+
+}
 
 // ***** chat_msgs_log **********************************************************
 
