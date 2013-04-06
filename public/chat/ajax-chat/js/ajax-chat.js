@@ -50,11 +50,11 @@ if(!window.XMLHttpRequest)
 {
   var XMLHttpRequest = function()
   {
-    try{ return new ActiveXObject(   "MSXML3.XMLHTTP")     } catch(e) {}
-    try{ return new ActiveXObject(   "MSXML2.XMLHTTP.3.0") } catch(e) {}
-    try{ return new ActiveXObject(   "MSXML2.XMLHTTP")     } catch(e) {}
-    try{ return new ActiveXObject("Microsoft.XMLHTTP")     } catch(e) {}
-  }
+    try{ return new ActiveXObject(   "MSXML3.XMLHTTP");     } catch(e) {}
+    try{ return new ActiveXObject(   "MSXML2.XMLHTTP.3.0"); } catch(e) {}
+    try{ return new ActiveXObject(   "MSXML2.XMLHTTP");     } catch(e) {}
+    try{ return new ActiveXObject("Microsoft.XMLHTTP");     } catch(e) {}
+  };
 }
 
 var chat_XMLHttp_add = new XMLHttpRequest();
@@ -172,9 +172,8 @@ function chat_login(asuser)
 
 function chat_parse(str)
 {
-  str  = str.replace(/^\s+/, '');
-  str  = str.replace(/\s+$/, '');
-  return str.split(/\r\n/);
+  str  = str.trim();
+  return str.split(/\r\n/); /*Splitting on this is not very reliable*/
 }
 
 
@@ -308,108 +307,100 @@ function chat_msgs_get()
 	})
 	.done(function(response) {
 		if(response.success){
-			document.getElementById('log_add').innerHTML = response.text;
+	      document.getElementById('log_get').innerHTML = chat_XMLHttp_get.responseText; /*Get the most recent post id?*/
+
+	      var data = chat_parse(chat_XMLHttp_get.responseText); /* parse the response */
+	      if (data[0] == '-' && chat_user && chat_pass) { /*  */
+	    	  chat_api_onload(chat_room, true); 
+	    	  return; 
+	      }
+	      for (var i = 1; i < data.length-1; i++)
+	      {
+	        chat_mptr =  Math.max(chat_mptr, data[i]);
+
+	        if (data[i+1] == '+')
+	        {
+	          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> enters the room<br />';
+	          chat_usrs[data[i+3]] = new Array(data[i+2], data[i+4], data[i+5], true);
+	          i += 5;
+	        }
+
+	        if (data[i+1] == '-')
+	        {
+	          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> leaves the room<br />';
+	          chat_usrs[data[i+3]] = false;
+	          i += 3;
+	        }
+
+	        if (data[i+1] == 's')
+	        {
+	          if (chat_usrs[data[i+2]]) chat_usrs[data[i+2]][3] = data[i+3] == '+';
+	          i += 3;
+	        }
+
+	        if (data[i+1] == 'm')
+	        {
+	          chat_usrs[data[i+5]] = new Array(chat_room, data[i+3], data[i+4], true);
+	          var message = data[i+7];
+	          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
+	          /*look for a space comma or apostrophe*/
+	          var delimPos = message.indexOf(" ");
+	          delimPos = (message.indexOf(",") != -1 && message.indexOf(",") < delimPos ? message.indexOf(",") : delimPos );
+	          delimPos = (message.indexOf("'") != -1 && message.indexOf("'") < delimPos ? message.indexOf("'") : delimPos );
+	          if( delimPos > 0){
+	        	  operator = message.substr(0,delimPos);// operator is whatever comes before the space, comma, or apostrophy, or blank if none of those exist.
+	        	  if(operator == "/me"){
+	        		  message = ""+message.substr(delimPos);
+	        	  }else{
+	        		  message = ":  "+message;
+	        	  }
+	          }else{
+	        	  message = ":  "+message;
+	          }
+	          
+	          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
+	          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
+	          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
+
+	          var dingTest = message.match($('#guser').val());
+	          if(dingTest != null){
+	        	  playDing = true;
+	        	  
+	          }
+	          
+	          message = replaceURLWithHTMLLinks(message);
+
+	          if (data[i+6] == '.')
+	            chat_msgs['.']                  += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
+	          else
+	          {
+	            chat_priv_prepair(data[i+5], data[i+6]);
+	            chat_msgs[data[i+5]][data[i+6]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
+	            chat_msgs[data[i+6]][data[i+5]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
+	            chat_wait[data[i+5]][data[i+6]]  = false;
+	            chat_wait[data[i+6]][data[i+5]]  = true;
+	          }
+	          i += 8;
+	        }
+	      }
+	      if(document.getElementById('pingOnNew').checked && data.length > 1){
+	    	  playDing = true;
+	      }
+	      if(playDing){
+	          var ding = $('#audio_ding');
+	          ding = ding.get(0).play();
+	      }
+
+	      if (data.length > 1)
+	      {
+	        chat_out_msgs();
+	        chat_out_usrs();
+	      }
 		}else{
 	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
 	        chat_out_msgs();
 		}
 	});
-
-  chat_XMLHttp_get.send(null);
-  chat_XMLHttp_get.onreadystatechange = function()
-  {
-    if(chat_XMLHttp_get.readyState == 4 && chat_XMLHttp_get.status == 200)
-    {
-      document.getElementById('log_get').innerHTML = chat_XMLHttp_get.responseText;
-
-      var data = chat_parse(chat_XMLHttp_get.responseText);
-      if (data[0] == '-' && chat_user && chat_pass) { chat_api_onload(chat_room, true); return; }
-      for (var i = 1; i < data.length-1; i++)
-      {
-        chat_mptr =  Math.max(chat_mptr, data[i]);
-
-        if (data[i+1] == '+')
-        {
-          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> enters the room<br />';
-          chat_usrs[data[i+3]] = new Array(data[i+2], data[i+4], data[i+5], true);
-          i += 5;
-        }
-
-        if (data[i+1] == '-')
-        {
-          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> leaves the room<br />';
-          chat_usrs[data[i+3]] = false;
-          i += 3;
-        }
-
-        if (data[i+1] == 's')
-        {
-          if (chat_usrs[data[i+2]]) chat_usrs[data[i+2]][3] = data[i+3] == '+';
-          i += 3;
-        }
-
-        if (data[i+1] == 'm')
-        {
-          chat_usrs[data[i+5]] = new Array(chat_room, data[i+3], data[i+4], true);
-          var message = data[i+7];
-          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
-          /*look for a space comma or apostrophe*/
-          var delimPos = message.indexOf(" ");
-          delimPos = (message.indexOf(",") != -1 && message.indexOf(",") < delimPos ? message.indexOf(",") : delimPos );
-          delimPos = (message.indexOf("'") != -1 && message.indexOf("'") < delimPos ? message.indexOf("'") : delimPos );
-          if( delimPos > 0){
-        	  operator = message.substr(0,delimPos);// operator is whatever comes before the space, comma, or apostrophy, or blank if none of those exist.
-        	  if(operator == "/me"){
-        		  message = ""+message.substr(delimPos);
-        	  }else{
-        		  message = ":  "+message;
-        	  }
-          }else{
-        	  message = ":  "+message;
-          }
-          
-          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
-          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
-          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
-
-          var dingTest = message.match($('#guser').val());
-          if(dingTest != null){
-        	  playDing = true;
-        	  
-          }
-          
-          message = replaceURLWithHTMLLinks(message);
-
-          if (data[i+6] == '.')
-            chat_msgs['.']                  += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
-          else
-          {
-            chat_priv_prepair(data[i+5], data[i+6]);
-            chat_msgs[data[i+5]][data[i+6]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
-            chat_msgs[data[i+6]][data[i+5]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
-            chat_wait[data[i+5]][data[i+6]]  = false;
-            chat_wait[data[i+6]][data[i+5]]  = true;
-          }
-          i += 8;
-        }
-
-      }
-      if(document.getElementById('pingOnNew').checked && data.length > 1){
-    	  playDing = true;
-      }
-      if(playDing){
-          var ding = $('#audio_ding');
-          ding = ding.get(0).play();
-      }
-
-      if (data.length > 1)
-      {
-        chat_out_msgs();
-        chat_out_usrs();
-      }
-    }
-  }
-  
 }
 
 function process_posts(){
@@ -456,7 +447,7 @@ function chat_msgs_log(asuser)
 
       chat_tout = setTimeout("chat_msgs_get();", 1);
     }
-  }
+  };
 }
 
 
