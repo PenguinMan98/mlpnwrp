@@ -377,12 +377,12 @@ function chat_msgs_get()
         	  message = ":  "+message;
           }
           //alert(operator);
-          message = message.replace(/\[i\]/i, '<i>');
-          message = message.replace(/\[\/i\]/i, '</i>');
-          message = message.replace(/\[b\]/i, '<b>');
-          message = message.replace(/\[\/b\]/i, '</b>');
-          message = message.replace(/\[u\]/i, '<u>');
-          message = message.replace(/\[\/u\]/i, '</u>');
+          message = message.replace(/\[i\]/gi, '<i>');
+          message = message.replace(/\[\/i\]/gi, '</i>');
+          message = message.replace(/\[b\]/gi, '<b>');
+          message = message.replace(/\[\/b\]/gi, '</b>');
+          message = message.replace(/\[u\]/gi, '<u>');
+          message = message.replace(/\[\/u\]/gi, '</u>');
           
           var dingTest = message.match($('#guser').val());
           if(dingTest != null){
