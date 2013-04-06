@@ -35,13 +35,13 @@ if (isset($_GET['user']) && $_GET['user'] &&
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
   $room = $chat_data['room'][$_GET['user']];
-  $rand = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['rand']), ENT_QUOTES);
+  $rand = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['rand'])), ENT_QUOTES);
   //$time = microtime();// rand changed by joe to timestamp.  Works a lot better.
-  $user = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
-  $priv = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['priv']), ENT_QUOTES);
-  $colr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['colr']), ENT_QUOTES);
-  $data = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['data']), ENT_QUOTES, 'utf-8');
-  $addr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['addr']), ENT_QUOTES);
+  $user = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
+  $priv = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['priv'])), ENT_QUOTES);
+  $colr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['colr'])), ENT_QUOTES);
+  $data = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['data'])), ENT_QUOTES, 'utf-8');
+  $addr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['addr'])), ENT_QUOTES);
   $guid = $user.$rand.$user;
 
   // Joe added a word filter
