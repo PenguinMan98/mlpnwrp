@@ -158,9 +158,9 @@ function chat_login(asuser)
   if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden */
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
-		  popup_show('glogin', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true)
+		  popup_show('glogin', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
 	  }else{
-		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true)
+		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
 	  }
   }
   if (chat_focu) if (document.getElementById( 'login').style.display == 'block') document.getElementById( 'user').focus();
@@ -367,14 +367,11 @@ function chat_msgs_get()
           }else{
         	  message = ":  "+message;
           }
-          //alert(operator);
-          message = message.replace(/\[i\]/i, '<i>');
-          message = message.replace(/\[\/i\]/i, '</i>');
-          message = message.replace(/\[b\]/i, '<b>');
-          message = message.replace(/\[\/b\]/i, '</b>');
-          message = message.replace(/\[u\]/i, '<u>');
-          message = message.replace(/\[\/u\]/i, '</u>');
           
+          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
+          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
+          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
+
           var dingTest = message.match($('#guser').val());
           if(dingTest != null){
         	  playDing = true;
@@ -525,5 +522,19 @@ function chat_out_usrs()
 function replaceURLWithHTMLLinks(text) {
 	  var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
 	  return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
+}
+
+//***** Tag Replacing/balancing **********************************************************
+
+function replaceAndBalanceTag( message, openRegex, openTag, closeRegex, closeTag){
+	
+	openTagCount = (message.match(openRegex)) ? message.match(openRegex).length : 0;
+	message = message.replace(openRegex, openTag);
+	closeTagCount = (message.match(closeRegex)) ? message.match(closeRegex).length : 0;
+	message = message.replace(closeRegex, closeTag);
+	for(var i=0; i < openTagCount - closeTagCount; i++){
+		  message += closeTag;
+	}
+	return message;
 }
 
