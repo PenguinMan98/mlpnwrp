@@ -266,6 +266,13 @@ function chat_msgs_add()
 	.done(function(response) {
 		if(response.success){
 			document.getElementById('log_add').innerHTML = response.text;
+			
+			if(response.messages.length > 0){
+				for(var i = 0; i< response.messages.length; i++){
+					chat_msgs['.'] += '<b>System:</b> '+response.messages[i]+'<br />';
+				}
+				
+			}
 		}else{
 	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
 	        chat_out_msgs();
@@ -384,7 +391,7 @@ function chat_msgs_get()
 	          var ding = $('#audio_ding');
 	          ding = ding.get(0).play();
 	      }
-
+	      
 	      if (data.length > 1)
 	      {
 	        chat_out_msgs();
@@ -394,6 +401,7 @@ function chat_msgs_get()
 	        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
 	        chat_out_msgs();
 		}
+		
 	});
 }
 
@@ -456,6 +464,7 @@ function chat_out_msgs()
 {
   document.getElementById('messages').innerHTML = (chat_priv == '.') ? chat_msgs[chat_priv] : chat_msgs[chat_user][chat_priv];
   if(document.getElementById('autofocus').checked){ /*Disable autofocus!*/
+	  // I have no idea why this is done 5 times
 	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
 	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
 	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;

@@ -73,7 +73,16 @@ if (isset($_GET['user']) && $_GET['user'] &&
 	text=text.replace(/god/gi, 'Princess');
 */
   // Joe added Operations
-  $data = new TokenOperation($data);
+  $input = $data; // save the original input
+  try{
+  	$messages = array();
+  	new TokenOperation($data, $messages);
+  	$response->messages = $messages;
+  }catch(Exception $e){
+  	$response->error = $e->getMessage();
+  	$data = $input;
+  }
+  
 
   if ($chat_data['mute'][$user] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] ||
       $chat_data['kick'][$user] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])

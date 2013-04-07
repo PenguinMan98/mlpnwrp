@@ -4,7 +4,7 @@ class TokenOperation{
 	public $data = array();
 	private $oocFlag = false;
 	
-	function __construct( $string ){
+	function __construct( &$string, &$messages ){
 		$raw = explode(" ", $string);
 		$parsed = array();
 		
@@ -61,7 +61,9 @@ class TokenOperation{
 					// create the class
 				$opClass = new $className($args);
 				
-				$parsed[] = $opClass;
+				$parsed[] = (string)$opClass; // perform the operation
+				
+				$messages = $opClass->messages;  // get any messages
 				
 				$i += $className::$args;
 				
@@ -70,13 +72,6 @@ class TokenOperation{
 				$parsed[] = "))";
 			}
 		}
-		$this->data = $parsed;
-		
+		$string = implode(' ', $parsed);
 	}
-	
-	public function __toString(){
-		$retString = implode(" ", $this->data);
-		return $retString;
-	}
-	
 }

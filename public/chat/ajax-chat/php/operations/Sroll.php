@@ -1,6 +1,6 @@
 <?php
 
-class Operation_Zaroll{
+class Operation_Sroll{
 	public $operator;
 	public $data;
 	public static $args = 1;
@@ -18,63 +18,54 @@ class Operation_Zaroll{
 		return $this->roll();
 	}
 
-	// this chat can't do /me here.
-	/*private function me(){
-		return " " . $this->data;
-	}*/
-
 	private function roll(){
 		$matches = array();
-		$test = preg_match("/^(\d*)d(\d*)(\s?(\+|-)(\d*))?\s?(.*)/i", $this->data[0], $matches);
+		$test = preg_match("/^(\d*)d(\d*)(\s?(\+|-)(\d*))?/i", $this->data[0], $matches);
 		$result = "";
-		
+
 		if( $test === false){
 			throw new Exception("An error occurred parsing the string.");
 		}elseif( $test === 0 ){
-			$result = "<<Error>> " . $this->data;
+			$result = "&lt;&lt; Error &gt;&gt; " . $this->data;
 		}else{
 			//print_r($matches);
 			$howMany = $matches[1];
 			$howBig = $matches[2];
-			$modifierOp = $matches[4];
-			$modifier = $matches[5];
 			
-			$result = "<< {$howMany}d{$howBig}";
+			if(count($matches > 5)){
+				$modifierOp = $matches[4];
+				$modifier = $matches[5];
+			}else{
+				$modifierOp = false;
+				$modifier = false;
+			}
+			
+			$result = "&lt;&lt; {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
 			$result .= ": ";
-			$successCount = 0;
-			$tenCount = 0;
 			$sum = 0;
-			
+				
 			if($howMany > 50 || $howBig > 100 || $howMany < 1 || $howBig < 2 ){
 				$result .= "Don't be silly.";
 			}else{
-				for($i = 0; $i < $howMany+$tenCount; $i++){
+				for($i = 0; $i < $howMany; $i++){
 					if($i > 0) $result .= " ";
 					$rand = mt_rand(1, $howBig);
-					
-					if($rand >= 6){
-						$successCount++;
-					}
-					if($rand == 10){
-						$tenCount++;
-					}
-					if($i >= $howMany) $result .= "{";
 					$result .= $rand;
-					if($i >= $howMany) $result .= "}";
-					
 					$sum += $rand;
 				}
 			}
-			
+				
 			if($modifier && $modifierOp == "+") $result .= " +$modifier";
 			elseif($modifier) $result .= " -$modifier";
 			if($howMany > 1 || $modifier > 0)
-				$result .= " = " . $successCount . " Successes";
-			$result .= " >> ". $matches[6]; // then add the rest
+				$result .= " = " . (($modifierOp == "+")? $sum + $modifier : $sum - $modifier );
+			$result .= " &gt;&gt; ". $matches[6];
 		}
 		
-		return $result;
+		$this->messages[] = $result;
+
+		return "";
 	}
 }

@@ -4,6 +4,7 @@ class Operation_Roll{
 	public $operator;
 	public $data;
 	public static $args = 1;
+	public $messages = array();
 
 	function __construct( $args ){
 		if(self::$args != count($args)){
@@ -16,11 +17,6 @@ class Operation_Roll{
 	public function __toString(){
 		return $this->roll();
 	}
-
-	// this chat can't do /me here.
-	/*private function me(){
-		return " " . $this->data;
-	}*/
 
 	private function roll(){
 		$matches = array();
@@ -43,7 +39,7 @@ class Operation_Roll{
 				$modifierOp = false;
 				$modifier = false;
 			}
-				
+			
 			$result = "&lt;&lt; {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
