@@ -232,7 +232,7 @@ function chat_reset(room, user, pass)
 
   // don't start running 'get' until a user is chosen.
   if(user){
-	  chat_tout = setTimeout("chat_msgs_get();", 1);
+	  //chat_tout = setTimeout("chat_msgs_get();", 1);
   }
 }
 
@@ -280,24 +280,18 @@ function chat_msgs_add()
 
 function chat_msgs_get()
 {
-  //var playDing = false;
   var playDing = false;
-  // alert(document.getElementById('pingOnNew').checked);
+  
   chat_tout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
-  if (chat_XMLHttp_get.readyState % 4) return;
   chat_rand += 1;
+  
   var rand = chat_rand;
   var room = chat_room;
   var user = chat_user;
   var pass = chat_pass;
   var mptr = chat_mptr;
-  chat_XMLHttp_get.open("get", chat_path+"php/msg_get.php?rand="+chat_rand+
-                                                        "&room="+encodeURIComponent(chat_room)+
-                                                        "&user="+encodeURIComponent(chat_user)+
-                                                        "&pass="+encodeURIComponent(chat_pass)+
-                                                        "&mptr="+chat_mptr);
 	$.ajax({
-		url: chat_path+"php/msg_add.php",
+		url: chat_path+"php/msg_get.php",
 		data: {rand: rand,
 			room: room,
 			user: user,
@@ -307,9 +301,9 @@ function chat_msgs_get()
 	})
 	.done(function(response) {
 		if(response.success){
-	      document.getElementById('log_get').innerHTML = chat_XMLHttp_get.responseText; /*Get the most recent post id?*/
+	      document.getElementById('log_get').innerHTML = response.text; /*Get the most recent post id?*/
 
-	      var data = chat_parse(chat_XMLHttp_get.responseText); /* parse the response */
+	      var data = chat_parse(response.text); /* parse the response */
 	      if (data[0] == '-' && chat_user && chat_pass) { /*  */
 	    	  chat_api_onload(chat_room, true); 
 	    	  return; 
@@ -397,15 +391,10 @@ function chat_msgs_get()
 	        chat_out_usrs();
 	      }
 		}else{
-	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+	        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
 	        chat_out_msgs();
 		}
 	});
-}
-
-function process_posts(){
-	
-
 }
 
 // ***** chat_msgs_log **********************************************************
@@ -444,8 +433,7 @@ function chat_msgs_log(asuser)
         popup_hide('glogin');
       }
       if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
-
-      chat_tout = setTimeout("chat_msgs_get();", 1);
+      chat_msgs_get();
     }
   };
 }
