@@ -66,6 +66,6 @@ class Operation_Sroll{
 		
 		$this->messages[] = $result;
 
-		return "";
+		return "&lt;&lt; Rolls Dice Privately &gt;&gt;";
 	}
 }
