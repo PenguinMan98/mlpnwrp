@@ -29,7 +29,7 @@ if (isset($_GET['user']) && $_GET['user'] &&
     isset($_GET['data']) && $_GET['data'])
 {
   include_once 'init.php';
-  $modified = unlog_users();
+  $modified = unlog_users();/* refresh the user list and note if we changed it */
 
   $time = time();
   $gndr = $chat_data['gndr'][$_GET['user']];

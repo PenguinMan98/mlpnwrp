@@ -30,6 +30,9 @@ if (isset($_GET['room']) &&
   $modified = unlog_users(); /* refresh the user list and note if we changed it */
 
   try{
+  	  /*echo "<pre>";
+  	  print_r($chat_data);
+  	  echo "</pre>";*/
   	
 	  if ($chat_data['kick'][$_GET['user']] ||
 	      $chat_data['kick'][$_SERVER['REMOTE_ADDR']]) /* If this user is kicked */
@@ -40,31 +43,76 @@ if (isset($_GET['room']) &&
 	  if (isset($chat_data['user'][$_GET['user']]) &&
 	      isset($chat_data['pass'][$_GET['user']]) &&
 	           ($chat_data['pass'][$_GET['user']]) == $_GET['pass']) { /* If the user is logged in, */
-	  	$response->text .= "+\r\n"; /* print a + */
+	  	$response->operator .= "+"; /* print a + */
 	  }
 	  else {
-	  	$response->text .= "-\r\n";
+	  	$response->operator .= "-";
 	  	//throw new Exception("This user is not logged in!");
 	  }
 	   
-	  foreach ($chat_data['data'] as $i => $x)  /* foreach post in the data array, */
-	    if ($i > $_GET['mptr']) /* if the message is newer than the last one we got, */
-	      if (!is_array($x)){ /* if the post is text, */
-	      $response->text .= "$i\r\n$x\r\n"; /* print it with its id */
+	  foreach ($chat_data['data'] as $i => $x){  /* foreach post in the data array, */
+	    if ($i > $_GET['mptr']){ /* if the message is newer than the last one we got, */
+	  	  $temp = array();
+	      if (!is_array($x)){ /* if the post is just text, then it's a log entry, not a chat line */
+	      	$temp['rawtext'] = "$x"; /* print it with its id */
+	      	$temp['lineId'] = $i;
+	      	$lineSplit = preg_split('/\n|\r\n?/', $x);
+	  		if($lineSplit[0] == '+'){ // entering room
+	  			$temp['operation'] = 'add';
+	  			$temp['type'] = "room";
+	  			$temp['roomname'] = $lineSplit[1];
+	  			$temp['username'] = $lineSplit[2];
+	  			$temp['gender'] = $lineSplit[3];
+	  			$temp['status'] = $lineSplit[4];
+	      	}elseif($lineSplit[0] == '-'){ // leaving room
+	      		$temp['operation'] = 'remove';
+	      		$temp['type'] = "room";
+	      		$temp['roomname'] = $lineSplit[1];
+	      		$temp['username'] = $lineSplit[2];
+	      	}elseif($lineSplit[0] == 's'){ // away
+	      		$temp['type'] = "away";
+	      		$temp['username'] = $lineSplit[1];
+	      		$temp['operation'] = ($lineSplit[2] == '+') ? 'add' : 'remove';
+	      	}
+	      	$response->lines[] = $temp; // Add it to the response 
 	  	  }
 	      else if ($x['priv'] == '.' && $x['room'] == $_GET['room'] || /* If it's in my room, */
 	               $x['priv'] != '.' && $x['user'] == $_GET['user'] || /* If it's a priv for me */
 	               $x['priv'] != '.' && $x['priv'] == $_GET['user']){  /* If it's a priv from me */
-	      	$response->text .= "$i\r\n{$x['data']}\r\n" . (time()-$x['time']) . "\r\n"; /* print it  */
+	      	// build a line item  (Redundant?)
+	      	$line = new Model_Structure_ChatLog();
+	      	$line->setFromFile($x['data']);
+	      	
+	      	$roomProvider = new Model_Data_ChatRoomProvider();
+	      	$room = $roomProvider->getOneByName($_GET['room']);
+	      	if(is_object($room)){
+	      		$line->setChatRoomId($room->getChatRoomId());
+	      	}
+	      	$line->setTimestamp($x['time']);
+	      	
+	      	$temp['roomname'] = $_GET['room'];
+	      	$temp['type'] = 'line';
+	      	$temp['rawtext'] = "{$x['data']}";
+	      	$temp = array_merge($temp, $line->getAsArray()); // store the line as an array
+	      	$temp['interval'] = (time()-$x['time']); 
+	      	$response->lines[] = $temp; // Add it to the response 
 	      }
-	
-
+	   }
+	 }
 	if ($modified) file_put_contents('data.txt', serialize($chat_data));  /* If I made changes, add the modified contents to the file */
   }catch(Exception $e){
-  	$response->text = "-\r\n"; /*return a - */
+  	$response->operator = "-"; /*return a - */
   	$response->success = false;
   	$response->error = $e->getMessage();
   }
 }
-echo json_encode($response);
+/*echo "<pre>";
+print_r($response);
+echo "</pre>";*/
+$encodedResponse = json_encode($response);
+echo $encodedResponse;
+/*echo "<pre>";
+print_r(json_decode($encodedResponse));
+echo "</pre>";*/
+
 ?>

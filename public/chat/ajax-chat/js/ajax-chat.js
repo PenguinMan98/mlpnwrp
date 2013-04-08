@@ -111,19 +111,19 @@ function chat_api_smiley(str)
 
 function chat_api_onload(room, focu, user, pass)
 {
-  chat_focu = focu;
-  document.getElementById('room_child').style.display = 'none';
-  if (chat_focu) document.getElementById('send').focus();
-  chat_reset(room, user, pass);
+  chat_focu = focu; // set the global
+  document.getElementById('room_child').style.display = 'none'; // hide the room panel
+  if (chat_focu) document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not
+  chat_reset(room, user, pass); // reset the chat
   
-  if (user)
+  if (user) // if a user was given,
   {
-    document.getElementById( 'user').value = user;
-    document.getElementById( 'pass').value = pass;
-    document.getElementById('guser').value = (user.indexOf('GT-') == 0) ? user.substr('GT-'.length, 1024) : '';
-    chat_msgs_log(user.indexOf('GT-') != 0);
+    document.getElementById( 'user').value = user; // assume both a user and a pass were entered
+    document.getElementById( 'pass').value = pass; // set them on the page
+    document.getElementById('guser').value = (user.indexOf('GT-') == 0) ? user.substr('GT-'.length, 1024) : ''; // set the guest username while you're at it
+    chat_msgs_log(user.indexOf('GT-') != 0); // log the incident
   }
-  else chat_login(true);
+  else chat_login(true); // login succeeded
 
   chat_focu = true;
 }
@@ -158,13 +158,14 @@ function chat_login(asuser)
   if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden */
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
-		  popup_show('glogin', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
+		  // popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
+		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true); // show the guest login for now
 	  }else{
 		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
 	  }
   }
-  if (chat_focu) if (document.getElementById( 'login').style.display == 'block') document.getElementById( 'user').focus();
-  if (chat_focu) if (document.getElementById('glogin').style.display == 'block') document.getElementById('guser').focus();
+  if (chat_focu && document.getElementById( 'login').style.display == 'block') document.getElementById( 'user').focus();
+  if (chat_focu && document.getElementById('glogin').style.display == 'block') document.getElementById('guser').focus();
 }
 
 
@@ -193,46 +194,49 @@ function chat_priv_prepair(user1, user2)
 
 
 // ***** chat_priv_switch ************************************************************
+// chat_reset calls this with a '.' and false
 
 function chat_priv_switch(user, focus)
 {
-  if (chat_focu) if (focus) document.getElementById('send').focus();
+  if (chat_focu && focus) 
+	document.getElementById('send').focus();
   if (user == chat_user) return;
   chat_priv = user;
   chat_priv_prepair(chat_user, user);
-  if (user == '.')
-       document.getElementById('header_messages').innerHTML = chat_room;
-  else document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;
+  if (user == '.')  // if user is '.'
+      document.getElementById('header_messages').innerHTML = chat_room; // show the room name
+  else // otherwise,  show the link back to the main chat
+	  document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;
   chat_out_msgs();
 }
 
 
 // ***** chat_reset ************************************************************
+// may be called with only a room and null user/pass
 
 function chat_reset(room, user, pass)
 {
   chat_mptr  = -1;
 
-  chat_room = room;
+  chat_room = room; // set globals
   chat_user = user;
   chat_pass = pass;
 
-  chat_usrs = new Array();
+  chat_usrs = new Array(); // re-initialize these arrays
   chat_msgs = new Array();
   chat_wait = new Array();
   chat_priv = '.';
 
-  chat_msgs['.'] = '';
-  chat_priv_switch('.', false);
+  chat_msgs['.'] = ''; // set messages to .?
+  chat_priv_switch('.', false); // makes sure we aren't in private mode
 
-  clearTimeout(chat_tout);
-  chat_XMLHttp_add.abort();
+  clearTimeout(chat_tout); // stop the looping ajax
+  chat_XMLHttp_add.abort(); // should be able to remove these soon
   chat_XMLHttp_get.abort();
   chat_XMLHttp_log.abort();
 
-  // don't start running 'get' until a user is chosen.
-  if(user){
-	  //chat_tout = setTimeout("chat_msgs_get();", 1);
+  if(user){ // if a user is chosen
+	  chat_tout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
   }
 }
 
@@ -308,41 +312,48 @@ function chat_msgs_get()
 	})
 	.done(function(response) {
 		if(response.success){
-	      document.getElementById('log_get').innerHTML = response.text; /*Get the most recent post id?*/
+	      document.getElementById('log_get').innerHTML = response.text; //Get the most recent post id?
 
-	      var data = chat_parse(response.text); /* parse the response */
-	      if (data[0] == '-' && chat_user && chat_pass) { /*  */
-	    	  chat_api_onload(chat_room, true); 
+	      //var data = chat_parse(response.text); // parse the response 
+	      if (response.operation == '-' && chat_user && chat_pass) { // If I got a remove event and the username and password are set 
+	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
 	      }
-	      for (var i = 1; i < data.length-1; i++)
+	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
-	        chat_mptr =  Math.max(chat_mptr, data[i]);
+	    	line = response.lines[i];
+	    	console.log(line);
+	        chat_mptr =  Math.max(chat_mptr, line.lineId);
 
-	        if (data[i+1] == '+')
+	        if (line.type == 'room' && line.operation == 'add')// if I get a plus, grab the data and add 5 to the pointer
 	        {
-	          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> enters the room<br />';
-	          chat_usrs[data[i+3]] = new Array(data[i+2], data[i+4], data[i+5], true);
-	          i += 5;
+	          if (chat_smsg) // if system messages are turned on
+	        	  if (line.roomname == chat_room) // and the room is the room we're in
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.username, 'black', false)+'</b> enters the room<br />';
+	          chat_usrs[line.username] = new Array(line.roomname, line.gender, line.status, true);
+	          //i += 5;
 	        }
 
-	        if (data[i+1] == '-')
+	        if (line.type == 'room' && line.operation == 'remove')
 	        {
-	          if (chat_smsg) if (data[i+2] == chat_room) chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(data[i+3], 'black', false)+'</b> leaves the room<br />';
-	          chat_usrs[data[i+3]] = false;
-	          i += 3;
+	          if (chat_smsg) 
+	        	  if (line.roomname == chat_room) 
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.username, 'black', false)+'</b> leaves the room<br />';
+	          chat_usrs[line.username] = false;
+	          //i += 3;
 	        }
 
-	        if (data[i+1] == 's')
+	        if (line.type == 'away')
 	        {
-	          if (chat_usrs[data[i+2]]) chat_usrs[data[i+2]][3] = data[i+3] == '+';
-	          i += 3;
+	          if (chat_usrs[line.username]) 
+	        	  chat_usrs[line.username][3] = line.operation == 'add';
+	          //i += 3;
 	        }
 
-	        if (data[i+1] == 'm')
+	        if (line.type == 'line')
 	        {
-	          chat_usrs[data[i+5]] = new Array(chat_room, data[i+3], data[i+4], true);
-	          var message = data[i+7];
+	          chat_usrs[line.username] = new Array(chat_room, line.gender, line.status, true);
+	          var message = line.text;
 	          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
 	          /*look for a space comma or apostrophe*/
 	          var delimPos = message.indexOf(" ");
@@ -363,36 +374,35 @@ function chat_msgs_get()
 	          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
 	          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
 
-	          var dingTest = message.match($('#guser').val());
-	          if(dingTest != null){
-	        	  playDing = true;
-	        	  
-	          }
-	          
 	          message = replaceURLWithHTMLLinks(message);
 
-	          if (data[i+6] == '.')
-	            chat_msgs['.']                  += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
+	          if (line.recipient_username == '.')
+	            chat_msgs['.']                  += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
 	          else
 	          {
-	            chat_priv_prepair(data[i+5], data[i+6]);
-	            chat_msgs[data[i+5]][data[i+6]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
-	            chat_msgs[data[i+6]][data[i+5]] += '<span style="color: '+data[i+2]+'"><b>['+chat_date(-data[i+8])+'] '+chat_msgs_usr(data[i+5], data[i+2])+'</b>'+ message +'</span><br />';
-	            chat_wait[data[i+5]][data[i+6]]  = false;
-	            chat_wait[data[i+6]][data[i+5]]  = true;
+	            chat_priv_prepair(line.username, line.recipient_username);
+	            chat_msgs[line.username][line.recipient_username] += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+	            chat_msgs[line.recipient_username][line.username] += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+	            chat_wait[line.username][line.recipient_username]  = false;
+	            chat_wait[line.recipient_username][line.username]  = true;
 	          }
-	          i += 8;
+		      if(document.getElementById('pingOnNew').checked && chat_room == line.roomname){ // ding on all updates for this room
+		    	  playDing = true;
+		      }else if(chat_room == line.roomname){ // ding if my name is mentioned
+		    	  username = line.username.substring('GT-');
+		    	  if(line.text.indexOf(username) >= 0){
+		    		  playDing = true;
+		    	  }
+		      }
+	          //i += 8;
 	        }
-	      }
-	      if(document.getElementById('pingOnNew').checked && data.length > 1){
-	    	  playDing = true;
 	      }
 	      if(playDing){
 	          var ding = $('#audio_ding');
 	          ding = ding.get(0).play();
 	      }
 	      
-	      if (data.length > 1)
+	      if (response.lines.length > 1)
 	      {
 	        chat_out_msgs();
 	        chat_out_usrs();

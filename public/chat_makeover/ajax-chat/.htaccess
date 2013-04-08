@@ -1,4 +1,0 @@
-<Files ajax-chat.php>
-Deny from all
-SetHandler default-handler
-</Files>
