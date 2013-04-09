@@ -352,10 +352,11 @@ function chat_msgs_get()
 
 	        if (line.type == 'line') // process a post
 	        {
+	          var message = "";
 	          if($('#msg_'+line.lineId).length == 0){ // if the element does not exist in the form already 
 		          //console.log(line);
 		          chat_usrs[line.username] = new Array(chat_room, line.gender, line.status, true);
-		          var message = line.text;
+		          message = line.text;
 		          
 		          // parse emoticons
 		          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
@@ -400,12 +401,12 @@ function chat_msgs_get()
 		    	  playDing = true;
 		      }
 		      if(chat_room == line.roomname){ // ding if my name is mentioned
-		    	  username = line.username.substring('GT-');
-		    	  if(line.text.indexOf(username) >= 0){
+		    	  var trimmedUsername = chat_user.replace('GT-','');
+		    	  if(message.indexOf(trimmedUsername) >= 0){
 		    		  playDing = true;
 		    	  }
 		      }
-		      if(line.recipient_username == username){ // ding if I get a Priv
+		      if(line.recipient_username == chat_user){ // ding if I get a Priv
 		    	  playDing = true;
 		      }
 	          //i += 8;
