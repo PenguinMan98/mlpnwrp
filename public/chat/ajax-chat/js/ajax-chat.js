@@ -476,8 +476,8 @@ function chat_msgs_log(asuser)
 
 function chat_msgs_usr(user, color, waway)
 {
-  return ((chat_usrs[user][2] != 'none') ? '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />' : '')+
-         ((chat_usrs[user][1] != 'none') ? '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />' : '')+
+  return ((typeof chat_usrs[user][2] != 'undefined' && chat_usrs[user][2] != 'none') ? '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />' : '')+
+         ((typeof chat_usrs[user][1] != 'undefined' && chat_usrs[user][1] != 'none') ? '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />' : '')+
          '<a style="color: '+color+'" href="javascript:chat_priv_switch(\''+user+'\', true);">'+user+'</a>'+
          ((waway && !chat_usrs[user][3]) ? ' (away)' : '');
 }
