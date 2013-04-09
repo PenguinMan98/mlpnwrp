@@ -20,6 +20,7 @@
 $response = new stdClass();
 $response->success = true;
 $response->text = "";
+$response->lines = array();
 
 if (isset($_GET['room']) &&
     isset($_GET['user']) &&
@@ -53,9 +54,9 @@ if (isset($_GET['room']) &&
 	  foreach ($chat_data['data'] as $i => $x){  /* foreach post in the data array, */
 	    if ($i > $_GET['mptr']){ /* if the message is newer than the last one we got, */
 	  	  $temp = array();
+	  	  $temp['lineId'] = $i;
 	      if (!is_array($x)){ /* if the post is just text, then it's a log entry, not a chat line */
-	      	$temp['rawtext'] = "$x"; /* print it with its id */
-	      	$temp['lineId'] = $i;
+	      	//$temp['rawtext'] = "$x"; /* print it with its id */
 	      	$lineSplit = preg_split('/\n|\r\n?/', $x);
 	  		if($lineSplit[0] == '+'){ // entering room
 	  			$temp['operation'] = 'add';
@@ -72,14 +73,14 @@ if (isset($_GET['room']) &&
 	      	}elseif($lineSplit[0] == 's'){ // away
 	      		$temp['type'] = "away";
 	      		$temp['username'] = $lineSplit[1];
-	      		$temp['operation'] = ($lineSplit[2] == '+') ? 'add' : 'remove';
+	      		$temp['operation'] = ($lineSplit[2] == '+') ? 'activate' : 'deactivate';
 	      	}
 	      	$response->lines[] = $temp; // Add it to the response 
 	  	  }
 	      else if ($x['priv'] == '.' && $x['room'] == $_GET['room'] || /* If it's in my room, */
 	               $x['priv'] != '.' && $x['user'] == $_GET['user'] || /* If it's a priv for me */
 	               $x['priv'] != '.' && $x['priv'] == $_GET['user']){  /* If it's a priv from me */
-	      	// build a line item  (Redundant?)
+	      	// build a line item  (Redundant? No.  We will get them from the DB with these objects later.)
 	      	$line = new Model_Structure_ChatLog();
 	      	$line->setFromFile($x['data']);
 	      	

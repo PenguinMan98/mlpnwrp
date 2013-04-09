@@ -236,7 +236,7 @@ function chat_reset(room, user, pass)
   chat_XMLHttp_log.abort();
 
   if(user){ // if a user is chosen
-	  chat_tout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
+	  //chat_tout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
   }
 }
 
@@ -312,7 +312,7 @@ function chat_msgs_get()
 	})
 	.done(function(response) {
 		if(response.success){
-	      document.getElementById('log_get').innerHTML = response.text; //Get the most recent post id?
+	      document.getElementById('log_get').innerHTML = response; // Store the whole response
 
 	      //var data = chat_parse(response.text); // parse the response 
 	      if (response.operation == '-' && chat_user && chat_pass) { // If I got a remove event and the username and password are set 
@@ -322,10 +322,10 @@ function chat_msgs_get()
 	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
 	    	line = response.lines[i];
-	    	console.log(line);
+	    	//console.log(line);
 	        chat_mptr =  Math.max(chat_mptr, line.lineId);
 
-	        if (line.type == 'room' && line.operation == 'add')// if I get a plus, grab the data and add 5 to the pointer
+	        if (line.type == 'room' && line.operation == 'add') // add someone to the room
 	        {
 	          if (chat_smsg) // if system messages are turned on
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
@@ -334,7 +334,7 @@ function chat_msgs_get()
 	          //i += 5;
 	        }
 
-	        if (line.type == 'room' && line.operation == 'remove')
+	        if (line.type == 'room' && line.operation == 'remove') // remove someone from the room
 	        {
 	          if (chat_smsg) 
 	        	  if (line.roomname == chat_room) 
@@ -343,56 +343,70 @@ function chat_msgs_get()
 	          //i += 3;
 	        }
 
-	        if (line.type == 'away')
+	        if (line.type == 'away') // set the away status
 	        {
 	          if (chat_usrs[line.username]) 
-	        	  chat_usrs[line.username][3] = line.operation == 'add';
+	        	  chat_usrs[line.username][3] = line.operation == 'activate';
 	          //i += 3;
 	        }
 
-	        if (line.type == 'line')
+	        if (line.type == 'line') // process a post
 	        {
-	          chat_usrs[line.username] = new Array(chat_room, line.gender, line.status, true);
-	          var message = line.text;
-	          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
-	          /*look for a space comma or apostrophe*/
-	          var delimPos = message.indexOf(" ");
-	          delimPos = (message.indexOf(",") != -1 && message.indexOf(",") < delimPos ? message.indexOf(",") : delimPos );
-	          delimPos = (message.indexOf("'") != -1 && message.indexOf("'") < delimPos ? message.indexOf("'") : delimPos );
-	          if( delimPos > 0){
-	        	  operator = message.substr(0,delimPos);// operator is whatever comes before the space, comma, or apostrophy, or blank if none of those exist.
-	        	  if(operator == "/me"){
-	        		  message = ""+message.substr(delimPos);
-	        	  }else{
-	        		  message = ":  "+message;
-	        	  }
-	          }else{
-	        	  message = ":  "+message;
+	          if($('#msg_'+line.lineId).length == 0){ // if the element does not exist in the form already 
+		          //console.log(line);
+		          chat_usrs[line.username] = new Array(chat_room, line.gender, line.status, true);
+		          var message = line.text;
+		          
+		          // parse emoticons
+		          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
+		          
+		          // check for operators
+		          var delimPos = message.indexOf(" ");
+		          delimPos = (message.indexOf(",") != -1 && message.indexOf(",") < delimPos ? message.indexOf(",") : delimPos );
+		          delimPos = (message.indexOf("'") != -1 && message.indexOf("'") < delimPos ? message.indexOf("'") : delimPos );
+		          if( delimPos > 0){
+		        	  operator = message.substr(0,delimPos);// operator is whatever comes before the space, comma, or apostrophy, or blank if none of those exist.
+		        	  if(operator == "/me"){
+		        		  message = ""+message.substr(delimPos);
+		        	  }else{
+		        		  message = ":  "+message;
+		        	  }
+		          }else{
+		        	  message = ":  "+message;
+		          }
+		          
+		          // parse pseudo-html
+		          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
+		          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
+		          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
+	
+		          // convert url's into hyperlinks
+		          message = replaceURLWithHTMLLinks(message);
+
+		          if (line.recipient_username == '.'){ // if this message is public
+		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+		          }
+		          else // it's a private message
+		          {
+		            chat_priv_prepair(line.username, line.recipient_username);
+		            chat_msgs[line.username][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+		            chat_msgs[line.recipient_username][line.username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+		            chat_wait[line.username][line.recipient_username]  = false;
+		            chat_wait[line.recipient_username][line.username]  = true;
+		          }
 	          }
 	          
-	          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
-	          message = replaceAndBalanceTag(message, /\[b\]/gi, '<b>', /\[\/b\]/gi,'</b>' );
-	          message = replaceAndBalanceTag(message, /\[u\]/gi, '<u>', /\[\/u\]/gi,'</u>' );
-
-	          message = replaceURLWithHTMLLinks(message);
-
-	          if (line.recipient_username == '.')
-	            chat_msgs['.']                  += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
-	          else
-	          {
-	            chat_priv_prepair(line.username, line.recipient_username);
-	            chat_msgs[line.username][line.recipient_username] += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
-	            chat_msgs[line.recipient_username][line.username] += '<span style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
-	            chat_wait[line.username][line.recipient_username]  = false;
-	            chat_wait[line.recipient_username][line.username]  = true;
-	          }
 		      if(document.getElementById('pingOnNew').checked && chat_room == line.roomname){ // ding on all updates for this room
 		    	  playDing = true;
-		      }else if(chat_room == line.roomname){ // ding if my name is mentioned
+		      }
+		      if(chat_room == line.roomname){ // ding if my name is mentioned
 		    	  username = line.username.substring('GT-');
 		    	  if(line.text.indexOf(username) >= 0){
 		    		  playDing = true;
 		    	  }
+		      }
+		      if(line.recipient_username == username){ // ding if I get a Priv
+		    	  playDing = true;
 		      }
 	          //i += 8;
 	        }
@@ -402,7 +416,7 @@ function chat_msgs_get()
 	          ding = ding.get(0).play();
 	      }
 	      
-	      if (response.lines.length > 1)
+	      if (response.lines.length > 0)
 	      {
 	        chat_out_msgs();
 	        chat_out_usrs();
@@ -472,6 +486,7 @@ function chat_msgs_usr(user, color, waway)
 
 function chat_out_msgs()
 {
+  // the switch between displaying the PM's and the public
   document.getElementById('messages').innerHTML = (chat_priv == '.') ? chat_msgs[chat_priv] : chat_msgs[chat_user][chat_priv];
   if(document.getElementById('autofocus').checked){ /*Disable autofocus!*/
 	  // I have no idea why this is done 5 times

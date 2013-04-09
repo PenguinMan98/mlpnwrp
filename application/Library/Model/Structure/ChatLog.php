@@ -23,14 +23,14 @@ class Model_Structure_ChatLog extends Model_Structure_ChatLogBase
     	}
     	// gender and status have not been implemented
     	// type should always be m thus ignorable
-        	$userProvider = new Model_Data_Phpbb_UsersProvider();
+        $userProvider = new Model_Data_Phpbb_UsersProvider();
     	$user = $userProvider->getOneByName($username);
     	if(is_object($user)){
     		$this->setUserId($user->getUserId());
     	}
-    	$recipient = $userProvider->getOneByName($recipient);
-    	if(is_object($recipient)){
-    		$this->setRecipientUserId($recipient->getUserId());
+    	$recipientObj = $userProvider->getOneByName($recipient);
+    	if(is_object($recipientObj)){
+    		$this->setRecipientUserId($recipientObj->getUserId());
     	}
     	 
     	
