@@ -1,6 +1,7 @@
 <?php
 // load the config
-require_once 'Config.php';
+require_once("Bootstrap.php");
+$_Bootstrap = Bootstrap::getInstance();
 
 // fetch the passed request
 $uriSplit = explode("?",$_SERVER['REQUEST_URI']);
@@ -194,8 +195,11 @@ class Route {
 	}
 	
 	function load(){
+		GLOBAL $user;
+		
 		$_controller = $this->_controller;
 		$_controller->URI_PARAMS = $this->URI_PARAMS;// move the URI params somewhere useful
+		$_controller->user = $user;
 
 		// execute the action
 		$actionName = $this->ACTION_NAME;

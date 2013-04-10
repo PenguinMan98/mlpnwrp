@@ -21,3 +21,13 @@ body{
 	width: 560px;
 	background-image: url(../images/pony-parts.png);
 }
+
+.tooltip{
+	display: none;
+	background-color: #8b4513;
+	border: 1px solid #a0522d;
+	left: 50px;
+	width: auto;
+	height: auto;
+	padding: 5px 10px;
+}

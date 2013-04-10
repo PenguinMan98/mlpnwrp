@@ -344,20 +344,18 @@ class Dao
     public static function startTransaction()
     {
         $objDbCn = self::getCn();
-        $objDbCn->autocommit(false);
+        $objDbCn->beginTransaction();
     }
     
     public static function commit()
     {
         $objDbCn = self::getCn();
         $objDbCn->commit();
-        $objDbCn->autocommit(true);
     }
     
     public static function rollback()
     {
         $objDbCn = self::getCn();
         return $objDbCn->rollback();
-        $objDbCn->autocommit(true);
     }
 }

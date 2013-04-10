@@ -1,16 +1,27 @@
 <?php
 class Model_Data_ChatRoomProvider extends Model_Data_ChatRoomProviderBase
 {
+	private $chatRoomList = array();
 	
 	public function getChatList(){
-		$strSql = 'SELECT * FROM chat_room';
-		$params = array();
-		return Model_Data_ChatRoomProvider::getArrayFromQuery($strSql, $params);
+		$retArray = array();
+		if(empty($this->chatRoomList)){
+			$strSql = 'SELECT * FROM chat_room';
+			$params = array();
+			$this->chatRoomList = parent::getArrayFromQuery($strSql, $params);
+		}
+		return $this->chatRoomList;
 	}
 	
 	public function getOneByName($roomName){
-		$strSql = 'SELECT * FROM chat_room where room_name = ?';
-		$params = array($roomName);
-		return Model_Data_ChatRoomProvider::getOneFromQuery($strSql, $params);
+			// if the rooms aren't in the session already, put them there.
+		if(empty($this->chatRoomList)){
+			$this->chatRoomList = $this->getChatList();
+		}
+			// search the rooms for the one I want and return it.
+		foreach($this->chatRoomList as $room){
+			if($room->getRoomName() == $roomName) return $room; 
+		}
+		return false; // I didn't find it
 	}
 }
