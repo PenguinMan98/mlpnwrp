@@ -6,7 +6,7 @@ class Model_Data_ChatRoomProvider extends Model_Data_ChatRoomProviderBase
 	public function getChatList(){
 		$retArray = array();
 		if(empty($this->chatRoomList)){
-			$strSql = 'SELECT * FROM chat_room';
+			$strSql = 'SELECT * FROM `chat_room` cr WHERE cr.`is_active` = 1';
 			$params = array();
 			$this->chatRoomList = parent::getArrayFromQuery($strSql, $params);
 		}
