@@ -464,6 +464,7 @@ function chat_msgs_log(asuser)
         chat_reset(chat_room, data[1], data[2]);
         popup_hide( 'login');
         popup_hide('glogin');
+        //document.location.reload(true);
       }
       if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
       chat_msgs_get();
