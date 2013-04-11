@@ -37,4 +37,15 @@ WHERE c.name=?';
 		dao::getAssoc($strSql, $arrParams, $arrResults, $arrErrors);
 		return $arrResults[0];
 	}
+	
+	public function getAllByUserId( $userId ) {
+		$strSql = '
+SELECT * FROM `character` c
+LEFT_JOIN `character_user` cu
+	ON c.`character_id` = cu.`character_id`
+WHERE cu.`user_id`=?';
+		$params = array( $userId );
+		return Model_Data_CharacterProvider::getArrayFromQuery($strSql, $params);
+	}
+	
 }
