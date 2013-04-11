@@ -62,17 +62,17 @@ if (isset($_GET['room']) &&
 	  			$temp['operation'] = 'add';
 	  			$temp['type'] = "room";
 	  			$temp['roomname'] = $lineSplit[1];
-	  			$temp['username'] = $lineSplit[2];
+	  			$temp['handle'] = $lineSplit[2];
 	  			$temp['gender'] = $lineSplit[3];
 	  			$temp['status'] = $lineSplit[4];
 	      	}elseif($lineSplit[0] == '-'){ // leaving room
 	      		$temp['operation'] = 'remove';
 	      		$temp['type'] = "room";
 	      		$temp['roomname'] = $lineSplit[1];
-	      		$temp['username'] = $lineSplit[2];
+	      		$temp['handle'] = $lineSplit[2];
 	      	}elseif($lineSplit[0] == 's'){ // away
 	      		$temp['type'] = "away";
-	      		$temp['username'] = $lineSplit[1];
+	      		$temp['handle'] = $lineSplit[1];
 	      		$temp['operation'] = ($lineSplit[2] == '+') ? 'activate' : 'deactivate';
 	      	}
 	      	$response->lines[] = $temp; // Add it to the response 

@@ -37,12 +37,12 @@ if (isset($_GET['user']) && $_GET['user'] &&
   $room = $chat_data['room'][$_GET['user']];
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['rand'])), ENT_QUOTES);
   //$time = microtime();// rand changed by joe to timestamp.  Works a lot better.
-  $user = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
+  $handle = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['priv'])), ENT_QUOTES);
   $colr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['colr'])), ENT_QUOTES);
   $data = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['data'])), ENT_QUOTES, 'utf-8');
   $addr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['addr'])), ENT_QUOTES);
-  $guid = $user.$rand.$user;
+  $guid = $handle.$rand.$handle;
 
   // Joe added a word filter
   $badWords = array("/fuck\S*/i",
@@ -84,24 +84,24 @@ if (isset($_GET['user']) && $_GET['user'] &&
   }
   
 
-  if ($chat_data['mute'][$user] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] ||
-      $chat_data['kick'][$user] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])
+  if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] ||
+      $chat_data['kick'][$handle] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])
   {
     $response->text = $chat_err_mute;
     $response->success = false;
     die;
   }
 
-  if (isset($chat_data['room'][$user]) &&
-      isset($chat_data['user'][$user]) &&
-      isset($chat_data['pass'][$user]) &&
-           ($chat_data['pass'][$user]) == $_GET['pass'])
+  if (isset($chat_data['room'][$handle]) &&
+      isset($chat_data['user'][$handle]) &&
+      isset($chat_data['pass'][$handle]) &&
+           ($chat_data['pass'][$handle]) == $_GET['pass'])
   {
     $modified = true;
 
-        $chat_data['time'][$user] = time();
-    if ($chat_data['away'][$user]) $chat_data['data'][] = "s\r\n$user\r\n+";
-        $chat_data['away'][$user] = false;
+        $chat_data['time'][$handle] = time();
+    if ($chat_data['away'][$handle]) $chat_data['data'][] = "s\r\n$handle\r\n+";
+        $chat_data['away'][$handle] = false;
 
     if     (in_array($_GET['user'], $chat_admins) &&
             preg_match("/^\\s*\\/(kick|mute)\\s*([0-9a-zA-Z_]+)\\s*([0-9]+)\\s*$/", $_GET['data'], $matches))
@@ -151,10 +151,10 @@ if (isset($_GET['user']) && $_GET['user'] &&
 	      $chat_data['data'][] = array('time' => $time,
 	                                   'guid' => $guid,
 	                                   'room' => $room,
-	      							   'user' => $user,
+	      							   'user' => $handle,
 	                                   'priv' => $priv,
 	                                   'addr' => $addr,
-	      							   'data' => "m\r\n$colr\r\n$gndr\r\n$stat\r\n$user\r\n$priv\r\n$data");
+	      							   'data' => "m\r\n$colr\r\n$gndr\r\n$stat\r\n$handle\r\n$priv\r\n$data");
 	      foreach($chat_data['data'] as $i => $x)
 	      {
 	        if (count($chat_data['data']) <= $chat_histlen) break;
@@ -172,22 +172,29 @@ if (isset($_GET['user']) && $_GET['user'] &&
   	
   	$arrErrors = array();
   	
+  	// create a chatlog record!
+  	$chatLogProvider = new Model_Data_ChatLogProvider();
+  	$chatLog = new Model_Structure_ChatLog();
+  	
   	//get the chat room id
   	$chatRoomProvider = new Model_Data_ChatRoomProvider();
   	$chatRoom = $chatRoomProvider->getOneByName($room);
-  	
-  	// get the username
-  	$userProvider = new Model_Data_Phpbb_UsersProvider();
-  	$username = str_replace("GT-","",$user);
-  	$userObj = $userProvider->getOneByName($username);
-  	
-  	$chatLogProvider = new Model_Data_ChatLogProvider();
-  	$chatLog = new Model_Structure_ChatLog();
   	$chatLog->setChatRoomId($chatRoom->getChatRoomId());
-  	if(is_object($userObj)) { // this is a registered user
-  		$chatLog->setUserId($userObj->getUserId());
-  	}else{
-  		$chatLog->setUsername($user);
+  	
+  	// get the user from the PHPBB
+  	/*$userProvider = new Model_Data_Phpbb_UsersProvider();
+  	$username = str_replace("GT-","",$handle);
+  	$userObj = $userProvider->getOneByName($username);*/
+  	$chatLog->setUserId($user->data['user_id']);
+
+  	// handle comes from the input
+  	$chatLog->setHandle($handle);
+  	 
+  	// check the handle against the list of valid character names
+  	$characterProvider = new Model_Data_CharacterProvider(); // by redeclaring the class, I ensure a fresh pull of the current list.  This may be overdoing it.
+  	$character = $characterProvider->getOneByCharacterName($handle);
+  	if(is_object($character)){
+  		$chatLog->setCharacterId($character->getCharacterId());
   	}
   	
   	$chatLog->setColor($colr);

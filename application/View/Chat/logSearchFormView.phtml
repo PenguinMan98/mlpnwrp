@@ -57,7 +57,7 @@
 						</div>
 						<div id="searchChatLogResults">
 						<?php foreach ($_controller->vars->results as $post):?>
-							<p><?="[" . $post->getTimestamp() . "] " . $post->getUsername() . ": " . $post->getText()?></p>
+							<p><?="[" . $post->getTimestamp() . "] " . $post->getHandle() . ": " . $post->getText()?></p>
 						<?php endforeach; ?>
 						</div> 
 					</form>

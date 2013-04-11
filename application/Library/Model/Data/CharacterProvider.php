@@ -41,7 +41,7 @@ WHERE c.name=?';
 	public function getAllByUserId( $userId ) {
 		$strSql = '
 SELECT * FROM `character` c
-LEFT_JOIN `character_user` cu
+LEFT JOIN `character_user` cu
 	ON c.`character_id` = cu.`character_id`
 WHERE cu.`user_id`=?';
 		$params = array( $userId );

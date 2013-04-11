@@ -8,7 +8,8 @@ class Model_Structure_ChatLogBase
     protected $m_chat_log_id;
     protected $m_chat_room_id;
     protected $m_user_id;
-    protected $m_username;
+    protected $m_handle;
+    protected $m_character_id;
     protected $m_recipient_user_id;
     protected $m_recipient_username;
     protected $m_text;
@@ -63,13 +64,23 @@ class Model_Structure_ChatLogBase
         return;
     }
 
-    public function getUsername()
+    public function getHandle()
     {
-        return $this->m_username;
+        return $this->m_handle;
     }
-    public function setUsername($value)
+    public function setHandle($value)
     {
-        $this->m_username = $value;
+        $this->m_handle = $value;
+        return;
+    }
+
+    public function getCharacterId()
+    {
+        return $this->m_character_id;
+    }
+    public function setCharacterId($value)
+    {
+        $this->m_character_id = $value;
         return;
     }
 
@@ -139,7 +150,8 @@ class Model_Structure_ChatLogBase
         $this->setChatLogId($arrValues['chat_log_id']);
         $this->setChatRoomId($arrValues['chat_room_id']);
         $this->setUserId($arrValues['user_id']);
-        $this->setUsername($arrValues['username']);
+        $this->setHandle($arrValues['handle']);
+        $this->setCharacterId($arrValues['character_id']);
         $this->setRecipientUserId($arrValues['recipient_user_id']);
         $this->setRecipientUsername($arrValues['recipient_username']);
         $this->setText($arrValues['text']);
@@ -161,8 +173,11 @@ class Model_Structure_ChatLogBase
                 case 'user_id':
                     $this->setUserId($val);
                     break;
-                case 'username':
-                    $this->setUsername($val);
+                case 'handle':
+                    $this->setHandle($val);
+                    break;
+                case 'character_id':
+                    $this->setCharacterId($val);
                     break;
                 case 'recipient_user_id':
                     $this->setRecipientUserId($val);
@@ -192,7 +207,8 @@ class Model_Structure_ChatLogBase
         $arrValues['chat_log_id'] = $this->getChatLogId();
         $arrValues['chat_room_id'] = $this->getChatRoomId();
         $arrValues['user_id'] = $this->getUserId();
-        $arrValues['username'] = $this->getUsername();
+        $arrValues['handle'] = $this->getHandle();
+        $arrValues['character_id'] = $this->getCharacterId();
         $arrValues['recipient_user_id'] = $this->getRecipientUserId();
         $arrValues['recipient_username'] = $this->getRecipientUsername();
         $arrValues['text'] = $this->getText();

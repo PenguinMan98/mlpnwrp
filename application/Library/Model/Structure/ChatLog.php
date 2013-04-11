@@ -32,10 +32,9 @@ class Model_Structure_ChatLog extends Model_Structure_ChatLogBase
     	if(is_object($recipientObj)){
     		$this->setRecipientUserId($recipientObj->getUserId());
     	}
-    	 
     	
     	$this->setColor($color);
-    	$this->setUsername($username);
+    	$this->setHandle($username);
     	$this->setRecipientUsername($recipient);
     	$this->setText($line);
     }

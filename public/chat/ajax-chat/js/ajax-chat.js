@@ -329,8 +329,8 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) // if system messages are turned on
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.username, 'black', false)+'</b> enters the room<br />';
-	          chat_usrs[line.username] = new Array(line.roomname, line.gender, line.status, true);
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> enters the room<br />';
+	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
 	          //i += 5;
 	        }
 
@@ -338,15 +338,15 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) 
 	        	  if (line.roomname == chat_room) 
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.username, 'black', false)+'</b> leaves the room<br />';
-	          chat_usrs[line.username] = false;
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> leaves the room<br />';
+	          chat_usrs[line.handle] = false;
 	          //i += 3;
 	        }
 
 	        if (line.type == 'away') // set the away status
 	        {
-	          if (chat_usrs[line.username]) 
-	        	  chat_usrs[line.username][3] = line.operation == 'activate';
+	          if (chat_usrs[line.handle]) 
+	        	  chat_usrs[line.handle][3] = line.operation == 'activate';
 	          //i += 3;
 	        }
 
@@ -355,7 +355,7 @@ function chat_msgs_get()
 	          var message = "";
 	          if($('#msg_'+line.lineId).length == 0){ // if the element does not exist in the form already 
 		          //console.log(line);
-		          chat_usrs[line.username] = new Array(chat_room, line.gender, line.status, true);
+		          chat_usrs[line.handle] = new Array(chat_room, line.gender, line.status, true);
 		          message = line.text;
 		          
 		          // parse emoticons
@@ -385,15 +385,15 @@ function chat_msgs_get()
 		          message = replaceURLWithHTMLLinks(message);
 
 		          if (line.recipient_username == '.'){ // if this message is public
-		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
+		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		          }
 		          else // it's a private message
 		          {
-		            chat_priv_prepair(line.username, line.recipient_username);
-		            chat_msgs[line.username][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
-		            chat_msgs[line.recipient_username][line.username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.username, line.color)+'</b>'+ message +'</span><br />';
-		            chat_wait[line.username][line.recipient_username]  = false;
-		            chat_wait[line.recipient_username][line.username]  = true;
+		            chat_priv_prepair(line.handle, line.recipient_username);
+		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            chat_wait[line.handle][line.recipient_username]  = false;
+		            chat_wait[line.recipient_username][line.handle]  = true;
 		          }
 	          }
 	          

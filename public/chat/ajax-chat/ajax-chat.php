@@ -55,6 +55,9 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 <?php if (count($chat_list) >= 2) { ?>
 <div class="main" id="room_parent">Rooms</div>
 <?php } ?>
+<?php if ($characterList) { ?>
+<div class="main" id="character_parent">Characters</div>
+<?php } ?>
 <a   class="main" href="javascript:popup_show( 'color',  'color_drag',  'color_exit', 'element', 60,  60, 'chat', false);">Color</a>
 <a   class="main" href="javascript:popup_show('smiley', 'smiley_drag', 'smiley_exit', 'element', 70,  70, 'chat', false);">Smileys</a>
 <a   class="main" href="javascript:popup_show( 'about',  'about_drag',  'about_exit', 'element', 80,  80, 'chat', false);">Help</a>
@@ -276,6 +279,20 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 
 <script type="text/javascript">
 if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room_child", "hover", "y", "default");
+</script>
+
+
+<!-- ***** Characters *********************************************************** -->
+
+<div class="room" id="character_child" style="display: none;">
+<?php foreach ($characterList as $char): ?>
+<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
+<?php endforeach; ?>
+<a class="main" href="<?=SITE_ROOT?>/character/create">New Character</a>
+</div>
+
+<script type="text/javascript">
+if (document.getElementById("character_parent")) dropdown_attach("character_parent", "character_child", "hover", "y", "default");
 </script>
 
 

@@ -43,7 +43,7 @@ class Model_Data_CharacterProviderBase
     {
         $strSql = ' INSERT INTO `character` (
             character_id,
-            user_id,
+            creator_user_id,
             name,
             bio,
             status,
@@ -64,7 +64,7 @@ class Model_Data_CharacterProviderBase
         ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $params = array(
             0,
-            $objRecord->getUserId(),
+            $objRecord->getCreatorUserId(),
             $objRecord->getName(),
             $objRecord->getBio(),
             $objRecord->getStatus(),
@@ -95,7 +95,7 @@ class Model_Data_CharacterProviderBase
     {
         $strSql = 'UPDATE `character` SET 
             character_id=?,
-            user_id=?,
+            creator_user_id=?,
             name=?,
             bio=?,
             status=?,
@@ -116,7 +116,7 @@ class Model_Data_CharacterProviderBase
         WHERE character_id=?';
         $arrSetParams = array(
             $objRecord->getCharacterId(),
-            $objRecord->getUserId(),
+            $objRecord->getCreatorUserId(),
             $objRecord->getName(),
             $objRecord->getBio(),
             $objRecord->getStatus(),

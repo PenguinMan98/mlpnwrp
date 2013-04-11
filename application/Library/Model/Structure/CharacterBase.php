@@ -6,7 +6,7 @@
 class Model_Structure_CharacterBase
 {
     protected $m_character_id;
-    protected $m_user_id;
+    protected $m_creator_user_id;
     protected $m_name;
     protected $m_bio;
     protected $m_status;
@@ -55,13 +55,13 @@ class Model_Structure_CharacterBase
         return;
     }
 
-    public function getUserId()
+    public function getCreatorUserId()
     {
-        return $this->m_user_id;
+        return $this->m_creator_user_id;
     }
-    public function setUserId($value)
+    public function setCreatorUserId($value)
     {
-        $this->m_user_id = $value;
+        $this->m_creator_user_id = $value;
         return;
     }
 
@@ -249,7 +249,7 @@ class Model_Structure_CharacterBase
     public function loadFromArray($arrValues)
     {
         $this->setCharacterId($arrValues['character_id']);
-        $this->setUserId($arrValues['user_id']);
+        $this->setCreatorUserId($arrValues['creator_user_id']);
         $this->setName($arrValues['name']);
         $this->setBio($arrValues['bio']);
         $this->setStatus($arrValues['status']);
@@ -277,8 +277,8 @@ class Model_Structure_CharacterBase
                 case 'character_id':
                     $this->setCharacterId($val);
                     break;
-                case 'user_id':
-                    $this->setUserId($val);
+                case 'creator_user_id':
+                    $this->setCreatorUserId($val);
                     break;
                 case 'name':
                     $this->setName($val);
@@ -342,7 +342,7 @@ class Model_Structure_CharacterBase
     {
         $arrValues = array();
         $arrValues['character_id'] = $this->getCharacterId();
-        $arrValues['user_id'] = $this->getUserId();
+        $arrValues['creator_user_id'] = $this->getCreatorUserId();
         $arrValues['name'] = $this->getName();
         $arrValues['bio'] = $this->getBio();
         $arrValues['status'] = $this->getStatus();
