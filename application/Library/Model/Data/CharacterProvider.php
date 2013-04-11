@@ -48,4 +48,25 @@ WHERE cu.`user_id`=?';
 		return Model_Data_CharacterProvider::getArrayFromQuery($strSql, $params);
 	}
 	
+	public function verifyCharacterName($charName){
+		$character = $this->getOneByCharacterName($charName);
+		if(is_object($character)){
+			return true;
+		}
+		return false;
+	}
+	
+	public function validCharacterUser($handle, $userId){
+		$strSql = '
+SELECT * FROM `character` c
+LEFT JOIN `character_user` cu
+	ON c.`character_id` = cu.`character_id`
+WHERE cu.`user_id`=?
+	AND c.`name` = ?';
+		$params = array( $userId, $handle );
+		$result = Model_Data_CharacterProvider::getOneFromQuery($strSql, $params);
+		if(is_object($result)) return true;
+		return false;
+	}
+	
 }

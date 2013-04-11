@@ -23,40 +23,70 @@ if (isset($_GET['room']) &&
     isset($_GET['gues']))
 {
   include_once 'init.php';
-  $modified = unlog_users();
+  $modified = unlog_users();// refresh the current character list
 
   if ($chat_data['kick'][$_GET['user']] ||
-      $chat_data['kick'][$_SERVER['REMOTE_ADDR']])
+      $chat_data['kick'][$_SERVER['REMOTE_ADDR']]) // if the user's been kicked
   {
-    echo "FAILED\r\n$chat_err_kick";
+    echo "FAILED\r\n$chat_err_kick"; // fail and die
     die;
   }
 
-  $modified = true;
+  $modified = true;  // set modified to true regardless of the character list. We want the chat to refresh
 
   $gndr = 'none';
   $stat = 'none';
   $room = $_GET['room'];
-  $user = $_GET['user'];
+  $handle = $_GET['user'];
   $pass = $_GET['pass'];
   $gues = $_GET['gues'];
+  //$username = ($user->data['username_clean'] == 'anonymous')? $user->data['username'] : $handle;
 
-  if (  true) if (!preg_match('/^\w+( +\w+)*$/', $room))       { echo "FAILED\r\n$chat_err_inval"; die; }
-  if (  true) if (!preg_match('/^\w+$/',         $user))       { echo "FAILED\r\n$chat_err_inval"; die; }
-  if (!$gues) if (!chat_chk      ($user, $pass, $gndr, $stat)) { echo "FAILED\r\n$chat_err_inval"; die; }
-  if ( $gues) $user = "GT-$user";
-  if ( $gues) if (!chat_chk_guest($user, $pass, $gndr, $stat)) { echo "FAILED\r\n$chat_err_inuse"; die; }
-  if (  true) if (isset($chat_data['user'][$user]))            { $GLOBALS['chat_data']['data'][] = "-\r\n{$chat_data['room'][$user]}\r\n{$user}"; }
+  // this is kinda weird.  what's with the if(true)'s?  Just for display?
+  // verify the room name
+  if (!preg_match('/^\w+( +\w+)*$/', $room)){ 
+  	echo "FAILED\r\n$chat_err_inval"; 
+  	exit();
+  }
+  
+  //verify the username is a word
+  if (!preg_match('/^\w+$/',$handle)){ 
+  	echo "FAILED\r\n$chat_err_inval"; 
+  	exit();
+  }
+  
+  // verify login credentials
+  if (!$gues){ // registered user
+  	if (!chat_chk_login($handle, $pass, $gndr, $stat)) { 
+  		echo "FAILED\r\n$chat_err_inval"; 
+  		exit();
+  	}
+  	if($handle != $user->data['username'] && !$characterProvider->validCharacterUser($handle, $user->data['user_id'])){
+  		echo "FAILED\r\n$chat_err_mismatch";
+  		exit();
+  	}
+  }else{ // guest user
+  	$handle = "GT-$handle";
+  	if (!chat_chk_guest($handle, $gndr, $stat)) { 
+  		echo "FAILED\r\n$chat_err_inuse"; 
+  		exit(); 
+  	}
+  }
 
-  $chat_data['time'][$user] = time();
-  $chat_data['away'][$user] = false;
-  $chat_data['gndr'][$user] = $gndr;
-  $chat_data['stat'][$user] = $stat;
-  $chat_data['room'][$user] = $room;
-  $chat_data['user'][$user] = time();
-  $chat_data['pass'][$user] = md5(rand());
-  $chat_data['data'][] = "+\r\n{$room}\r\n{$user}\r\n{$gndr}\r\n{$stat}";
-  echo "OK\r\n{$user}\r\n{$chat_data['pass'][$user]}\r\n";
+  // adds something to the chat data
+  if (isset($chat_data['user'][$handle])){ 
+  	$GLOBALS['chat_data']['data'][] = "-\r\n{$chat_data['room'][$handle]}\r\n{$handle}"; 
+  }
+
+  $chat_data['time'][$handle] = time();
+  $chat_data['away'][$handle] = false;
+  $chat_data['gndr'][$handle] = $gndr;
+  $chat_data['stat'][$handle] = $stat;
+  $chat_data['room'][$handle] = $room;
+  $chat_data['user'][$handle] = time();
+  $chat_data['pass'][$handle] = md5(rand());
+  $chat_data['data'][] = "+\r\n{$room}\r\n{$handle}\r\n{$gndr}\r\n{$stat}";
+  echo "OK\r\n{$handle}\r\n{$chat_data['pass'][$handle]}\r\n";
 
   if ($modified) file_put_contents('data.txt', serialize($chat_data));
 }

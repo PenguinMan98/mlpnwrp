@@ -158,8 +158,8 @@ function chat_login(asuser)
   if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden */
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
-		  // popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
-		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true); // show the guest login for now
+		  popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
+		  // popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true); // show the guest login for now
 	  }else{
 		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
 	  }

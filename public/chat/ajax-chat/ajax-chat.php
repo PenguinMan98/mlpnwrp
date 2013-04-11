@@ -288,7 +288,7 @@ if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room
 <?php foreach ($characterList as $char): ?>
 <a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
 <?php endforeach; ?>
-<a class="main" href="<?=SITE_ROOT?>/character/create">New Character</a>
+<a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
 </div>
 
 <script type="text/javascript">
