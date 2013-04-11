@@ -55,7 +55,7 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 <?php if (count($chat_list) >= 2) { ?>
 <div class="main" id="room_parent">Rooms</div>
 <?php } ?>
-<?php if ($characterList) { ?>
+<?php if ($characterList || $user->data['username_clean'] != 'anonymous') { ?>
 <div class="main" id="character_parent">Characters</div>
 <?php } ?>
 <a   class="main" href="javascript:popup_show( 'color',  'color_drag',  'color_exit', 'element', 60,  60, 'chat', false);">Color</a>
@@ -285,7 +285,7 @@ if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room
 <!-- ***** Characters *********************************************************** -->
 
 <div class="room" id="character_child" style="display: none;">
-<?php foreach ($characterList as $char): ?>
+<?php if($characterList) foreach ($characterList as $char): ?>
 <a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
 <?php endforeach; ?>
 <a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
