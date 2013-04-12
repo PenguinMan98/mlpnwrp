@@ -78,7 +78,7 @@ class Index_CharacterController extends Index_BaseController{
 			$character->setBio($bio);
 			$character->setPlayerNotes($player_notes);
 			$character->setPlayerPrivateNotes($player_private_notes);
-			$character->setUserId($this->user->data['user_id']); // to be renamed to 'creator_id'
+			$character->setCreatorUserId($this->user->data['user_id']); // to be renamed to 'creator_id'
 			
 			// this is enough to create the character
 			$arrErrors = array();
