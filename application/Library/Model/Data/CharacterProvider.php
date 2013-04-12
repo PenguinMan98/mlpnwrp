@@ -69,4 +69,24 @@ WHERE cu.`user_id`=?
 		return false;
 	}
 	
+	public function getNewChars($count){
+		$strSql = '
+SELECT c.*, cu.`user_id`, u.`username`
+FROM `character` c 
+JOIN `character_user` cu
+	ON c.`character_id` = cu.`character_id`
+JOIN `phpbb_users` u
+	ON cu.`user_id` = u.`user_id`
+ORDER BY c.`created_date` DESC, c.`character_id` DESC
+LIMIT ' . intval($count);
+		$arrParams = array();
+		$arrResults = array();
+		$arrErrors = array();
+		dao::getAssoc($strSql, $arrParams, $arrResults, $arrErrors);
+		
+		if(!empty($arrErrors)){
+			throw new Exception("Error getting new characters!" . implode('|', $arrErrors));
+		}
+		return $arrResults;
+	}
 }
