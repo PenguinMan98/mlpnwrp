@@ -186,5 +186,8 @@
         width: 800px;
         margin: 0px auto;
     }
+    .hot_topic, .new_char{
+        margin: 0 0 0 .8em;
+    }
     
     /* --> */
