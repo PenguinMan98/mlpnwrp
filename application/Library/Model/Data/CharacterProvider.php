@@ -2,9 +2,9 @@
 class Model_Data_CharacterProvider extends Model_Data_CharacterProviderBase
 {
 	public function getAll(){
-        $strSql = 'SELECT DISTINCT username
-FROM chat_log
-ORDER BY username ASC';
+        $strSql = 'SELECT DISTINCT `handle`
+FROM `chat_log`
+ORDER BY `handle` ASC';
         $arrParams = array();
         $arrResults = array();
         $arrErrors = array();

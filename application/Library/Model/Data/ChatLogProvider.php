@@ -31,7 +31,7 @@ class Model_Data_ChatLogProvider extends Model_Data_ChatLogProviderBase
 			$params[] = $character->getCharacterId();
 		}*/
 		if(!is_null($character) && $character != ""){
-			$whereArr[] = 'username like ?';
+			$whereArr[] = 'handle like ?';
 			$params[] = '%' . $character . '%';
 		}
 		

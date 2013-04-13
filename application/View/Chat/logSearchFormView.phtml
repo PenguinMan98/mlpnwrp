@@ -10,7 +10,9 @@
 	<meta name="keywords" content="" />
 	<meta name="robots" content="index, follow" />
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-	<link rel="stylesheet" href="<?=SITE_ROOT?>/css/three_col_2_6_2.css" type="text/css" /> 
+	<link href='http://fonts.googleapis.com/css?family=Linden+Hill:400,400italic' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="<?=SITE_ROOT?>/css/main.css" type="text/css" /> 
+	<link rel="stylesheet" href="<?=SITE_ROOT?>/js/datepicker/jquery.datepick.css" type="text/css" /> 
 	<!--[if lt IE 7]>
     <style media="screen" type="text/css">
     .col1 {
@@ -18,15 +20,18 @@
     }
     </style>
     <![endif]-->
-	<script type="text/javascript" src="<?=SITE_ROOT?>/js/jquery.js" > </script>
 	<script type="text/javascript" src="<?=SITE_ROOT?>/js/main.js" > </script>
-	<link rel="stylesheet" type="text/css" href="<?=SITE_ROOT?>/js/datepicker/jquery.datepick.css"> 
-	<script type="text/javascript" src="<?=SITE_ROOT?>/js/datepicker/jquery.datepick.js"></script>
+	<script type="text/javascript" src="<?=SITE_ROOT?>/js/jquery.js" > </script>
+	<script type="text/javascript" src="<?=SITE_ROOT?>/js/datepicker/jquery.datepick.js" > </script>
 </head>
 <body>
 
 <div id="header">
-	<img src="http://i31.photobucket.com/albums/c362/Pichothedestroyerofall/mum2_zpsb6429edf.png" alt="Friendship is Adventure!"/>
+	<div id="banner">
+		<a href="">
+			<img src="<?=SITE_ROOT?>/images/Newworlds.png" alt="Friendship is Adventure!"/>
+		</a>
+	</div>
     <h2>A roleplaying community focused on the players and set in the My Little Pony: Friendship is Magic Universe!</h2>
     <?php include(VIEW_ROOT . "subViews/mainmenu.phtml"); ?>
 </div>
@@ -42,7 +47,7 @@
 							Character:
 							<select name="character">
 							<?php foreach($_controller->vars->characters as $char):?>
-								<option value="<?=$char['username']?>"><?=$char['username']?></option>
+								<option value="<?=$char['handle']?>"><?=$char['handle']?></option>
 							<?php endforeach; ?>
 							</select>
 							Room: 
@@ -66,14 +71,8 @@
             </div>
             <div class="col2">
 				<!-- Column 2 start -->
-				<h2>Hot Forum Threads!</h2>
-                <p>Thread 1</p>
-                <p>Thread 2</p>
-                <p>Thread 3</p>
-                <h2>Newest Characters!</h2>
-                <p><a href="/characters/char_name">Character</a> (Player)</p>
-                <p><a href="/characters/char_name">Character</a> (Player)</p>
-                <p><a href="/characters/char_name">Character</a> (Player)</p>
+				<?php include(VIEW_ROOT . "subViews/hotTopics.phtml"); ?>
+            	<?php include(VIEW_ROOT . "subViews/newCharacters.phtml"); ?>
                 <h2>Calendar?</h2>
                 <p>Calendar</p>
                 <!-- Column 2 end -->
@@ -93,11 +92,12 @@
 <div id="footer">
     <p>Some footer stuff.  Legalese and Disclaimers.</p>
 </div>
-
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#startDate").datepick({dateFormat: 'yyyy-mm-dd'});
-	});</script>
+	});
+</script>
 
 </body>
 </html>
+					
