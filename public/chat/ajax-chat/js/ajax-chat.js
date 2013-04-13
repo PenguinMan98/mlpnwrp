@@ -34,6 +34,8 @@ var chat_msgs;
 var chat_wait;
 var chat_priv;
 
+var chat_temp_msgs = new Array();
+
 var chat_focu = true;
 var chat_colr = '#484848';
 if (getCookie('chat_colr'))
@@ -245,26 +247,25 @@ function chat_reset(room, user, pass)
 
 function chat_msgs_add()
 {
-  if (!chat_user || !chat_pass) { chat_login(false); return; }
-  if (!document.getElementById('send').value || chat_XMLHttp_add.readyState % 4) return;
+    if (!chat_user || !chat_pass) { chat_login(false); return; }
+    if (!document.getElementById('send').value || chat_XMLHttp_add.readyState % 4) return;
 
-  chat_rand += 1;
-  var rand = chat_rand;
-  var addr = encodeURIComponent(chat_addr);
-  var user = encodeURIComponent(chat_user);
-  var pass = encodeURIComponent(chat_pass);
-  var priv = encodeURIComponent(chat_priv);
-  var colr = encodeURIComponent(chat_colr);
-  var data = encodeURIComponent($('#send').val());
+    chat_rand += 1;
+    var newPost = {
+	    rand: chat_rand,
+	    addr: encodeURIComponent(chat_addr),
+	    user: encodeURIComponent(chat_user),
+	    pass: encodeURIComponent(chat_pass),
+	    priv: encodeURIComponent(chat_priv),
+	    colr: encodeURIComponent(chat_colr),
+	    data: encodeURIComponent($('#send').val())
+    };
+    /*chat_temp_msgs.push($newPost);
+    console.log(chat_tempt_msgs);*/
+    alert();
 	$.ajax({
 		url: chat_path+"php/msg_add.php",
-		data: {rand: rand,
-			addr: addr,
-			user: user,
-			pass: pass,
-			priv: priv,
-			colr: colr,
-			data: data},
+		data: newPost,
 		dataType: "JSON"
 	})
 	.done(function(response) {
@@ -464,7 +465,7 @@ function chat_msgs_log(asuser)
         chat_reset(chat_room, data[1], data[2]);
         popup_hide( 'login');
         popup_hide('glogin');
-        //document.location.reload(true);
+        /*document.location.reload(true);*/
       }
       if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
       chat_msgs_get();
@@ -554,3 +555,8 @@ function replaceAndBalanceTag( message, openRegex, openTag, closeRegex, closeTag
 	return message;
 }
 
+//***** Tag Replacing/balancing **********************************************************
+
+function tempStorePost(  ){
+	
+}

@@ -15,6 +15,7 @@ class Model_Structure_ChatLogBase
     protected $m_text;
     protected $m_timestamp;
     protected $m_color;
+    protected $m_chat_rand;
     protected $m_chat_log_id_Orig;
 
     public function __construct($arrData = null)
@@ -134,6 +135,16 @@ class Model_Structure_ChatLogBase
         return;
     }
 
+    public function getChatRand()
+    {
+        return $this->m_chat_rand;
+    }
+    public function setChatRand($value)
+    {
+        $this->m_chat_rand = $value;
+        return;
+    }
+
     public function getOrigChatLogId()
     {
         return $this->m_chat_log_id_Orig;
@@ -157,6 +168,7 @@ class Model_Structure_ChatLogBase
         $this->setText($arrValues['text']);
         $this->setTimestamp($arrValues['timestamp']);
         $this->setColor($arrValues['color']);
+        $this->setChatRand($arrValues['chat_rand']);
         return;
     }
 
@@ -194,6 +206,9 @@ class Model_Structure_ChatLogBase
                 case 'color':
                     $this->setColor($val);
                     break;
+                case 'chat_rand':
+                    $this->setChatRand($val);
+                    break;
                 default:
                     break;
             }
@@ -214,6 +229,7 @@ class Model_Structure_ChatLogBase
         $arrValues['text'] = $this->getText();
         $arrValues['timestamp'] = $this->getTimestamp();
         $arrValues['color'] = $this->getColor();
+        $arrValues['chat_rand'] = $this->getChatRand();
         return $arrValues;
     }
 
