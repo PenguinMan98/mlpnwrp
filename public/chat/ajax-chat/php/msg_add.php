@@ -35,10 +35,9 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   $time = time();
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
-  $room = $chat_data['room'][$_GET['user']];
+  $room = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['room'])), ENT_QUOTES);
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['rand'])), ENT_QUOTES);
   $response->rand = $rand;
-  //$time = microtime();// rand changed by joe to timestamp.  Works a lot better.
   $handle = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['priv'])), ENT_QUOTES);
   $colr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['colr'])), ENT_QUOTES);
@@ -67,13 +66,11 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   
   /*$data = preg_replace("/good/i", "g00d", $data);// this and its companion allows the word 'good' past the filter
   $data = preg_replace("/g+o+d+s+/i", "Princesses", $data);
-  $data = preg_replace("/g+o+d+/i", "Princess", $data);
+  $data = preg_replace("/g+o+d+/i", "Princess", $data);*/
   $data = preg_replace("/j+e+s+u+s+\s+c+h+r+i+s+t+/i", "Princess Celestia", $data);
   $data = preg_replace("/j+e+s+u+s+/i", "Princess Celestia", $data);
-  $data = preg_replace("/g00d/i", "good", $data);*/
-/*	text=text.replace(/gods/gi, 'Princesses');
-	text=text.replace(/god/gi, 'Princess');
-*/
+  //$data = preg_replace("/g00d/i", "good", $data);
+
   // Joe added Operations
   $input = $data; // save the original input
   try{
@@ -139,13 +136,6 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
     	$timeDiff = $FLOODCUTOFFTIME+1;
     	if($result > 0){
     		$timeDiff = time() - $matches[1];
-    	}
-
-    	if($addr == "127.0.0.1"){
-    		/*echo "debug mode on.<br>";
-			echo "<pre>";
-	    	print_r();
-	    	echo "</pre>";*/
     	}
 
     	if(count($duplicatePost) == 0 && $timeDiff > $FLOODCUTOFFTIME){ //
@@ -214,15 +204,9 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   	}
   	$chatLog->setTimestamp(date('Y-m-d H:i:s'));
   	
-  	/*if($addr == "127.0.0.1"){
-  		echo "debug mode on.<br>";
-  		 echo "<pre>";
-  		print_r($chatLog);
-  		echo "</pre>";
-  	}*/
-  	
-  	$chatLogProvider->insertOne($chatLog, $arrErrors);
-  	if(!empty($arrErrors)){
+  	try{
+  		$chatLogProvider->insertBlogPost($chatLog);
+  	}catch(Exception $e){
   		$response->success = false;
   		$response->text = "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
   	}

@@ -46,6 +46,26 @@ WHERE recipient_user_id IS NULL AND recipient_username IS NULL AND ' . implode('
 		echo "<pre>";
 		print_r($params);
 		echo "</pre>";*/
-		return Model_Data_ChatLogProvider::getArrayFromQuery($strSql, $params);
+		return parent::getArrayFromQuery($strSql, $params);
+	}
+	
+	function insertBlogPost(Model_Structure_ChatLog $chatLog){
+		// handle/rand/text should be unique enough for a key
+		$strSql = 'SELECT * FROM `chat_log`
+WHERE `handle`= ? AND `chat_rand` = ? and `text` = ?';
+		$params = array($chatLog->getHandle(), $chatLog->getChatRand(), $chatLog->getText());
+		$result = parent::getOneFromQuery($strSql, $params);
+		if(is_object($result)){
+			return true; // it's already here.
+		}else{
+			$arrErrors = array();
+			parent::insertOne($chatLog, $arrErrors);
+			if(!empty($arrErrors)){
+				throw new Exception("Error inserting new chat log! " . implode('|',$arrErrors));
+			}else{
+				return true; // it inserted correctly
+			}
+		}
+		return false;
 	}
 }
