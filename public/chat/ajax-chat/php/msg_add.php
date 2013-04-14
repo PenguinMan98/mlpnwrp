@@ -22,7 +22,8 @@ $response = new stdClass();
 $response->success = true;
 $response->text = "";
 
-if (isset($_GET['user']) && $_GET['user'] &&
+if (isset($_GET['rand']) && $_GET['rand'] &&
+	isset($_GET['user']) && $_GET['user'] &&
     isset($_GET['pass']) && $_GET['pass'] &&
     isset($_GET['priv']) && $_GET['priv'] &&
     isset($_GET['colr']) && $_GET['colr'] &&
@@ -36,6 +37,7 @@ if (isset($_GET['user']) && $_GET['user'] &&
   $stat = $chat_data['stat'][$_GET['user']];
   $room = $chat_data['room'][$_GET['user']];
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['rand'])), ENT_QUOTES);
+  $response->rand = $rand;
   //$time = microtime();// rand changed by joe to timestamp.  Works a lot better.
   $handle = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['priv'])), ENT_QUOTES);
@@ -150,6 +152,7 @@ if (isset($_GET['user']) && $_GET['user'] &&
 
 	      $chat_data['data'][] = array('time' => $time,
 	                                   'guid' => $guid,
+	      							   'chat_rand' => $rand,
 	                                   'room' => $room,
 	      							   'user' => $handle,
 	                                   'priv' => $priv,
@@ -199,6 +202,7 @@ if (isset($_GET['user']) && $_GET['user'] &&
   	
   	$chatLog->setColor($colr);
   	$chatLog->setText($data);
+  	$chatLog->setChatRand($rand);
   	
   	if(!empty($priv) && $priv != '.'){
   		$recipient = $userProvider->getOneByName(str_replace("GT-","",$priv));

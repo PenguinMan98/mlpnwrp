@@ -31,9 +31,6 @@ if (isset($_GET['room']) &&
   $modified = unlog_users(); /* refresh the user list and note if we changed it */
 
   try{
-  	  /*echo "<pre>";
-  	  print_r($chat_data);
-  	  echo "</pre>";*/
   	
 	  if ($chat_data['kick'][$_GET['user']] ||
 	      $chat_data['kick'][$_SERVER['REMOTE_ADDR']]) /* If this user is kicked */
@@ -81,6 +78,7 @@ if (isset($_GET['room']) &&
 	               $x['priv'] != '.' && $x['user'] == $_GET['user'] || /* If it's a priv for me */
 	               $x['priv'] != '.' && $x['priv'] == $_GET['user']){  /* If it's a priv from me */
 	      	// build a line item  (Redundant? No.  We will get them from the DB with these objects later.)
+	      	
 	      	$line = new Model_Structure_ChatLog();
 	      	$line->setFromFile($x['data']);
 	      	
@@ -90,12 +88,15 @@ if (isset($_GET['room']) &&
 	      		$line->setChatRoomId($room->getChatRoomId());
 	      	}
 	      	$line->setTimestamp($x['time']);
+	      	$line->setChatRand($x['chat_rand']);
 	      	
 	      	$temp['roomname'] = $_GET['room'];
 	      	$temp['type'] = 'line';
-	      	$temp['rawtext'] = "{$x['data']}";
+	      	$temp['chat_rand'] = $x['chat_rand'];
+	      	//$temp['rawtext'] = "{$x['data']}";
 	      	$temp = array_merge($temp, $line->getAsArray()); // store the line as an array
 	      	$temp['interval'] = (time()-$x['time']); 
+
 	      	$response->lines[] = $temp; // Add it to the response 
 	      }
 	   }
