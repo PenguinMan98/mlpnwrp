@@ -34,6 +34,9 @@ var chat_msgs;
 var chat_wait;
 var chat_priv;
 
+var chat_temp_msgs = new Array();
+var chat_msgs_rcvd = {};
+
 var chat_focu = true;
 var chat_colr = '#484848';
 if (getCookie('chat_colr'))
@@ -227,6 +230,9 @@ function chat_reset(room, user, pass)
   chat_wait = new Array();
   chat_priv = '.';
 
+  chat_temp_msgs = new Array(); // clear the pending messages
+  chat_msgs_rcvd = {}; // clear the received post history
+
   chat_msgs['.'] = ''; // set messages to .?
   chat_priv_switch('.', false); // makes sure we aren't in private mode
 
@@ -240,38 +246,64 @@ function chat_reset(room, user, pass)
   }
 }
 
-
 // ***** chat_msgs_add *********************************************************
 
 function chat_msgs_add()
 {
-  if (!chat_user || !chat_pass) { chat_login(false); return; }
-  if (!document.getElementById('send').value || chat_XMLHttp_add.readyState % 4) return;
+	// first, security pass
+    if (!chat_user || !chat_pass) { chat_login(false); return; }
+    
+    // second, check for blank
+	var post_text = $('#send').val();
+    if (!post_text || post_text == "") return;
+	
+    // third, build the post
+    chat_rand += 1;
+    var newPost = {
+	    rand: chat_rand,
+	    addr: chat_addr,
+	    user: chat_user,
+	    pass: chat_pass,
+	    priv: chat_priv,
+	    colr: chat_colr,
+	    data: post_text,
+	    room: chat_room,
+	    tries: 1
+    };
+    chat_temp_msgs.push(newPost);
+    
+    // fourth, call it!
+	add_post_ajax(newPost);
+	
+	// fourth, clean up
+	document.getElementById('send').value = '';
+	if (chat_focu) document.getElementById('send').focus();
+}
 
-  chat_rand += 1;
-  var rand = chat_rand;
-  var addr = encodeURIComponent(chat_addr);
-  var user = encodeURIComponent(chat_user);
-  var pass = encodeURIComponent(chat_pass);
-  var priv = encodeURIComponent(chat_priv);
-  var colr = encodeURIComponent(chat_colr);
-  var data = encodeURIComponent($('#send').val());
+function resend_dead_posts(){
+	var chat_temp_msgs_length = chat_temp_msgs.length;
+	for(var i = 0; i < chat_temp_msgs_length; i++){
+		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
+			add_post_ajax(chat_temp_msgs[i]);
+			chat_temp_msgs[i].tries++;
+		}else{
+			confirmPostRand(chat_temp_msgs[i].rand);
+		}
+	}
+}
+
+function add_post_ajax(newPost)
+{
 	$.ajax({
 		url: chat_path+"php/msg_add.php",
-		data: {rand: rand,
-			addr: addr,
-			user: user,
-			pass: pass,
-			priv: priv,
-			colr: colr,
-			data: data},
+		data: newPost,
 		dataType: "JSON"
 	})
 	.done(function(response) {
 		if(response.success){
 			document.getElementById('log_add').innerHTML = response.text;
 			
-			if(response.messages.length > 0){
+			if(typeof(response.messages.length) != 'undefined' && response.messages.length > 0){
 				for(var i = 0; i< response.messages.length; i++){
 					chat_msgs['.'] += '<b>System:</b> '+response.messages[i]+'<br />';
 				}
@@ -279,18 +311,18 @@ function chat_msgs_add()
 			}
 		}else{
 	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+	        confirmPostRand(newPost.rand);
 	        chat_out_msgs();
 		}
 	});
 
-  document.getElementById('send').value = '';
-  if (chat_focu) document.getElementById('send').focus();
 }
 
 // ***** chat_msgs_get **********************************************************
 
 function chat_msgs_get()
 {
+  if(chat_rand % 5 == 0) { resend_dead_posts(); }; // every three seconds or so, retry the dead posts.
   var playDing = false;
   
   chat_tout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
@@ -319,10 +351,13 @@ function chat_msgs_get()
 	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
 	      }
+	      var initializationRun = (chat_mptr == -1);
 	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
 	    	line = response.lines[i];
-	    	//console.log(line);
+	    	
+	    	if(typeof(chat_msgs_rcvd[line.lineId]) != "undefined"){ continue; }; // if I've already seen this post, skip.
+	    	chat_msgs_rcvd[line.lineId] = true; // set this to true, then process the post.
 	        chat_mptr =  Math.max(chat_mptr, line.lineId);
 
 	        if (line.type == 'room' && line.operation == 'add') // add someone to the room
@@ -352,9 +387,10 @@ function chat_msgs_get()
 
 	        if (line.type == 'line') // process a post
 	        {
+	          confirmPostRand(line.chat_rand);
+
 	          var message = "";
 	          if($('#msg_'+line.lineId).length == 0){ // if the element does not exist in the form already 
-		          //console.log(line);
 		          chat_usrs[line.handle] = new Array(chat_room, line.gender, line.status, true);
 		          message = line.text;
 		          
@@ -464,7 +500,7 @@ function chat_msgs_log(asuser)
         chat_reset(chat_room, data[1], data[2]);
         popup_hide( 'login');
         popup_hide('glogin');
-        //document.location.reload(true);
+        /*document.location.reload(true);*/
       }
       if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
       chat_msgs_get();
@@ -531,14 +567,14 @@ function chat_out_usrs()
       users = chat_msgs_usr(i,         'black', true)+' <br />'+users;
   document.getElementById('users_othr').innerHTML = users;
   document.getElementById('users_othr').style.display = users ? 'block' : 'none';
-}
+};
 
 //***** replaceURLWithHTMLLinks **********************************************************
 
 function replaceURLWithHTMLLinks(text) {
 	  var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
 	  return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
-}
+};
 
 //***** Tag Replacing/balancing **********************************************************
 
@@ -552,5 +588,31 @@ function replaceAndBalanceTag( message, openRegex, openTag, closeRegex, closeTag
 		  message += closeTag;
 	}
 	return message;
-}
+};
 
+//***** etc **********************************************************
+
+function confirmPostRand( rand ){
+  var temp_temp_msgs = new Array(); // temporary array.
+  var confirmed = false; // stores if I found the rand in the list of pending posts
+  var length = chat_temp_msgs.length;
+  for(var i = 0; i< length; i++){ // go through the pending posts
+	  if(chat_temp_msgs[i].rand != rand){ // if it's not the one I'm looking for
+		  temp_temp_msgs.push(chat_temp_msgs[i]); // move it into the temp
+	  }else{ // if it is
+		  confirmed=true; // don't move it and set confirmed to true
+	  }
+  }
+  if(confirmed){
+  	chat_temp_msgs = temp_temp_msgs; // update chat_temp_msgs with the removed row
+  }
+  return confirmed;
+};
+
+function printTmpRands(){
+	var string = "chat_temp_messages has ids: (";
+	for(var i = 0; i< chat_temp_msgs.length; i++){
+		string += chat_temp_msgs[i].rand + ", ";
+	}
+	console.log(string + ");");
+}
