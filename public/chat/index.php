@@ -16,7 +16,7 @@ $_bootstrap = Bootstrap::getInstance();
 <script type="text/javascript" src="/mlpnwrp/public/js/jquery.js" > </script>
 
 </head>
-<body onload="chat_api_onload('Main Room', false<?if($user->data['is_registered']) echo ", '".$user->data['username']."'";?>);">
+<body>
 	<audio id="audio_ding" style="visibility: hidden;" controls>
 	  <source src="/mlpnwrp/public/media/12844__schluppipuppie__kling-01.wav" type="audio/wav"></source>
 	  <source src="/mlpnwrp/public/media/12844__schluppipuppie__kling-01.mp3" type="audio/mpeg"></source>
@@ -39,3 +39,25 @@ include_once 'ajax-chat/ajax-chat.php';
 
 </body>
 </html>
+<script>
+	$(function(){
+		chat_api_onload('Main Room', false<?if($user->data['is_registered']) echo ", '".$user->data['username']."'";?>);
+
+			/* TAB COMPLETION */
+		$('#send').keydown(function( e ){
+			if(e.which == 9){
+				var post = $('#send').val();
+				var lastWord = post.match(/\w*$/i);
+				for (var i in chat_usrs){
+					var regex = '^' + lastWord;
+					if( i.match(new RegExp(regex, 'i')) ){
+						var replaceRegex = lastWord + '$';
+						$('#send').val( post.replace( new RegExp( replaceRegex, 'i'), i) );
+					}
+				}
+				
+				return false;
+			}
+		});
+	});
+</script>
