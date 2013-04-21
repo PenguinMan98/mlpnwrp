@@ -35,16 +35,16 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   $time = time();
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
-  $room = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['room'])), ENT_QUOTES);
-  $rand = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['rand'])), ENT_QUOTES);
+  $room = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['room']), ENT_QUOTES);
+  $rand = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['rand']), ENT_QUOTES);
   $response->rand = $rand;
-  $handle = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['user'])), ENT_QUOTES);
-  $priv = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['priv'])), ENT_QUOTES);
-  $colr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['colr'])), ENT_QUOTES);
-  $data = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['data'])), ENT_QUOTES, 'utf-8');
-  $addr = htmlentities(preg_replace("/\\s+/iX", " ", urldecode($_GET['addr'])), ENT_QUOTES);
+  $handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
+  $priv = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['priv']), ENT_QUOTES);
+  $colr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['colr']), ENT_QUOTES);
+  $data = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['data']), ENT_QUOTES, 'utf-8');
+  $addr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['addr']), ENT_QUOTES);
   $guid = $handle.$rand.$handle;
-
+  
   // Joe added a word filter
   $badWords = array("/fuck\S*/i",
   					"/bitch\S*/i",
