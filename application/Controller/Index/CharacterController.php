@@ -30,6 +30,11 @@ class Index_CharacterController extends Index_BaseController{
 			// redirect to the character search page
 			die("I don't know anypony named $charName!  Sorry! Maybe one will fall from the sky tomorrow?");
 		}
+		$userProvider = new Model_Data_Phpbb_UsersProvider();
+		$userId = $this->user->data['user_id'];
+		if(!$userProvider->verifyUserAndCharacterId($userId, $character['character_id'])){
+			die("This is not your character.");
+		}
 		
 		$this->vars->character = $character;
 		
