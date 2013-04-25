@@ -69,7 +69,6 @@ class Index_CharacterController extends Index_BaseController{
 		
 		// are we editing?
 		$editing = ($_REQUEST['edit']) ? true : false;
-		
 		$character_name = str_replace(' ','_',str_replace('  ',' ',trim(filter_var($_REQUEST['character_name'], FILTER_SANITIZE_STRING))));
 		$birth_gender = filter_var($_REQUEST['birth_gender'], FILTER_SANITIZE_STRING);
 		$race = filter_var($_REQUEST['race'], FILTER_SANITIZE_NUMBER_INT);
@@ -89,12 +88,11 @@ class Index_CharacterController extends Index_BaseController{
 			Dao::startTransaction();
 			$characterProvider = new Model_Data_CharacterProvider();
 			$character = $characterProvider->getOneByCharacterName($character_name);
-			if(is_object($character) && !$editing){
+			if(is_object($character) && !$editing){// fail if the character exists and we aren't editing
 				throw new Exception("Character already exists!");
 			}elseif(!is_object($character)){
 				$character = new Model_Structure_Character();
 			}
-			
 			
 			$character->setName($character_name);
 			$character->setChatNameFormatted($character_name);
@@ -112,27 +110,31 @@ class Index_CharacterController extends Index_BaseController{
 			
 			// this is enough to create the character
 			$arrErrors = array();
+			
+			
 			if($editing){
 				$characterProvider->updateOne($character, $arrErrors);
 			}else{
 				$characterProvider->insertOne($character, $arrErrors);
 			}
+
 			if(!empty($arrErrors) && !$editing){
 				throw new Exception("Error inserting character ".$character->getName().": " . implode('|', $arrErrors));
 			}elseif(!empty($arrErrors)){
 				throw new Exception("Error updating character ".$character->getName().": " . implode('|', $arrErrors));
 			}
 			
-			// now create the relationship between the character and the user.
-			$characterUserProvider = new Model_Data_CharacterUserProvider();
-			$characterUser = new Model_Structure_CharacterUser();
-			$characterUser->setCharacterId($character->getCharacterId());
-			$characterUser->setUserId($this->user->data['user_id']);
-			$characterUserProvider->insertOne($characterUser, $arrErrors);
-			if(!empty($arrErrors)){
-				throw new Exception("Error creating a relationship between character ".$character->getName()." and user ".$this->user->data['username']." : " . implode('|', $arrErrors));
+			if(!$editing){
+				// create the relationship between the character and the user.
+				$characterUserProvider = new Model_Data_CharacterUserProvider();
+				$characterUser = new Model_Structure_CharacterUser();
+				$characterUser->setCharacterId($character->getCharacterId());
+				$characterUser->setUserId($this->user->data['user_id']);
+				$characterUserProvider->insertOne($characterUser, $arrErrors);
+				if(!empty($arrErrors)){
+					throw new Exception("Error creating a relationship between character ".$character->getName()." and user ".$this->user->data['username']." : " . implode('|', $arrErrors));
+				}
 			}
-			
 			Dao::commit();
 		}catch(Exception $e){
 			Dao::rollback();
