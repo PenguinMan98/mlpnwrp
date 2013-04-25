@@ -91,7 +91,7 @@ class Index_CharacterController extends Index_BaseController{
 			$character = $characterProvider->getOneByCharacterName($character_name);
 			if(is_object($character) && !$editing){
 				throw new Exception("Character already exists!");
-			}elseif(!editing){
+			}elseif(!is_object($character)){
 				$character = new Model_Structure_Character();
 			}
 			
