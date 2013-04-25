@@ -6,4 +6,31 @@ class Model_Data_Phpbb_UsersProvider extends Model_Data_Phpbb_UsersProviderBase
 		$params = array(strtolower($userName));
 		return Model_Data_Phpbb_UsersProvider::getOneFromQuery($strSql, $params);
 	}
+	
+public function getUsersByCharacterId($characterId){
+		$strSql = '
+SELECT user.user_id, user.username
+FROM `character_user` cu
+JOIN `phpbb_users` user
+        ON user.user_id = cu.user_id
+WHERE cu.character_id = ?';
+		$arrParams = array($characterId);
+		$arrResults = array();
+		$arrErrors = array();
+		Dao::getAssoc($strSql, $arrParams, $arrResults, $arrErrors);
+		if(!empty($arrErrors)){
+			throw new Exception("Error getting Users for character id ($characterId): " . implode('|',$arrErrors));
+		}
+		return $arrResults;
+	}
+	
+	public function verifyUserAndCharacterId($userId, $characterId){
+		$users = $this->getUsersByCharacterId($characterId);
+		foreach($users as $user){
+			if($user['user_id'] == $userId){
+				return true;
+			}
+		}
+		return false;
+	}
 }

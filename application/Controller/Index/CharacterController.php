@@ -21,6 +21,29 @@ class Index_CharacterController extends Index_BaseController{
 		$this->vars->character = $character;
 	}
 	
+	public function EditAction(){
+		$this->view = "Character/edit.phtml";
+		$charName = $this->URI_PARAMS['c'];
+		$characterProvider = new Model_Data_CharacterProvider();
+		$character = $characterProvider->getDetailsByCharacterName($charName);
+		if(empty($character)) {
+			// redirect to the character search page
+			die("I don't know anypony named $charName!  Sorry! Maybe one will fall from the sky tomorrow?");
+		}
+		$userProvider = new Model_Data_Phpbb_UsersProvider();
+		$userId = $this->user->data['user_id'];
+		if(!$userProvider->verifyUserAndCharacterId($userId, $character['character_id'])){
+			die("This is not your character.");
+		}
+		
+		$this->vars->character = $character;
+		
+		$characterRaceProvider = new Model_Data_CharacterRaceProvider();
+		$characterAgeProvider = new Model_Data_CharacterAgeProvider();
+		$this->vars->raceList = $characterRaceProvider->getRaceList();
+		$this->vars->ageList = $characterAgeProvider->getAgeList();
+	}
+	
 	public function CreateAction(){
 		$this->view = "Character/create.phtml";
 		$characterRaceProvider = new Model_Data_CharacterRaceProvider();
@@ -41,7 +64,11 @@ class Index_CharacterController extends Index_BaseController{
 		if($this->user->data['username_clean'] == 'anonymous'){
 			header('Location: ' . SITE_ROOT . '/forum');
 		}
+		
 		$allowedTags = '<br><p><img><h1><h2><h3><h4><div><span><u><i><strike><strong><b>';
+		
+		// are we editing?
+		$editing = ($_REQUEST['edit']) ? true : false;
 		
 		$character_name = str_replace(' ','_',str_replace('  ',' ',trim(filter_var($_REQUEST['character_name'], FILTER_SANITIZE_STRING))));
 		$birth_gender = filter_var($_REQUEST['birth_gender'], FILTER_SANITIZE_STRING);
@@ -55,17 +82,20 @@ class Index_CharacterController extends Index_BaseController{
 		$player_private_notes = strip_tags($_REQUEST['player_private_notes'], $allowedTags);
 		
 		// set some defaults
-		$chat_name_color = ( $chat_name_color != "" ) ? "#" . $chat_name_color : "#ffffff" ;
-		$chat_text_color = ( $chat_text_color != "" ) ? "#" . $chat_text_color : "#ffffff" ;
+		$chat_name_color = ( $chat_name_color != "" ) ? $chat_name_color : "#ffffff" ;
+		$chat_text_color = ( $chat_text_color != "" ) ? $chat_text_color : "#ffffff" ;
 		
 		try{
 			Dao::startTransaction();
 			$characterProvider = new Model_Data_CharacterProvider();
 			$character = $characterProvider->getOneByCharacterName($character_name);
-			if(is_object($character)){
+			if(is_object($character) && !$editing){
 				throw new Exception("Character already exists!");
+			}elseif(!is_object($character)){
+				$character = new Model_Structure_Character();
 			}
-			$character = new Model_Structure_Character();
+			
+			
 			$character->setName($character_name);
 			$character->setChatNameFormatted($character_name);
 			$character->setBornFemale(($birth_gender == 'female'));
@@ -82,9 +112,15 @@ class Index_CharacterController extends Index_BaseController{
 			
 			// this is enough to create the character
 			$arrErrors = array();
-			$characterProvider->insertOne($character, $arrErrors);
-			if(!empty($arrErrors)){
+			if($editing){
+				$characterProvider->updateOne($character, $arrErrors);
+			}else{
+				$characterProvider->insertOne($character, $arrErrors);
+			}
+			if(!empty($arrErrors) && !$editing){
 				throw new Exception("Error inserting character ".$character->getName().": " . implode('|', $arrErrors));
+			}elseif(!empty($arrErrors)){
+				throw new Exception("Error updating character ".$character->getName().": " . implode('|', $arrErrors));
 			}
 			
 			// now create the relationship between the character and the user.
@@ -102,6 +138,10 @@ class Index_CharacterController extends Index_BaseController{
 			Dao::rollback();
 			$this->errors[] = $e->getMessage();
 		}
-		header('Location: ' . SITE_ROOT . '/character/view/' . $character_name);
+		if($editing){
+			header('Location: ' . SITE_ROOT . '/character/edit/' . $character_name);
+		}else{
+			header('Location: ' . SITE_ROOT . '/character/view/' . $character_name);
+		}
 	}
 }
