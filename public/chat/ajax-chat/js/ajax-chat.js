@@ -465,7 +465,9 @@ function chat_msgs_get()
 	        chat_out_usrs();
 	      }
 		}else{
-	        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
+			if(response.error.trim() != ""){
+		        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
+			}
 	        chat_out_msgs();
 		}
 		
