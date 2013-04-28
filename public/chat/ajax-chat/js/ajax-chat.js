@@ -259,8 +259,10 @@ function chat_msgs_add()
 	
     // third, build the post
     chat_rand += 1;
+    var timestamp = new Date().getTime();// I switched the chat rand to a timestamp.  This should fix any guid problems and false duplicate posts.
+    timestamp = timestamp / 1000;
     var newPost = {
-	    rand: chat_rand,
+	    rand: timestamp,
 	    addr: chat_addr,
 	    user: chat_user,
 	    pass: chat_pass,

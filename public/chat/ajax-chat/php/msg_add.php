@@ -19,6 +19,7 @@ include("TokenOperation.php");
 // You expressly acknowledge and agree that use of this code is at your own risk.
 
 $response = new stdClass();
+$response->messages = array();
 $response->success = true;
 $response->text = "";
 
@@ -127,23 +128,38 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
     }
     else
     {
-    	// check for duplicate post
-    	$contents = file("data.txt");// I shouldn't have to do this.  It's all in chat_data already
-    	$duplicatePost = preg_grep("/$guid/i",$contents);  // searches the file for the token I specify in guid.  Probably really slow. will be switching to DB soon.
-
-    	// Joe hacked in flood protection
-    	$FLOODCUTOFFTIME = 5; // can't post more than 3 times in a 5 second period.
-    	$FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
-    	$ipPosts = array_values(preg_grep("/".str_replace(".","\.",$addr)."/i",$contents));
-    	$matches = array();
-    	$result = preg_match("/\"time\";i:(\d*);/i",$ipPosts[count($ipPosts)-$FLOODCUTOFFPOSTS],$matches);  // wow.. I wrote this?
-    	$timeDiff = $FLOODCUTOFFTIME+1;
-    	if($result > 0){
-    		$timeDiff = time() - $matches[1];
+    	$duplicatePost = false; 
+    	$flood = false;
+    	$ipPosts = array();
+    	
+    	// loop through the existing lines
+    	foreach($chat_data['data'] as $line){
+	    	// check for duplicate post
+    		if(isset($line['guid']) && $line['guid'] == $guid){
+    			$duplicatePost = true;
+    		}
+    		// store up an array of posts from this IP
+    		if(isset($line['addr']) && $line['addr'] == $addr){
+    			$ipPosts[] = $line;
+    		}
     	}
 
-    	if(count($duplicatePost) == 0 && $timeDiff > $FLOODCUTOFFTIME){ // if it's no duplicate, and it's not flood,
-
+    	// Joe built better flood protection
+    	$FLOODCUTOFFTIME = 5; // can't post more than 3 times in a 5 second period.
+    	$FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
+    	if(count($ipPosts) > $FLOODCUTOFFPOSTS){ // can't flood if you haven't posted enough
+    		$timeToCheckAgainst = $ipPosts[count($ipPosts)-$FLOODCUTOFFPOSTS]['time'];// get the time from the post a few back
+	    	//$timeDiff = $FLOODCUTOFFTIME+1; // initialize it to something acceptable
+	    	if(time() - $timeToCheckAgainst < $FLOODCUTOFFTIME){
+	    		$flood = true;
+	    	}
+    	}
+    	 
+    	if(!$duplicatePost && !$flood){ // if it's no duplicate, and it's not flood,
+   		  $response->text = $data;
+   		  
+   		  //----------- Store post in the file
+    		
 	      $chat_data['data'][] = array('time' => $time, // add all this crap to an element of chat_data
 	                                   'guid' => $guid,
 	      							   'chat_rand' => $rand,
@@ -158,63 +174,69 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	        	break;
 	        unset($chat_data['data'][$i]);
 	      }
-        }elseif($timeDiff <= $FLOODCUTOFFTIME){
+	      
+	      //--------------- Store the post in the DB
+	      
+	      $arrErrors = array();
+	       
+	      // create a chatlog record!
+	      $chatLogProvider = new Model_Data_ChatLogProvider();
+	      $chatLog = new Model_Structure_ChatLog();
+	       
+	      //get the chat room id
+	      $chatRoomProvider = new Model_Data_ChatRoomProvider();
+	      $chatRoom = $chatRoomProvider->getOneByName($room);
+	      $chatLog->setChatRoomId($chatRoom->getChatRoomId());
+	       
+	      // get the user from the PHPBB
+	      /*$userProvider = new Model_Data_Phpbb_UsersProvider();
+	       $username = str_replace("GT-","",$handle);
+	      $userObj = $userProvider->getOneByName($username);*/
+	      $chatLog->setUserId($user->data['user_id']);
+	      
+	      // handle comes from the input
+	      $chatLog->setHandle($handle);
+	      
+	      // check the handle against the list of valid character names
+	      $characterProvider = new Model_Data_CharacterProvider(); // by redeclaring the class, I ensure a fresh pull of the current list.  This may be overdoing it.
+	      $character = $characterProvider->getOneByCharacterName($handle);
+	      if(is_object($character)){
+	      	$chatLog->setCharacterId($character->getCharacterId());
+	      }
+	       
+	      $chatLog->setColor($colr);
+	      $chatLog->setText($data);
+	      $chatLog->setChatRand($rand);
+	       
+	      if(!empty($priv) && $priv != '.'){
+	      	$recipient = $userProvider->getOneByName(str_replace("GT-","",$priv));
+	      	if(is_object($recipient)){ // this is a registered user
+	      		$chatLog->setRecipientUserId($recipient->getUserId());
+	      	}else{
+	      		$chatLog->setRecipientUsername($priv);
+	      	}
+	      }
+	      $chatLog->setTimestamp(date('Y-m-d H:i:s'));
+	       
+	      try{
+	      	$chatLogProvider->insertBlogPost($chatLog);
+	      }catch(Exception $e){
+	      	$response->text = "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
+	      	$response->success = false;
+	      }
+	       
+        }elseif($flood){
         	$response->text = "Your post \"$data\" was not registered due to flood protection.";
+        	$response->success = false;
+        }else{ // duplicate
         	$response->success = false;
         }
     }
   }
 
-  if ($modified && $response->success){
+  if ($modified){
   	file_put_contents('data.txt', serialize($chat_data));
   	
-  	$arrErrors = array();
-  	
-  	// create a chatlog record!
-  	$chatLogProvider = new Model_Data_ChatLogProvider();
-  	$chatLog = new Model_Structure_ChatLog();
-  	
-  	//get the chat room id
-  	$chatRoomProvider = new Model_Data_ChatRoomProvider();
-  	$chatRoom = $chatRoomProvider->getOneByName($room);
-  	$chatLog->setChatRoomId($chatRoom->getChatRoomId());
-  	
-  	// get the user from the PHPBB
-  	/*$userProvider = new Model_Data_Phpbb_UsersProvider();
-  	$username = str_replace("GT-","",$handle);
-  	$userObj = $userProvider->getOneByName($username);*/
-  	$chatLog->setUserId($user->data['user_id']);
-
-  	// handle comes from the input
-  	$chatLog->setHandle($handle);
-  	 
-  	// check the handle against the list of valid character names
-  	$characterProvider = new Model_Data_CharacterProvider(); // by redeclaring the class, I ensure a fresh pull of the current list.  This may be overdoing it.
-  	$character = $characterProvider->getOneByCharacterName($handle);
-  	if(is_object($character)){
-  		$chatLog->setCharacterId($character->getCharacterId());
-  	}
-  	
-  	$chatLog->setColor($colr);
-  	$chatLog->setText($data);
-  	$chatLog->setChatRand($rand);
-  	
-  	if(!empty($priv) && $priv != '.'){
-  		$recipient = $userProvider->getOneByName(str_replace("GT-","",$priv));
-  		if(is_object($recipient)){ // this is a registered user
-  			$chatLog->setRecipientUserId($recipient->getUserId());
-  		}else{
-  			$chatLog->setRecipientUsername($priv);
-  		}
-  	}
-  	$chatLog->setTimestamp(date('Y-m-d H:i:s'));
-  	
-  	try{
-  		$chatLogProvider->insertBlogPost($chatLog);
-  	}catch(Exception $e){
-  		$response->success = false;
-  		$response->text = "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
-  	}
   }
 }
 echo json_encode($response);
