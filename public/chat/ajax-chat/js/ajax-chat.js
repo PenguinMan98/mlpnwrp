@@ -307,7 +307,7 @@ function add_post_ajax(newPost)
 			
 			if(typeof(response.messages.length) != 'undefined' && response.messages.length > 0){
 				for(var i = 0; i< response.messages.length; i++){
-					if(response.messages[i] != ""){
+					if(response.messages[i].trim() != ""){
 						chat_msgs['.'] += '<b>System:</b> '+response.messages[i]+'<br />';
 					}
 				}

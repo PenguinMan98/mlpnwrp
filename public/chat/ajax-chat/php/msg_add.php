@@ -19,7 +19,7 @@ include("TokenOperation.php");
 // You expressly acknowledge and agree that use of this code is at your own risk.
 
 $response = new stdClass();
-$response->messages = array();
+//$response->messages = array(); // do not initialize this
 $response->success = true;
 $response->text = "";
 
