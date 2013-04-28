@@ -32,12 +32,13 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   include_once 'init.php';
   $modified = unlog_users();/* refresh the user list and note if we changed it */
 
-  $time = time();
+  $time = time(); // declare the variables and grab the input that we need
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
+  $response->rand = $rand;
+  // all the preg replace does is replace strings of multiple spaces with just one space.
   $room = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['room']), ENT_QUOTES);
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['rand']), ENT_QUOTES);
-  $response->rand = $rand;
   $handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['priv']), ENT_QUOTES);
   $colr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['colr']), ENT_QUOTES);
@@ -59,6 +60,8 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   	$data = preg_replace($regex, '****', $data);
   }
 
+  	// this strips all < characters out of the chat.  It's to prevent cheating on the dice rolls.
+  	// I should find a better solution because I can't give <3 this way.
   $data = str_replace("<", "(", $data);
   $data = str_replace("&lt;", "(", $data);
   $data = str_replace(">", ")", $data);
@@ -75,72 +78,73 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   $input = $data; // save the original input
   try{
   	$messages = array();
-  	new TokenOperation($data, $messages);
+  	new TokenOperation($data, $messages);// data goes in and gets changed by reference, messages come out.
   	$response->messages = $messages;
   }catch(Exception $e){
-  	$response->error = $e->getMessage();
-  	$data = $input;
+  	$response->error = $e->getMessage(); // if the parser fails, 
+  	$data = $input; // just store the original input
   }
   
 
-  if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] ||
-      $chat_data['kick'][$handle] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])
+  if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] || // if this character is muted or their ip is muted
+      $chat_data['kick'][$handle] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])// if this character is kicked or their ip is kicked
   {
-    $response->text = $chat_err_mute;
+    $response->text = $chat_err_mute; // throw an error
     $response->success = false;
     die;
   }
 
-  if (isset($chat_data['room'][$handle]) &&
+  if (isset($chat_data['room'][$handle]) &&// verifies that a username and password are stored and the char is in a room
       isset($chat_data['user'][$handle]) &&
       isset($chat_data['pass'][$handle]) &&
            ($chat_data['pass'][$handle]) == $_GET['pass'])
   {
-    $modified = true;
+    $modified = true; // set modified to true because we're adding a post.
+    $chat_data['time'][$handle] = $time;  // set the time into the chat data
 
-        $chat_data['time'][$handle] = time();
-    if ($chat_data['away'][$handle]) $chat_data['data'][] = "s\r\n$handle\r\n+";
-        $chat_data['away'][$handle] = false;
+    if ($chat_data['away'][$handle]) // if I'm away,
+    	$chat_data['data'][] = "s\r\n$handle\r\n+";// put an s notice into the data stream to make me active again
+    $chat_data['away'][$handle] = false; // set my away status to false in the chat data
 
-    if     (in_array($_GET['user'], $chat_admins) &&
-            preg_match("/^\\s*\\/(kick|mute)\\s*([0-9a-zA-Z_]+)\\s*([0-9]+)\\s*$/", $_GET['data'], $matches))
+    if(in_array($_GET['user'], $chat_admins) && // if the user is an admin, 
+            preg_match("/^\\s*\\/(kick|mute)\\s*([0-9a-zA-Z_]+)\\s*([0-9]+)\\s*$/", $_GET['data'], $matches)) // and it's a mute or kick command
     {
-      $cmd_type = $matches[1];
-      $cmd_user = $matches[2];
-      $cmd_time = $matches[3];
-      if ($cmd_type == 'kick') $chat_data['kick'][$cmd_user] = time()+$cmd_time*24*3600;
-      if ($cmd_type == 'mute') $chat_data['mute'][$cmd_user] = time()+$cmd_time*24*3600;
+      $cmd_type = $matches[1]; // kick or mute
+      $cmd_user = $matches[2]; // username
+      $cmd_time = $matches[3]; // time interval
+      if ($cmd_type == 'kick') $chat_data['kick'][$cmd_user] = time()+$cmd_time*24*3600; // set the interval when the kick will expire
+      if ($cmd_type == 'mute') $chat_data['mute'][$cmd_user] = time()+$cmd_time*24*3600; // set the interval when the ban will expire
       if ($cmd_type == 'kick') $response->text = "User <b>" . htmlentities($cmd_user) . "</b> is kicked for " . $cmd_time . " day(s)";
       if ($cmd_type == 'mute') $response->text = "User <b>" . htmlentities($cmd_user) . "</b> is  muted for " . $cmd_time . " day(s)";
-      $response->success = false;
+      $response->success = false; // why not true?
     }
-    elseif (in_array($_GET['user'], $chat_admins) &&
-            preg_match("/^\\s*\\/(list)\\s*(kick|mute)\\s*$/", $_GET['data'], $matches))
+    elseif (in_array($_GET['user'], $chat_admins) && // if the user is an admin
+            preg_match("/^\\s*\\/(list)\\s*(kick|mute)\\s*$/", $_GET['data'], $matches)) // and they are asking for a list of kicked or banned users,
     {
       if ($matches[2] == 'kick') $response->text = count($chat_data['kick']) . " user(s) kicked: " . implode(', ', array_keys($chat_data['kick']));
       if ($matches[2] == 'mute') $response->text = count($chat_data['mute']) . " user(s)  muted: " . implode(', ', array_keys($chat_data['mute']));
-      $response->success = false;
+      $response->success = false; // why not true?
     }
     else
     {
     	// check for duplicate post
-    	$contents = file("data.txt");
-    	$duplicatePost = preg_grep("/$guid/i",$contents);
+    	$contents = file("data.txt");// I shouldn't have to do this.  It's all in chat_data already
+    	$duplicatePost = preg_grep("/$guid/i",$contents);  // searches the file for the token I specify in guid.  Probably really slow. will be switching to DB soon.
 
-    	// Joe added flood protection
+    	// Joe hacked in flood protection
     	$FLOODCUTOFFTIME = 5; // can't post more than 3 times in a 5 second period.
     	$FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
     	$ipPosts = array_values(preg_grep("/".str_replace(".","\.",$addr)."/i",$contents));
     	$matches = array();
-    	$result = preg_match("/\"time\";i:(\d*);/i",$ipPosts[count($ipPosts)-$FLOODCUTOFFPOSTS],$matches);
+    	$result = preg_match("/\"time\";i:(\d*);/i",$ipPosts[count($ipPosts)-$FLOODCUTOFFPOSTS],$matches);  // wow.. I wrote this?
     	$timeDiff = $FLOODCUTOFFTIME+1;
     	if($result > 0){
     		$timeDiff = time() - $matches[1];
     	}
 
-    	if(count($duplicatePost) == 0 && $timeDiff > $FLOODCUTOFFTIME){ //
+    	if(count($duplicatePost) == 0 && $timeDiff > $FLOODCUTOFFTIME){ // if it's no duplicate, and it's not flood,
 
-	      $chat_data['data'][] = array('time' => $time,
+	      $chat_data['data'][] = array('time' => $time, // add all this crap to an element of chat_data
 	                                   'guid' => $guid,
 	      							   'chat_rand' => $rand,
 	                                   'room' => $room,
@@ -150,7 +154,8 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	      							   'data' => "m\r\n$colr\r\n$gndr\r\n$stat\r\n$handle\r\n$priv\r\n$data");
 	      foreach($chat_data['data'] as $i => $x)
 	      {
-	        if (count($chat_data['data']) <= $chat_histlen) break;
+	        if (count($chat_data['data']) <= $chat_histlen) 
+	        	break;
 	        unset($chat_data['data'][$i]);
 	      }
         }elseif($timeDiff <= $FLOODCUTOFFTIME){
@@ -160,7 +165,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
     }
   }
 
-  if ($modified){
+  if ($modified && $response->success){
   	file_put_contents('data.txt', serialize($chat_data));
   	
   	$arrErrors = array();

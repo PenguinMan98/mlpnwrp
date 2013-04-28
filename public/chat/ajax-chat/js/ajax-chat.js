@@ -158,7 +158,7 @@ function chat_date(offset)
 
 function chat_login(asuser)
 {
-  if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden */
+  if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden AND */
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
 		  popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
@@ -510,14 +510,32 @@ function chat_msgs_log(asuser)
 
 
 // ***** chat_msgs_usr **********************************************************
-
+/*
+ * Takes a user, color, and away status and formats an html dealie for them.
+ * */
 function chat_msgs_usr(user, color, waway)
 {
-  waway = (typeof waway == 'undefined') ? false : waway ;
-  return ((typeof chat_usrs[user][2] != 'undefined' && chat_usrs[user][2] != 'none') ? '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />' : '')+
-         ((typeof chat_usrs[user][1] != 'undefined' && chat_usrs[user][1] != 'none') ? '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />' : '')+
-         '<a style="color: '+color+'" href="javascript:chat_priv_switch(\''+user+'\', true);">'+user+
-         ((waway && !chat_usrs[user][3]) ? ' (away)' : '')+'</a>';
+  waway = (typeof waway == 'undefined') ? false : waway ; // first, make sure waway is not undefined,
+  // then build a return string
+  var retString = "";
+  // if there is a status, then add the icon
+  if(typeof chat_usrs[user][2] != 'undefined' && chat_usrs[user][2] != 'none'){
+	  retString += '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />';
+  }
+  // if there is a gender, then add the icon
+  if(typeof chat_usrs[user][1] != 'undefined' && chat_usrs[user][1] != 'none'){
+	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />';
+  }
+  // always add the name and the javascript that fires the switch to private messaging
+  retString += '<a style="color: '+color+'" href="javascript:chat_priv_switch(\''+user+'\', true);">'+user;
+  // if the user is away, add this
+  if(waway && !chat_usrs[user][3]){
+	  retString += ' (away)';
+  }
+  // end the link
+  retString += '</a>';
+  // ship it out
+  return retString;
 }
 
 
@@ -539,34 +557,49 @@ function chat_out_msgs()
 
 
 // ***** chat_out_usrs **********************************************************
-
+/*
+ * This seems to be the function that outputs users to the main page.  
+ * It draws its data from the chat_usrs variable.
+ * */
 function chat_out_usrs()
 {
   var users;
   chat_usrs.sort();
 
-  users = '';
-  for (var i in chat_usrs)
-    if (i != chat_user && chat_usrs[i] && chat_wait[chat_user] != undefined && chat_wait[chat_user][i] != undefined &&  chat_wait[chat_user][i])
-      users = chat_msgs_usr(i,         'black', true)+'<br />'+users;
-  document.getElementById('users_priv').innerHTML = users;
-  document.getElementById('users_priv').style.display = users ? 'block' : 'none';
+  users = '';// initialize users to blank
+  for (var i in chat_usrs) // for every character in the internal list of presumable all characters who were tracked in the history of the logfile...
+	if (
+			i != chat_user && // it's not me
+			chat_usrs[i] && // and the character isn't false...?
+			chat_wait[chat_user] != undefined && // I'm in wait mode?
+			chat_wait[chat_user][i] != undefined && // and I'm waiting on this guy
+			chat_wait[chat_user][i]) // and it's my turn ??( there is a value here besides 'false' ) 
+      users = chat_msgs_usr(i,         'black', true)+'<br />'+users; // get the formated html and then we prepend it to users?
+  document.getElementById('users_priv').innerHTML = users; // get the users_priv element and add the users to it.
+  document.getElementById('users_priv').style.display = users ? 'block' : 'none'; // turn the div visible if users is set.
 
-  users = '';
-  for (var i in chat_usrs)
-    if (i != chat_user && chat_usrs[i] && chat_usrs[i][0] == chat_room)
-      users = chat_msgs_usr(i,         'black', true)+' <br />'+users;
-  if (chat_user)
-      users = chat_msgs_usr(chat_user, 'black', true)+' <br />'+users;
-  document.getElementById('users_this').innerHTML = users;
-  document.getElementById('users_this').style.display = users ? 'block' : 'none';
+  users = ''; // reset users.
+  for (var i in chat_usrs)// for each char
+    if (
+    		i != chat_user && // if it's not me
+    		chat_usrs[i] && // its a user
+    		chat_usrs[i][0] == chat_room) // and they're in my room
+      users = chat_msgs_usr(i,         'black', true)+' <br />'+users; // format them
+  if (chat_user) // if I'm here
+      users = chat_msgs_usr(chat_user, 'black', true)+' <br />'+users; // put me on top
+  document.getElementById('users_this').innerHTML = users; // connect to this room's div and dump the users in
+  document.getElementById('users_this').style.display = users ? 'block' : 'none'; // show it if people are here.
 
-  users = '';
+  users = ''; // reset users
   for (var i in chat_usrs)
-    if (i != chat_user && chat_usrs[i] && chat_usrs[i][0] != chat_room)
-      users = chat_msgs_usr(i,         'black', true)+' <br />'+users;
-  document.getElementById('users_othr').innerHTML = users;
-  document.getElementById('users_othr').style.display = users ? 'block' : 'none';
+    if (
+    		i != chat_user && // if it's not me
+    		chat_usrs[i] && // they're truely here
+    		chat_usrs[i][0] != chat_room) // and NOT in my room
+      users = chat_msgs_usr(i,         'black', true)+' <br />'+users; // format them up
+  document.getElementById('users_othr').innerHTML = users; // dump them into other.
+  document.getElementById('users_othr').style.display = users ? 'block' : 'none';  // show it if it needs to be shown.
+  // no return value.
 };
 
 //***** replaceURLWithHTMLLinks **********************************************************
