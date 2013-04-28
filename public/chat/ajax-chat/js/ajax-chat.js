@@ -313,7 +313,10 @@ function add_post_ajax(newPost)
 				}
 			}
 		}else{
-	        chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+			if(response.text.trim() != ""){
+				chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
+			}
+	        
 	        confirmPostRand(newPost.rand);
 	        chat_out_msgs();
 		}
