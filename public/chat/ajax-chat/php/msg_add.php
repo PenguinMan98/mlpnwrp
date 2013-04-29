@@ -181,6 +181,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	       
 	      // create a chatlog record!
 	      $chatLogProvider = new Model_Data_ChatLogProvider();
+	      $userProvider = new Model_Data_Phpbb_UsersProvider();
 	      $chatLog = new Model_Structure_ChatLog();
 	       
 	      //get the chat room id
