@@ -45,27 +45,28 @@ class TokenOperation{
 				
 					// check for the class file
 				if(!file_exists($filePath)){
-					//throw new Exception("The operation " . $operator . " has not been defined.");
-					$parsed[] = "&lt;&lt; '" . $operator . "' operation not found &gt;&gt; ";
-					continue;
+					$messages[] = "⋘ '" . $operator . "' operation not found ⋙ ";
 				}
-					// include the class
-				require_once($filePath);
-				
-				if(($i + $className::$args) >= count($raw) ){ // not enough arguments
-					$parsed[] = "&lt;&lt; not enough arguments &gt;&gt;";
-					continue;
+
+				else {
+						// include the class
+					require_once($filePath);
+					
+					if(($i + $className::$args) >= count($raw) ){ // not enough arguments
+						$parsed[] = "&lt;&lt; not enough arguments &gt;&gt;";
+						continue;
+					}
+					$args = array_slice($raw, $i + 1, $className::$args);
+					
+						// create the class
+					$opClass = new $className($args);
+					
+					$parsed[] = (string)$opClass; // perform the operation
+					$messages = $opClass->messages;  // get any messages
+					$parsed[0] = $messages;
+					
+					$i += $className::$args;
 				}
-				$args = array_slice($raw, $i + 1, $className::$args);
-				
-					// create the class
-				$opClass = new $className($args);
-				
-				$parsed[] = (string)$opClass; // perform the operation
-				
-				$messages = $opClass->messages;  // get any messages
-				
-				$i += $className::$args;
 				
 			}
 			if($i >= count($raw) - 1 && $this->oocFlag){
