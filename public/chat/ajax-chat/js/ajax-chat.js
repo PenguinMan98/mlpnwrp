@@ -210,7 +210,7 @@ function chat_priv_switch(user, focus)
       document.getElementById('header_messages').innerHTML = chat_room; // show the room name
   else // otherwise,  show the link back to the main chat
 	  document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;
-  chat_out_msgs();
+  displayMessages();
 }
 
 
@@ -318,7 +318,7 @@ function add_post_ajax(newPost)
 			}
 	        
 	        confirmPostRand(newPost.rand);
-	        chat_out_msgs();
+	        displayMessages();
 		}
 	});
 
@@ -461,14 +461,14 @@ function chat_msgs_get()
 	      
 	      if (response.lines.length > 0)
 	      {
-	        chat_out_msgs();
+	        displayMessages();
 	        chat_out_usrs();
 	      }
 		}else{
 			if(response.error.trim() != ""){
 		        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
 			}
-	        chat_out_msgs();
+	        displayMessages();
 		}
 		
 	});
@@ -559,13 +559,18 @@ function generateCharacterRoomlistLink(name, color, away)
 }
 
 
-// ***** chat_out_msgs **********************************************************
-
-function chat_out_msgs()
+// ***** displayMessages **********************************************************
+/* Wipes the message box's text and sets it to whatever is appropriate. Takes in account
+ * whether the user is chatting privately, and makes use of the autofocus checkbox to
+ * determine scrolling behavior.
+ */
+function displayMessages()
 {
-  // the switch between displaying the PM's and the public
+  // Do we display the current room's messages or a set of private messages for a certain user?
   document.getElementById('messages').innerHTML = (chat_priv == '.') ? chat_msgs[chat_priv] : chat_msgs[chat_user][chat_priv];
-  if(document.getElementById('autofocus').checked){ /*Disable autofocus!*/
+  
+  // If autofocus is checked, scroll to the bottom of the message pane.
+  if(document.getElementById('autofocus').checked){ 
 	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
   }
 }
