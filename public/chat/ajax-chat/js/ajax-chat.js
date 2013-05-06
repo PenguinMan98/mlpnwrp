@@ -569,7 +569,7 @@ function generateCharacterRoomlistLink(name, color, away)
   retString += '">' + user + '</a>';
 
   // If the character is away, add text indicating so.
-  if(sidebar && !chat_usrs[user][3]){
+  if(away && !chat_usrs[user][3]){
 	  retString += ' (away)';
   }
 
