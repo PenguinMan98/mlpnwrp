@@ -108,13 +108,7 @@ if (isset($_GET['room']) &&
   	$response->error = $e->getMessage();
   }
 }
-/*echo "<pre>";
-print_r($response);
-echo "</pre>";*/
 $encodedResponse = json_encode($response);
 echo $encodedResponse;
-/*echo "<pre>";
-print_r(json_decode($encodedResponse));
-echo "</pre>";*/
 
 ?>

@@ -36,6 +36,7 @@ var chat_priv;
 
 var chat_temp_msgs = new Array();
 var chat_msgs_rcvd = {};
+var chat_player_rooms = {};
 
 var chat_focu = true;
 var chat_colr = '#484848';
@@ -232,6 +233,7 @@ function chat_reset(room, user, pass)
 
   chat_temp_msgs = new Array(); // clear the pending messages
   chat_msgs_rcvd = {}; // clear the received post history
+  chat_player_rooms = {}; // for tracking who is where
 
   chat_msgs['.'] = ''; // set messages to .?
   chat_priv_switch('.', false); // makes sure we aren't in private mode
@@ -357,7 +359,7 @@ function chat_msgs_get()
 	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
 	      }
-	      var initializationRun = (chat_mptr == -1);
+	      /*var initializationRun = (chat_mptr == -1);*/  // I'm sure I'll need this eventually
 	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
 	    	line = response.lines[i];
@@ -372,6 +374,7 @@ function chat_msgs_get()
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
 	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> enters the room<br />';
 	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
+	          chat_player_rooms[line.handle] = line.roomname;
 	          //i += 5;
 	        }
 
@@ -521,9 +524,9 @@ function chat_msgs_log(asuser)
 /*
  * Takes a user, color, and away status and formats an html dealie for them.
  * */
-function chat_msgs_usr(user, color, waway)
+function chat_msgs_usr(user, color, sidebar)
 {
-  waway = (typeof waway == 'undefined') ? false : waway ; // first, make sure waway is not undefined,
+	sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
   // then build a return string
   var retString = "";
   // if there is a status, then add the icon
@@ -535,13 +538,18 @@ function chat_msgs_usr(user, color, waway)
 	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />';
   }
   // always add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="javascript:chat_priv_switch(\''+user+'\', true);">'+user;
+  retString += '<a style="color: '+color+'" href="#" onClick="';
+  if(sidebar){
+	  retString += 'showHUD(this)';
+  }else{
+	  retString += 'chat_priv_switch(\''+user+'\', true); return false;';
+  }
+  retString += '">' + user + '</a>';
+
   // if the user is away, add this
-  if(waway && !chat_usrs[user][3]){
+  if(sidebar && !chat_usrs[user][3]){
 	  retString += ' (away)';
   }
-  // end the link
-  retString += '</a>';
   // ship it out
   return retString;
 }
