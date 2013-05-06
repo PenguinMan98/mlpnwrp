@@ -63,10 +63,10 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 
   	// this strips all < characters out of the chat.  It's to prevent cheating on the dice rolls.
   	// I should find a better solution because I can't give <3 this way.
-  $data = str_replace("<", "(", $data);
-  $data = str_replace("&lt;", "(", $data);
-  $data = str_replace(">", ")", $data);
-  $data = str_replace("&gt;", ")", $data);
+  //$data = str_replace("⋘", "(", $data);
+  //$data = str_replace("≪", "(", $data);
+  //$data = str_replace("⋙", ")", $data);
+  //$data = str_replace("≫", ")", $data);
   
   /*$data = preg_replace("/good/i", "g00d", $data);// this and its companion allows the word 'good' past the filter
   $data = preg_replace("/g+o+d+s+/i", "Princesses", $data);

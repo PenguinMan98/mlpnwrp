@@ -18,11 +18,6 @@ class Operation_Zaroll{
 		return $this->roll();
 	}
 
-	// this chat can't do /me here.
-	/*private function me(){
-		return " " . $this->data;
-	}*/
-
 	private function roll(){
 		$matches = array();
 		$test = preg_match("/^(\d*)d(\d*)(\s?(\+|-)(\d*))?\s?(.*)/i", $this->data[0], $matches);
@@ -31,15 +26,14 @@ class Operation_Zaroll{
 		if( $test === false){
 			throw new Exception("An error occurred parsing the string.");
 		}elseif( $test === 0 ){
-			$result = "<<Error>> " . $this->data;
+			$result = "⋘ Error ⋙ " . $this->data;
 		}else{
-			//print_r($matches);
 			$howMany = $matches[1];
 			$howBig = $matches[2];
 			$modifierOp = $matches[4];
 			$modifier = $matches[5];
 			
-			$result = "<< {$howMany}d{$howBig}";
+			$result = "⋘ {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
 			$result .= ": ";
@@ -72,7 +66,7 @@ class Operation_Zaroll{
 			elseif($modifier) $result .= " -$modifier";
 			if($howMany > 1 || $modifier > 0)
 				$result .= " = " . $successCount . " Successes";
-			$result .= " >> ". $matches[6]; // then add the rest
+			$result .= " ⋙ ". $matches[6]; // then add the rest
 		}
 		
 		return $result;

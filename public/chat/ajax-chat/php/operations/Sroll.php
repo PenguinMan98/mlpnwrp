@@ -26,9 +26,8 @@ class Operation_Sroll{
 		if( $test === false){
 			throw new Exception("An error occurred parsing the string.");
 		}elseif( $test === 0 ){
-			$result = "&lt;&lt; Error &gt;&gt; " . $this->data;
+			$result = "⋘ Error ⋙ " . $this->data;
 		}else{
-			//print_r($matches);
 			$howMany = $matches[1];
 			$howBig = $matches[2];
 			
@@ -40,7 +39,7 @@ class Operation_Sroll{
 				$modifier = false;
 			}
 			
-			$result = "&lt;&lt; {$howMany}d{$howBig}";
+			$result = "⋘ {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
 			$result .= ": ";
@@ -61,11 +60,11 @@ class Operation_Sroll{
 			elseif($modifier) $result .= " -$modifier";
 			if($howMany > 1 || $modifier > 0)
 				$result .= " = " . (($modifierOp == "+")? $sum + $modifier : $sum - $modifier );
-			$result .= " &gt;&gt; ". $matches[6];
+			$result .= " ⋙ ". $matches[6];
 		}
 		
 		$this->messages[] = $result;
 
-		return "&lt;&lt; Rolls Dice Privately &gt;&gt;";
+		return "⋘ Rolls Dice Privately ⋙";
 	}
 }

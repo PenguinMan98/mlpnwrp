@@ -181,9 +181,13 @@ function chat_parse(str)
 }
 
 
-// ***** chat_priv_prepair ************************************************************
-
-function chat_priv_prepair(user1, user2)
+// ***** preparePrivateChat ************************************************************
+/* Sets up the private chat variables between two characters. Ordering is irrelevant.
+ * 
+ * @Param user1 - The first character.
+ * @Param user2 - The second character.
+ */
+function preparePrivateChat(user1, user2)
 {
   if (chat_msgs[user1] == undefined) chat_msgs[user1] = new Array();
   if (chat_msgs[user2] == undefined) chat_msgs[user2] = new Array();
@@ -205,7 +209,7 @@ function chat_priv_switch(user, focus)
 	document.getElementById('send').focus();
   if (user == chat_user) return;
   chat_priv = user;
-  chat_priv_prepair(chat_user, user);
+  preparePrivateChat(chat_user, user);
   if (user == '.')  // if user is '.'
       document.getElementById('header_messages').innerHTML = chat_room; // show the room name
   else // otherwise,  show the link back to the main chat
@@ -258,8 +262,7 @@ function chat_msgs_add()
     if (!post_text || post_text == "") return;
 	
     // third, build the post
-    chat_rand += 1;
-    var timestamp = new Date().getTime();// I switched the chat rand to a timestamp.  This should fix any guid problems and false duplicate posts.
+    var timestamp = new Date().getTime(); // Switched the rand value to a timestamp.  This should fix any guid problems and false duplicate posts.
     timestamp = timestamp / 1000;
     var newPost = {
 	    rand: timestamp,
@@ -275,7 +278,7 @@ function chat_msgs_add()
     chat_temp_msgs.push(newPost);
     
     // fourth, call it!
-	add_post_ajax(newPost);
+	notifyServer_Post(newPost);
 	
 	// fourth, clean up
 	document.getElementById('send').value = '';
@@ -286,7 +289,7 @@ function resend_dead_posts(){
 	var chat_temp_msgs_length = chat_temp_msgs.length;
 	for(var i = 0; i < chat_temp_msgs_length; i++){
 		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
-			add_post_ajax(chat_temp_msgs[i]);
+			notifyServer_Post(chat_temp_msgs[i]);
 			chat_temp_msgs[i].tries++;
 		}else{
 			confirmPostRand(chat_temp_msgs[i].rand);
@@ -294,7 +297,13 @@ function resend_dead_posts(){
 	}
 }
 
-function add_post_ajax(newPost)
+/***** notifyServer_Post **********************************************************
+ * Ship a message off to the server for processing. Still has to be verified that
+ * the user is allowed to post, is posting from a legal character, etc etc. 
+ *
+ * @Param newPost - The post data.
+ */
+function notifyServer_Post(newPost)
 {
 	$.ajax({
 		url: chat_path+"php/msg_add.php",
@@ -431,7 +440,7 @@ function chat_msgs_get()
 		          }
 		          else // it's a private message
 		          {
-		            chat_priv_prepair(line.handle, line.recipient_username);
+		            preparePrivateChat(line.handle, line.recipient_username);
 		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterRoomlistLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterRoomlistLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		            chat_wait[line.handle][line.recipient_username]  = false;
