@@ -1,20 +1,20 @@
 <?php
+require_once '../../../../application/Core/Bootstrap.php'; // load everything
+$_bootstrap = Bootstrap::getInstance();
 /*
  * A character information retrieval ajax script.
  * */
 
 $response = new stdClass();
 
-$characterName = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['charName']), ENT_QUOTES);
+$characterName = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['characterName']), ENT_QUOTES);
 
 $characterProvider = new Model_Data_CharacterProvider();
-$character = $characterProvider->getOneByCharacterName($characterName);
-
-if(!is_object($character)){
-	$response->success = false;
-}else{
-	$response->characterInfo = $character->getAsArray();
-	$response->success = true;
+$character = $characterProvider->getDetailsByCharacterName($characterName);
+$response->success = !empty($character);
+if($response->success){
+	$response->characterInfo = $character;
+	unset($response->characterInfo['player_private_notes']);
 }
 
 echo json_encode($response);
