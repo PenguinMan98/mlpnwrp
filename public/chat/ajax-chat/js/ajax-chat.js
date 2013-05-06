@@ -182,11 +182,12 @@ function chat_parse(str)
 }
 
 
-// ***** preparePrivateChat ************************************************************
-/* Sets up the private chat variables between two characters. Ordering is irrelevant.
+//***** preparePrivateChat ************************************************************
+/**
+ * Sets up the private chat variables between two characters. Ordering is irrelevant.
  * 
- * @Param user1 - The first character.
- * @Param user2 - The second character.
+ * @param user1 - The first character.
+ * @param user2 - The second character.
  */
 function preparePrivateChat(user1, user2)
 {
@@ -201,21 +202,42 @@ function preparePrivateChat(user1, user2)
 }
 
 
-// ***** chat_priv_switch ************************************************************
-// chat_reset calls this with a '.' and false
+// ***** displayRoomChatWindow ************************************************************
+/** 
+ * Sets the variables properly for displaying a given window of messages. Also
+ * sets up links required for navigating from a private window back to the main room
+ * (or removing them if in a PM and switching out).
+ *
+ * @param focus - Are we going to want to set focus?
+ */
 
-function chat_priv_switch(user, focus)
+function displayRoomChatWindow()
 {
-  if (chat_focu && focus) 
-	document.getElementById('send').focus();
-  if (user == chat_user) return;
-  chat_priv = user;
-  preparePrivateChat(chat_user, user);
-  if (user == '.')  // if user is '.'
-      document.getElementById('header_messages').innerHTML = chat_room; // show the room name
-  else // otherwise,  show the link back to the main chat
-	  document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;
-  displayMessages();
+    chat_priv = '.'; // We aren't chatting with anyone privately anymore. This resets that.
+    if (chat_focu) 
+        document.getElementById('send').focus();
+    document.getElementById('header_messages').innerHTML = chat_room; // show the room name
+    displayMessages();
+}
+
+// ***** displayPrivateChatWindow ************************************************************
+/** 
+ * Sets the variables properly for displaying a given window of messages. Also
+ * sets up links required for navigating from a private window back to the main room
+ *
+ * @param user - The user to set up the private chat window with.
+ */
+
+function displayPrivateChatWindow(name)
+{
+    if (name == chat_user) return; // No need to private message ourselves.
+    if (chat_focu) 
+        document.getElementById('send').focus();
+
+    chat_priv = name;
+    preparePrivateChat(chat_user, name);
+    document.getElementById('header_messages').innerHTML = '<a href="javascript:displayRoomChatWindow()">Back to '+chat_room+'</a>'+user;
+    displayMessages();
 }
 
 
@@ -240,7 +262,7 @@ function chat_reset(room, user, pass)
   chat_player_rooms = {}; // for tracking who is where
 
   chat_msgs['.'] = ''; // set messages to .?
-  chat_priv_switch('.', false); // makes sure we aren't in private mode
+  displayRoomChatWindow(); // Display the current room.
 
   clearTimeout(chat_tout); // stop the looping ajax
   chat_XMLHttp_add.abort(); // should be able to remove these soon
@@ -299,11 +321,12 @@ function resend_dead_posts(){
 	}
 }
 
-/***** notifyServer_Post **********************************************************
+// ***** notifyServer_Post **********************************************************
+/**
  * Ship a message off to the server for processing. Still has to be verified that
  * the user is allowed to post, is posting from a legal character, etc etc. 
  *
- * @Param newPost - The post data.
+ * @param newPost - The post data.
  */
 function notifyServer_Post(newPost)
 {
@@ -487,13 +510,14 @@ function chat_msgs_get()
 }
 
 // ***** notifyServer_RoomChange **********************************************************
-/* This function is called any time a character changes the room they are currently in.
+/**
+ * This function is called any time a character changes the room they are currently in.
  * Updates the local log with information about characters moving about the rooms.
  * It will also be called when a user logs in for the first time, or switches characters. One
  * thing to note is that credentials are checked when this function is called, which is why
  * document elements are being addressed here. Also calls for a chat reset for the user.
  *
- * @Param registered_user - Is the user registered, or is it a guest account? (True/False)
+ * @param registered_user - Is the user registered, or is it a guest account? (True/False)
  */
 function notifyServer_RoomChange(registered_user)
 {
@@ -537,13 +561,14 @@ function notifyServer_RoomChange(registered_user)
 
 
 // ***** generateCharacterRoomlistLink **********************************************************
-/* Takes in information about a character and returns an html string to allow for private messages
+/**
+ * Takes in information about a character and returns an html string to allow for private messages
  * with this character.
  *
- * @Param name - Name of the character/user to use for the link.
- * @Param color - The color of the link.
- * @Param away - Is the character currently away? (True/False)
- * @Return - A valid html string with encoded JS to switch to private messaging.
+ * @param name - Name of the character/user to use for the link.
+ * @param color - The color of the link.
+ * @param away - Is the character currently away? (True/False)
+ * @return - A valid html string with encoded JS to switch to private messaging.
  */
 function generateCharacterRoomlistLink(name, color, away)
 {
@@ -564,12 +589,12 @@ function generateCharacterRoomlistLink(name, color, away)
   if(away){
 	  retString += 'showHUD(this)';
   }else{
-	  retString += 'chat_priv_switch(\''+user+'\', true); return false;';
+	  retString += 'displayPrivateChatWindow(\''+name+'\'); return false;';
   }
-  retString += '">' + user + '</a>';
+  retString += '">' + name + '</a>';
 
   // If the character is away, add text indicating so.
-  if(away && !chat_usrs[user][3]){
+  if(away && !chat_usrs[name][3]){
 	  retString += ' (away)';
   }
 

@@ -79,7 +79,7 @@ include_once 'ajax-chat/ajax-chat.php';
 				$('#hud_character_name').html(response.characterInfo.name);
 				$('#hud_character_name').css('cursor','pointer');
 				$('#hud_character_name').off('click');
-				$('#hud_character_name').on('click',function(){chat_priv_switch(response.characterInfo.name, true); return false;});
+				$('#hud_character_name').on('click',function(){displayPrivateChatWindow(response.characterInfo.name); return false;});
 				
 				$('#hud_player_name').html(response.characterInfo.username);
 
