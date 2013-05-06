@@ -64,7 +64,6 @@ include_once 'ajax-chat/ajax-chat.php';
 	/*character HUD*/
 	function showHUD(element){
 		var linkRect = element.getBoundingClientRect();
-		console.log(linkRect.top, linkRect.right, linkRect.bottom, linkRect.left);
 		if(!linkRect) return false;
 		var linkVCenterOffset = (linkRect.bottom - linkRect.top) / 2;
 		$.ajax({
@@ -73,8 +72,7 @@ include_once 'ajax-chat/ajax-chat.php';
 			dataType: "JSON"
 		})
 		.done(function(response) {
-			console.log(response);
-			if(response.success){
+			if(response.success && $('#character_info_base').css('display') == 'none'){
 				$('#character_info_base').css('display','block');
 				$('#character_info_base').css('left', linkRect.left-250 );
 				
@@ -84,10 +82,11 @@ include_once 'ajax-chat/ajax-chat.php';
 				$('#hud_character_name').on('click',function(){chat_priv_switch(response.characterInfo.name, true); return false;});
 				
 				$('#hud_player_name').html(response.characterInfo.username);
-				
-				if(chat_usrs[response.characterInfo.name][3]){ 
-					$('#hud_activity_status').html('Idle since: _____'); 
+
+				if(!chat_usrs[response.characterInfo.name][3]){ 
+					$('#hud_activity_status').html('Away'); 
 				}else{
+					
 					$('#hud_activity_status').html('Active'); 
 				};
 				
@@ -99,7 +98,6 @@ include_once 'ajax-chat/ajax-chat.php';
 				$('#hud_chat_status').html('A status');
 				
 				var modalRect = $('#character_info_base').get(0).getBoundingClientRect();
-				console.log(modalRect.top, modalRect.right, modalRect.bottom, modalRect.left);
 				var modalVCenterOffset = (modalRect.bottom - modalRect.top) / 2;
 				$('#character_info_base').css('top', linkRect.top - modalVCenterOffset + linkVCenterOffset );
 			}else{
