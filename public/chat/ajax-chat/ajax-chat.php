@@ -47,10 +47,10 @@ var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
 
 <a   class="main" target="_blank" href="<?=SITE_ROOT?>">Home</a>
 <?php if ($chat_show['login'  ]) { ?>
-<a id="ajaxChatLogin" class="main" href="javascript:chat_login(true);">Login</a>
+<a id="ajaxChatLogin" class="main" href="javascript:displayLoginPrompt();">Login</a>
 <?php } ?>
 <?php if ($chat_show['guest'  ]) { ?>
-<a id="ajaxChatGuestLogin" class="main" href="javascript:popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat',  true);">Login&nbsp;as&nbsp;Guest</a>
+<a id="ajaxChatGuestLogin" class="main" href="javascript:displayGuestLoginPrompt();">Login&nbsp;as&nbsp;Guest</a>
 <?php } ?>
 <?php if (count($chat_list) >= 2) { ?>
 <div class="main" id="room_parent">Rooms</div>
@@ -196,7 +196,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 <div class="menu_form_body">
 
 <div class="padding">
-<form action="" onsubmit="chat_msgs_log(true); return false;">
+<form action="" onsubmit="notifyServer_RoomChange(true); return false;">
 
   <div class="form_title">Username:</div>
   <div class="form_input"><div class="input"><input id="user" type="text" /></div></div>
@@ -229,7 +229,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 <div class="menu_form_body">
 
 <div class="padding">
-<form action="" onsubmit="chat_msgs_log(false); return false;">
+<form action="" onsubmit="notifyServer_RoomChange(false); return false;">
 
   <div class="form_title">Username:</div>
   <div class="form_input"><div class="input"><input id="guser" type="text" /></div></div>
@@ -286,7 +286,7 @@ if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room
 
 <div class="room" id="character_child" style="display: none;">
 <?php if($characterList) foreach ($characterList as $char): ?>
-<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
+<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');notifyServer_RoomChange(true);"><?=$char->getName()?></a>
 <?php endforeach; ?>
 <a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
 </div>
