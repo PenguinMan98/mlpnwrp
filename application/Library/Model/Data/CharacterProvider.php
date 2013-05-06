@@ -24,12 +24,16 @@ ORDER BY `handle` ASC';
 	
 	public function getDetailsByCharacterName( $charName ) {
 		$strSql = '
-SELECT c.*, ca.name as \'age\' , cr.name as \'race\'
+SELECT c.*, ca.name as \'age\' , cr.name as \'race\', pu.username
 FROM `character` c 
 JOIN `character_age` ca
 	ON c.character_age_id = ca.character_age_id
 JOIN `character_race` cr
 	ON c.character_race_id = cr.character_race_id
+JOIN `character_user` cu 
+	ON c.character_id = cu.character_id
+JOIN `phpbb_users` pu 
+	ON pu.`user_id` = cu.`user_id`
 WHERE c.name=?';
 		$arrParams = array($charName);
 		$arrErrors = array();

@@ -36,6 +36,7 @@ var chat_priv;
 
 var chat_temp_msgs = new Array();
 var chat_msgs_rcvd = {};
+var chat_player_rooms = {};
 
 var chat_focu = true;
 var chat_colr = '#484848';
@@ -236,6 +237,7 @@ function chat_reset(room, user, pass)
 
   chat_temp_msgs = new Array(); // clear the pending messages
   chat_msgs_rcvd = {}; // clear the received post history
+  chat_player_rooms = {}; // for tracking who is where
 
   chat_msgs['.'] = ''; // set messages to .?
   chat_priv_switch('.', false); // makes sure we aren't in private mode
@@ -366,7 +368,7 @@ function chat_msgs_get()
 	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
 	      }
-	      var initializationRun = (chat_mptr == -1);
+	      /*var initializationRun = (chat_mptr == -1);*/  // I'm sure I'll need this eventually
 	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
 	    	line = response.lines[i];
@@ -381,6 +383,7 @@ function chat_msgs_get()
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
 	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterRoomlistLink(line.handle, 'black', false)+'</b> enters the room<br />';
 	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
+	          chat_player_rooms[line.handle] = line.roomname;
 	          //i += 5;
 	        }
 
@@ -555,15 +558,21 @@ function generateCharacterRoomlistLink(name, color, away)
   if(typeof chat_usrs[name][1] != 'undefined' && chat_usrs[name][1] != 'none'){
 	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[name][1]+'.png" alt="" style="margin-right: 2px;" />';
   }
-  // Add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="javascript:chat_priv_switch(\''+name+'\', true);">'+name;
+
+   // Add the name and the javascript that fires the switch to private messaging
+  retString += '<a style="color: '+color+'" href="#" onClick="';
+  if(away){
+	  retString += 'showHUD(this)';
+  }else{
+	  retString += 'chat_priv_switch(\''+user+'\', true); return false;';
+  }
+  retString += '">' + user + '</a>';
 
   // If the character is away, add text indicating so.
-  if(away && !chat_usrs[name][3]){
+  if(sidebar && !chat_usrs[user][3]){
 	  retString += ' (away)';
   }
 
-  retString += '</a>';
   return retString;
 }
 
