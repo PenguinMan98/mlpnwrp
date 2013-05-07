@@ -236,7 +236,7 @@ function displayPrivateChatWindow(name)
 
     chat_priv = name;
     preparePrivateChat(chat_user, name);
-    document.getElementById('header_messages').innerHTML = '<a href="javascript:displayRoomChatWindow()">Back to '+chat_room+'</a>'+user;
+    document.getElementById('header_messages').innerHTML = '<a href="javascript:displayRoomChatWindow()">Back to '+chat_room+'</a>'+name;
     displayMessages();
 }
 
@@ -261,17 +261,13 @@ function chat_reset(room, user, pass)
   chat_msgs_rcvd = {}; // clear the received post history
   chat_player_rooms = {}; // for tracking who is where
 
-  chat_msgs['.'] = ''; // set messages to .?
+  chat_msgs['.'] = ''; // Wipes the message window.
   displayRoomChatWindow(); // Display the current room.
 
   clearTimeout(chat_tout); // stop the looping ajax
   chat_XMLHttp_add.abort(); // should be able to remove these soon
   chat_XMLHttp_get.abort();
   chat_XMLHttp_log.abort();
-
-  if(user){ // if a user is chosen
-	  //chat_tout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
-  }
 }
 
 // ***** chat_msgs_add *********************************************************
@@ -497,7 +493,7 @@ function chat_msgs_get()
 	      if (response.lines.length > 0)
 	      {
 	        displayMessages();
-	        chat_out_usrs();
+	        displayUserList();
 	      }
 		}else{
 			if(response.error.trim() != ""){
@@ -619,12 +615,11 @@ function displayMessages()
 }
 
 
-// ***** chat_out_usrs **********************************************************
-/*
- * This seems to be the function that outputs users to the main page.  
- * It draws its data from the chat_usrs variable.
+// ***** displayUserList **********************************************************
+/**
+ * Reads through the chat_usrs variable to generate and display the user list on the side.
  * */
-function chat_out_usrs()
+function displayUserList()
 {
   var users;
   chat_usrs.sort();
@@ -637,7 +632,7 @@ function chat_out_usrs()
 			chat_wait[chat_user] != undefined && // I'm in wait mode?
 			chat_wait[chat_user][i] != undefined && // and I'm waiting on this guy
 			chat_wait[chat_user][i]) // and it's my turn ??( there is a value here besides 'false' ) 
-      users = generateCharacterRoomlistLink(i,'black', true)+'<br />'+users; // get the formated html and then we prepend it to users?
+      users = generateCharacterRoomlistLink(i,'black', true)+'<br />'+users; 
   document.getElementById('users_priv').innerHTML = users; // get the users_priv element and add the users to it.
   document.getElementById('users_priv').style.display = users ? 'block' : 'none'; // turn the div visible if users is set.
 
@@ -647,7 +642,7 @@ function chat_out_usrs()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // its a user
     		chat_usrs[i][0] == chat_room) // and they're in my room
-      users = generateCharacterRoomlistLink(i,         'black', true)+' <br />'+users; // format them
+      users = generateCharacterRoomlistLink(i,'black', true)+' <br />'+users; 
   if (chat_user) // if I'm here
       users = generateCharacterRoomlistLink(chat_user, 'black', true)+' <br />'+users; // put me on top
   document.getElementById('users_this').innerHTML = users; // connect to this room's div and dump the users in
@@ -659,7 +654,7 @@ function chat_out_usrs()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // they're truely here
     		chat_usrs[i][0] != chat_room) // and NOT in my room
-      users = generateCharacterRoomlistLink(i,         'black', true)+' <br />'+users; // format them up
+      users = generateCharacterRoomlistLink(i,'black', true)+' <br />'+users; 
   document.getElementById('users_othr').innerHTML = users; // dump them into other.
   document.getElementById('users_othr').style.display = users ? 'block' : 'none';  // show it if it needs to be shown.
   // no return value.
