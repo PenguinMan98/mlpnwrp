@@ -1,6 +1,6 @@
 <?php
-
-class Operation_Zaroll{
+include_once 'OperationBase.php';
+class Operation_Zaroll extends OperationBase {
 	public $operator;
 	public $data;
 	public static $args = 1;
@@ -14,8 +14,12 @@ class Operation_Zaroll{
 		$this->data = $args;
 	}
 
-	public function __toString(){
-		return $this->roll();
+	public function getValue() {
+		try {
+			return $this->roll();
+		} catch (Exception $e) {
+			throw $e;
+		}
 	}
 
 	private function roll(){
@@ -26,14 +30,14 @@ class Operation_Zaroll{
 		if( $test === false){
 			throw new Exception("An error occurred parsing the string.");
 		}elseif( $test === 0 ){
-			$result = "⋘ Error ⋙ " . $this->data;
+			$this->messages[] = "Usage: /zaroll XdX+X or XdX-X where X is any integer number.";
 		}else{
 			$howMany = $matches[1];
 			$howBig = $matches[2];
 			$modifierOp = $matches[4];
 			$modifier = $matches[5];
 			
-			$result = "⋘ {$howMany}d{$howBig}";
+			$result = "{{ {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
 			$result .= ": ";
@@ -66,7 +70,7 @@ class Operation_Zaroll{
 			elseif($modifier) $result .= " -$modifier";
 			if($howMany > 1 || $modifier > 0)
 				$result .= " = " . $successCount . " Successes";
-			$result .= " ⋙ ". $matches[6]; // then add the rest
+			$result .= " }} ". $matches[6]; // then add the rest
 		}
 		
 		return $result;

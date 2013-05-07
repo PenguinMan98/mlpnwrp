@@ -19,9 +19,10 @@ include("TokenOperation.php");
 // You expressly acknowledge and agree that use of this code is at your own risk.
 
 $response = new stdClass();
-//$response->messages = array(); // do not initialize this
 $response->success = true;
 $response->text = "";
+
+$errorDetected = false;
 
 if (isset($_GET['rand']) && $_GET['rand'] &&
 	isset($_GET['user']) && $_GET['user'] &&
@@ -61,12 +62,9 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   	$data = preg_replace($regex, '****', $data);
   }
 
-  	// this strips all < characters out of the chat.  It's to prevent cheating on the dice rolls.
-  	// I should find a better solution because I can't give <3 this way.
-  //$data = str_replace("⋘", "(", $data);
-  //$data = str_replace("≪", "(", $data);
-  //$data = str_replace("⋙", ")", $data);
-  //$data = str_replace("≫", ")", $data);
+  // Now replaces { and } for messages in the chat. They are reserved for system messages.
+  $data = str_replace("{", "[", $data);
+  $data = str_replace("}", "]", $data);
   
   /*$data = preg_replace("/good/i", "g00d", $data);// this and its companion allows the word 'good' past the filter
   $data = preg_replace("/g+o+d+s+/i", "Princesses", $data);
@@ -82,11 +80,11 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
   	new TokenOperation($data, $messages);// data goes in and gets changed by reference, messages come out.
   	$response->messages = $messages;
   }catch(Exception $e){
-  	$response->error = $e->getMessage(); // if the parser fails, 
-  	$data = $input; // just store the original input
+  	$response->text = $e->getMessage(); // If something goes wrong (Invalid command, Parser Failure)
+  	$data = $input; 
+    $errorDetected = true;
   }
   
-
   if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] || // if this character is muted or their ip is muted
       $chat_data['kick'][$handle] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])// if this character is kicked or their ip is kicked
   {
@@ -155,7 +153,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	    	}
     	}
     	 
-    	if(!$duplicatePost && !$flood){ // if it's no duplicate, and it's not flood,
+    	if(!$duplicatePost && !$flood && !$errorDetected){ // It's not a duplicate, nor flood, nor did it fail previously.
    		  $response->text = $data;
    		  
    		  //----------- Store post in the file
@@ -237,8 +235,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 
   if ($modified){
   	file_put_contents('data.txt', serialize($chat_data));
-  	
-  }
+  } 
 }
 echo json_encode($response);
 ?>
