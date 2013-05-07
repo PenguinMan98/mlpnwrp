@@ -21,7 +21,6 @@ $_bootstrap = Bootstrap::getInstance();
 	  <source src="<?=SITE_ROOT?>/media/12844__schluppipuppie__kling-01.wav" type="audio/wav"></source>
 	  <source src="<?=SITE_ROOT?>/media/12844__schluppipuppie__kling-01.mp3" type="audio/mpeg"></source>
 	</audio>
-<center>
 <?php
 $chat_logs = array('add' => false, 'get' => false, 'log' => false);
 $chat_show = array('login' => true, 'guest' => true);
@@ -35,7 +34,6 @@ include_once 'ajax-chat/ajax-chat.php';
 		<td width="70%">Test</td>
 	</tr>
 </table> -->
-</center>
 
 </body>
 </html>
@@ -62,31 +60,30 @@ include_once 'ajax-chat/ajax-chat.php';
 	});
 	
 	/*character HUD*/
-	function showHUD(element){
+	function showHUD(element, charName){
 		var linkRect = element.getBoundingClientRect();
-		if(!linkRect) return false;
+		if(!linkRect || charName == "") return false;
 		var linkVCenterOffset = (linkRect.bottom - linkRect.top) / 2;
 		$.ajax({
 			url: chat_path+"php/character_info.php",
-			data: {characterName: element.text},
+			data: {characterName: charName},
 			dataType: "JSON"
 		})
 		.done(function(response) {
 			if(response.success && $('#character_info_base').css('display') == 'none'){
 				$('#character_info_base').css('display','block');
 				$('#character_info_base').css('left', linkRect.left-250 );
-				
-				$('#hud_character_name').html(response.characterInfo.name);
-				$('#hud_character_name').css('cursor','pointer');
-				$('#hud_character_name').off('click');
-				$('#hud_character_name').on('click',function(){chat_priv_switch(response.characterInfo.name, true); return false;});
+
+				$('#hud_character_name').html('<a href="http://www.mlpnwrp.org/character/view/'+response.characterInfo.name+'" target="_blank">' + response.characterInfo.name + '</a>');
 				
 				$('#hud_player_name').html(response.characterInfo.username);
 
-				if(!chat_usrs[response.characterInfo.name][3]){ 
+				if(		typeof chat_usrs == 'undefined' || 
+						typeof chat_usrs[response.characterInfo.name] == 'undefined' || 
+						typeof chat_usrs[response.characterInfo.name][3] == 'undefined' || 
+						!chat_usrs[response.characterInfo.name][3]){ 
 					$('#hud_activity_status').html('Away'); 
 				}else{
-					
 					$('#hud_activity_status').html('Active'); 
 				};
 				
@@ -99,7 +96,7 @@ include_once 'ajax-chat/ajax-chat.php';
 				
 				var modalRect = $('#character_info_base').get(0).getBoundingClientRect();
 				var modalVCenterOffset = (modalRect.bottom - modalRect.top) / 2;
-				$('#character_info_base').css('top', linkRect.top - modalVCenterOffset + linkVCenterOffset );
+				$('#character_info_base').css('top', linkRect.top + linkVCenterOffset - modalVCenterOffset );
 			}else{
 				$('#character_info_base').css('display','none');
 			}

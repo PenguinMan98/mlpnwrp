@@ -526,9 +526,10 @@ function chat_msgs_log(asuser)
  * */
 function chat_msgs_usr(user, color, sidebar)
 {
-	sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
+  sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
   // then build a return string
   var retString = "";
+  if(sidebar){ retString += '<img style="cursor: pointer;" src="'+SITE_ROOT+'/images/twilight_sparkle_cutie_mark2_15_tall.png" onClick="showHUD(this, \''+user+'\'); return false;" />&nbsp;';}
   // if there is a status, then add the icon
   if(typeof chat_usrs[user][2] != 'undefined' && chat_usrs[user][2] != 'none'){
 	  retString += '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />';
@@ -538,17 +539,11 @@ function chat_msgs_usr(user, color, sidebar)
 	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />';
   }
   // always add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="#" onClick="';
-  if(sidebar){
-	  retString += 'showHUD(this)';
-  }else{
-	  retString += 'chat_priv_switch(\''+user+'\', true); return false;';
-  }
-  retString += '">' + user + '</a>';
+  retString += '<a style="color: '+color+'" href="#" onClick="chat_priv_switch(\''+user+'\', true); return false;">' + user + '</a>';
 
   // if the user is away, add this
   if(sidebar && !chat_usrs[user][3]){
-	  retString += ' (away)';
+	  retString += '&nbsp;(away)';
   }
   // ship it out
   return retString;
