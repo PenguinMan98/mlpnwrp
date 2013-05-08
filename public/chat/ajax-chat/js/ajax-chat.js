@@ -39,13 +39,9 @@ var chat_msgs_rcvd = {};
 var chat_player_rooms = {};
 
 var chat_focu = true;
-var chat_colr = '#484848';
-if (getCookie('chat_colr'))
-     chat_colr = getCookie('chat_colr');
-else chat_colr = '#'+(Math.floor(6*Math.random())*32+48).toString(16)
+var chat_colr = '#'+(Math.floor(6*Math.random())*32+48).toString(16)
                     +(Math.floor(6*Math.random())*32+48).toString(16)
                     +(Math.floor(6*Math.random())*32+48).toString(16);
-setCookieLT('chat_colr', chat_colr, 365*24*3600);
 
 
 // ***** XMLHttpRequest ********************************************************
@@ -66,12 +62,18 @@ var chat_XMLHttp_get = new XMLHttpRequest();
 var chat_XMLHttp_log = new XMLHttpRequest();
 
 
-// ***** chat_api_color ********************************************************
-
-function chat_api_color(col)
+//***** setChatColor ********************************************************
+/** 
+ * This is overkill, but I'm not sure how to change a value straight from the php
+ * file, so what's done is done. Might allow multiple colors later too.
+ * 
+ * @param mainColor - The color we'll be using for text from now on.
+ */
+function setChatColor(mainColor)
 {
-  setCookie ('chat_colr', chat_colr = col);
-  popup_hide('color');
+    //TODO: Protect against awesome people who modify client and set color to #000000
+    // or other equally 'awesome' values.   
+    chat_colr = mainColor;
 }
 
 

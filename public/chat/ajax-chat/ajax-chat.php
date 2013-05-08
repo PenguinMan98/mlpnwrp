@@ -173,7 +173,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
   $col = str_pad(dechex($r*32+48), 2, STR_PAD_LEFT) .
          str_pad(dechex($g*32+48), 2, STR_PAD_LEFT) .
          str_pad(dechex($b*32+48), 2, STR_PAD_LEFT);
-  ?><area href="javascript:chat_api_color('#<?=$col;?>');" coords="<?=$x*8+2;?>,<?=$y*8+2;?>,<?=$x*8+8;?>,<?=$y*8+8;?>" alt="" /><?php
+  ?><area href="javascript:setChatColor('#<?=$col;?>');popup_hide('color');" coords="<?=$x*8+2;?>,<?=$y*8+2;?>,<?=$x*8+8;?>,<?=$y*8+8;?>" alt="" /><?php
   if ($x == 17) $y++;
   if ($x != 17) $x++; else $x = 0;
 }
@@ -287,7 +287,7 @@ if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room
 
 <div class="room" id="character_child" style="display: none;">
 <?php if($characterList) foreach ($characterList as $char): ?>
-<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');notifyServer_RoomChange(true);"><?=$char->getName()?></a>
+<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');setChatColor('<?=$char->getChatTextColor()?>');notifyServer_RoomChange(true);"><?=$char->getName()?></a>
 <?php endforeach; ?>
 <a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
 </div>
