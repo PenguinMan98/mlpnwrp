@@ -27,6 +27,7 @@ var chat_timeout = <?=  $chat_t_refresh;?>;
 var autofocus    = true;
 var dingOnNew    = false;
 var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
+var SITE_ROOT	 = "<?=SITE_ROOT?>";
 
 </script>
 

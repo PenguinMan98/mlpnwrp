@@ -122,7 +122,7 @@ div.chat div.main div#users b
 }
 
 div.chat div.main div#users b.first { margin-top: 0px; }
-div.chat div.main div#users div     { margin-top: 2px; display: none; }
+div.chat div.main div#users div     { margin-top: 2px; display: none; color: black; }
 
 div.chat div.main form.send td                             { vertical-align: middle; }
 div.chat div.main form.send div.form_input                 { width: 448px; }
@@ -296,6 +296,10 @@ div.chat div.smiley div.padding img
 
 #character_info_inner p{
     margin: 0px;
+}
+
+#character_info_inner p a{
+    color: white;
 }
 
 #character_info_inner div{

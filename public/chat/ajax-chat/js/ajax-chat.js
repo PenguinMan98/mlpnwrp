@@ -563,15 +563,16 @@ function notifyServer_RoomChange(registered_user)
  *
  * @param name - Name of the character/user to use for the link.
  * @param color - The color of the link.
- * @param away - Is the character currently away? (True/False)
+ * @param sidebar - Is this link displayed on the side bar? (True / False )
  * @return - A valid html string with encoded JS to switch to private messaging.
  */
-function generateCharacterRoomlistLink(name, color, away)
+function generateCharacterRoomlistLink(name, color, sidebar)
 {
-  away = (typeof away == 'undefined') ? false : away ; // First, make sure away is not undefined,
+  sidebar = (typeof away == 'undefined') ? false : sidebar ; // First, make sure away is not undefined,
 
   var retString = "";
-  // If there is a status, add the icon.
+  if(sidebar){ retString += '<img style="cursor: pointer;" src="'+SITE_ROOT+'/images/twilight_sparkle_cutie_mark2_15_tall.png" onClick="showHUD(this, \''+name+'\'); return false;" />&nbsp;';}
+  // if there is a status, then add the icon
   if(typeof chat_usrs[name][2] != 'undefined' && chat_usrs[name][2] != 'none'){
 	  retString += '<img src="'+chat_path+'style/status/'+chat_usrs[name][2]+'.png" alt="" style="margin-right: 0px;" />';
   }
@@ -580,18 +581,12 @@ function generateCharacterRoomlistLink(name, color, away)
 	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[name][1]+'.png" alt="" style="margin-right: 2px;" />';
   }
 
-   // Add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="#" onClick="';
-  if(away){
-	  retString += 'showHUD(this)';
-  }else{
-	  retString += 'displayPrivateChatWindow(\''+name+'\'); return false;';
-  }
-  retString += '">' + name + '</a>';
+  /// Add the name and the javascript that fires the switch to private messaging
+  retString += '<a style="color: '+color+'" href="#" onClick="displayPrivateChatWindow(\''+user+'\', true); return false;">' + user + '</a>';
 
-  // If the character is away, add text indicating so.
-  if(away && !chat_usrs[name][3]){
-	  retString += ' (away)';
+  // If the user is on the side bar and away, add the message.
+  if(sidebar && !chat_usrs[user][3]){
+	  retString += '&nbsp;(away)';
   }
 
   return retString;
