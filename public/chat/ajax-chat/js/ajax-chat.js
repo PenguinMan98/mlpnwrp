@@ -284,14 +284,26 @@ function chat_msgs_add()
 	if (chat_focu) document.getElementById('send').focus();
 }
 
-function resend_dead_posts(){
-	var chat_temp_msgs_length = chat_temp_msgs.length;
-	for(var i = 0; i < chat_temp_msgs_length; i++){
+/*function resend_dead_posts(){
+	var chat_temp_msgs_length = chat_temp_msgs.length; // get the length of temp messages
+	for(var i = 0; i < chat_temp_msgs_length; i++){ // for each message in temp messages
 		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
-			add_post_ajax(chat_temp_msgs[i]);
-			chat_temp_msgs[i].tries++;
+			add_post_ajax(chat_temp_msgs[i]); // try to add it.
+			chat_temp_msgs[i].tries++; // increment tries
 		}else{
-			confirmPostRand(chat_temp_msgs[i].rand);
+			confirmPostRand(chat_temp_msgs[i].rand);// otherwise, confirm it and throw it away.
+		}
+	}
+}*/
+
+function resend_dead_posts(){
+	for(var i = 0; i < chat_temp_msgs.length; i++){
+		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
+			add_post_ajax(chat_temp_msgs[i]); // try to add it.
+			chat_temp_msgs[i].tries++; // increment tries
+		}else{
+			if (confirmPostRand(chat_temp_msgs[i].rand)) // If this succeeds, it removes an element from chat_temp_messages
+				i--; // so we must decrement i to keep the pointer from skipping one when it increments
 		}
 	}
 }
