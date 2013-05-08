@@ -28,6 +28,17 @@ if (isset($_GET['room']) &&
     isset($_GET['mptr']))
 { /* to get messages, you must be logged in and in a room and tell me the last message you got */
   include_once 'init.php'; /*Get the INIT*/
+  
+  // log all calls to this file
+  $logProvider = new Model_Data_LogProvider();
+  $log = new Model_Structure_Log(array(
+  		'file'=>__FILE__,
+  		'log_entry'=>serialize($_REQUEST),
+  		'severity'=>'notice'
+  ));
+  $arrErrors = array();
+  $logProvider->insertOne($log, $arrErrors);
+  
   $modified = unlog_users(); /* refresh the user list and note if we changed it */
 
   try{

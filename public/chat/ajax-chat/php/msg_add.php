@@ -31,6 +31,17 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
     isset($_GET['data']) && $_GET['data'])
 {
   include_once 'init.php';
+  
+  // log all calls to this file
+  $logProvider = new Model_Data_LogProvider();
+  $log = new Model_Structure_Log(array(
+  		'file'=>__FILE__,
+  		'log_entry'=>serialize($_REQUEST),
+  		'severity'=>'notice'
+  ));
+  $arrErrors = array();
+  $logProvider->insertOne($log, $arrErrors);
+  
   $modified = unlog_users();/* refresh the user list and note if we changed it */
 
   $time = time(); // declare the variables and grab the input that we need
