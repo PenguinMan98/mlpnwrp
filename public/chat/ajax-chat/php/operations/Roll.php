@@ -1,6 +1,6 @@
 <?php
-
-class Operation_Roll{
+include_once 'OperationBase.php';
+class Operation_Roll extends OperationBase {
 	public $operator;
 	public $data;
 	public static $args = 1;
@@ -14,8 +14,12 @@ class Operation_Roll{
 		$this->data = $args;
 	}
 
-	public function __toString(){
-		return $this->roll();
+	public function getValue() {
+		try {
+			return $this->roll();
+		} catch (Exception $e) {
+			throw $e;
+		}
 	}
 
 	private function roll(){
@@ -23,12 +27,11 @@ class Operation_Roll{
 		$test = preg_match("/^(\d*)d(\d*)(\s?(\+|-)(\d*))?/i", $this->data[0], $matches);
 		$result = "";
 
-		if( $test === false){
+		if($test === false){
 			throw new Exception("An error occurred parsing the string.");
-		}elseif( $test === 0 ){
-			$result = "&lt;&lt; Error &gt;&gt; " . $this->data;
+		}elseif($test === 0 ){
+			throw new Exception("Usage: /roll XdX+X or XdX-X where X is any integer number.");
 		}else{
-			//print_r($matches);
 			$howMany = $matches[1];
 			$howBig = $matches[2];
 			
@@ -40,7 +43,7 @@ class Operation_Roll{
 				$modifier = false;
 			}
 			
-			$result = "&lt;&lt; {$howMany}d{$howBig}";
+			$result = "{{ {$howMany}d{$howBig}";
 			if($modifier && $modifierOp == "+") $result .= "+$modifier";
 			elseif($modifier) $result .= "-$modifier";
 			$result .= ": ";
@@ -61,9 +64,8 @@ class Operation_Roll{
 			elseif($modifier) $result .= " -$modifier";
 			if($howMany > 1 || $modifier > 0)
 				$result .= " = " . (($modifierOp == "+")? $sum + $modifier : $sum - $modifier );
-			$result .= " &gt;&gt; ". $matches[6];
+			$result .= " }} ". $matches[6];
 		}
-
 		return $result;
 	}
 }

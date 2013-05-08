@@ -48,10 +48,10 @@ var SITE_ROOT	 = "<?=SITE_ROOT?>";
 
 <a   class="main" target="_blank" href="<?=SITE_ROOT?>">Home</a>
 <?php if ($chat_show['login'  ]) { ?>
-<a id="ajaxChatLogin" class="main" href="javascript:chat_login(true);">Login</a>
+<a id="ajaxChatLogin" class="main" href="javascript:displayLoginPrompt();">Login</a>
 <?php } ?>
 <?php if ($chat_show['guest'  ]) { ?>
-<a id="ajaxChatGuestLogin" class="main" href="javascript:popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat',  true);">Login&nbsp;as&nbsp;Guest</a>
+<a id="ajaxChatGuestLogin" class="main" href="javascript:displayGuestLoginPrompt();">Login&nbsp;as&nbsp;Guest</a>
 <?php } ?>
 <?php if (count($chat_list) >= 2) { ?>
 <div class="main" id="room_parent">Rooms</div>
@@ -173,7 +173,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
   $col = str_pad(dechex($r*32+48), 2, STR_PAD_LEFT) .
          str_pad(dechex($g*32+48), 2, STR_PAD_LEFT) .
          str_pad(dechex($b*32+48), 2, STR_PAD_LEFT);
-  ?><area href="javascript:chat_api_color('#<?=$col;?>');" coords="<?=$x*8+2;?>,<?=$y*8+2;?>,<?=$x*8+8;?>,<?=$y*8+8;?>" alt="" /><?php
+  ?><area href="javascript:setChatColor('#<?=$col;?>');popup_hide('color');" coords="<?=$x*8+2;?>,<?=$y*8+2;?>,<?=$x*8+8;?>,<?=$y*8+8;?>" alt="" /><?php
   if ($x == 17) $y++;
   if ($x != 17) $x++; else $x = 0;
 }
@@ -197,7 +197,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 <div class="menu_form_body">
 
 <div class="padding">
-<form action="" onsubmit="chat_msgs_log(true); return false;">
+<form action="" onsubmit="notifyServer_RoomChange(true); return false;">
 
   <div class="form_title">Username:</div>
   <div class="form_input"><div class="input"><input id="user" type="text" /></div></div>
@@ -230,7 +230,7 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 <div class="menu_form_body">
 
 <div class="padding">
-<form action="" onsubmit="chat_msgs_log(false); return false;">
+<form action="" onsubmit="notifyServer_RoomChange(false); return false;">
 
   <div class="form_title">Username:</div>
   <div class="form_input"><div class="input"><input id="guser" type="text" /></div></div>
@@ -287,7 +287,7 @@ if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room
 
 <div class="room" id="character_child" style="display: none;">
 <?php if($characterList) foreach ($characterList as $char): ?>
-<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
+<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');setChatColor('<?=$char->getChatTextColor()?>');notifyServer_RoomChange(true);"><?=$char->getName()?></a>
 <?php endforeach; ?>
 <a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
 </div>
@@ -349,14 +349,14 @@ if ($handle = opendir($dir))
 <!-- ***** Character_Info ********************************************************** -->
 
 <div id="character_info_base">
-	<div id="character_info_inner">
-		<p class="character_info" id="hud_character_name">Character Name</p>
-		<p class="character_info" id="hud_player_name">Player Name</p>
-		<p class="character_info" id="hud_activity_status">Last Post: </p>
-		<!-- <div>
-			<img id="mute" src="">Mute--<img id="highlight" src="">Highlight<!-- <img id="group_color" src=""> --><!--
-		</div> -->
-		<p class="character_info" id="hud_room">Location</p>
-		<!-- <p class="character_info" id="hud_chat_status">Chat Status</p> -->
-	</div>
+  <div id="character_info_inner">
+    <p class="character_info" id="hud_character_name">Character Name</p>
+    <p class="character_info" id="hud_player_name">Player Name</p>
+    <p class="character_info" id="hud_activity_status">Last Post: </p>
+    <!-- <div>
+      <img id="mute" src="">Mute--<img id="highlight" src="">Highlight<!-- <img id="group_color" src=""> --><!--
+    </div> -->
+    <p class="character_info" id="hud_room">Location</p>
+    <!-- <p class="character_info" id="hud_chat_status">Chat Status</p> -->
+  </div>
 </div>

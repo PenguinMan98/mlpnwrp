@@ -39,13 +39,9 @@ var chat_msgs_rcvd = {};
 var chat_player_rooms = {};
 
 var chat_focu = true;
-var chat_colr = '#484848';
-if (getCookie('chat_colr'))
-     chat_colr = getCookie('chat_colr');
-else chat_colr = '#'+(Math.floor(6*Math.random())*32+48).toString(16)
+var chat_colr = '#'+(Math.floor(6*Math.random())*32+48).toString(16)
                     +(Math.floor(6*Math.random())*32+48).toString(16)
                     +(Math.floor(6*Math.random())*32+48).toString(16);
-setCookieLT('chat_colr', chat_colr, 365*24*3600);
 
 
 // ***** XMLHttpRequest ********************************************************
@@ -66,12 +62,18 @@ var chat_XMLHttp_get = new XMLHttpRequest();
 var chat_XMLHttp_log = new XMLHttpRequest();
 
 
-// ***** chat_api_color ********************************************************
-
-function chat_api_color(col)
+//***** setChatColor ********************************************************
+/** 
+ * This is overkill, but I'm not sure how to change a value straight from the php
+ * file, so what's done is done. Might allow multiple colors later too.
+ * 
+ * @param mainColor - The color we'll be using for text from now on.
+ */
+function setChatColor(mainColor)
 {
-  setCookie ('chat_colr', chat_colr = col);
-  popup_hide('color');
+    //TODO: Protect against awesome people who modify client and set color to #000000
+    // or other equally 'awesome' values.   
+    chat_colr = mainColor;
 }
 
 
@@ -120,14 +122,14 @@ function chat_api_onload(room, focu, user, pass)
   if (chat_focu) document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not
   chat_reset(room, user, pass); // reset the chat
   
-  if (user) // if a user was given,
+  if (user) // If the user is already logged in.
   {
     document.getElementById( 'user').value = user; // assume both a user and a pass were entered
     document.getElementById( 'pass').value = pass; // set them on the page
     document.getElementById('guser').value = (user.indexOf('GT-') == 0) ? user.substr('GT-'.length, 1024) : ''; // set the guest username while you're at it
-    chat_msgs_log(user.indexOf('GT-') != 0); // log the incident
+    notifyServer_RoomChange(user.indexOf('GT-') != 0); // log the incident
   }
-  else chat_login(true); // login succeeded
+  else displayLoginPrompt(); // login succeeded
 
   chat_focu = true;
 }
@@ -155,23 +157,23 @@ function chat_date(offset)
 }
 
 
-// ***** chat_login ************************************************************
-
-function chat_login(asuser)
+//***** displayLoginPrompt ************************************************************
+/* This function displays the registered user login prompt. Is essentially a wrapper. Just here for
+ * consistency between calls to popup_show. 
+ */
+function displayLoginPrompt()
 {
-  if ((document.getElementById( 'login').style.display != 'block') && /* if login is hidden AND */
-      (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
-	  if(document.getElementById( 'ajaxChatLogin')){
-		  popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
-		  // popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true); // show the guest login for now
-	  }else{
-		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
-	  }
-  }
-  if (chat_focu && document.getElementById( 'login').style.display == 'block') document.getElementById( 'user').focus();
-  if (chat_focu && document.getElementById('glogin').style.display == 'block') document.getElementById('guser').focus();
+	popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
 }
 
+//***** displayGuestLoginPrompt ************************************************************
+/* This function displays the guest login prompt. Is essentially a wrapper. Just here for
+ * consistency between calls to popup_show. 
+ */
+function displayGuestLoginPrompt()
+{
+	popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
+}
 
 // ***** chat_parse ************************************************************
 
@@ -182,9 +184,14 @@ function chat_parse(str)
 }
 
 
-// ***** chat_priv_prepair ************************************************************
-
-function chat_priv_prepair(user1, user2)
+//***** preparePrivateChat ************************************************************
+/**
+ * Sets up the private chat variables between two characters. Ordering is irrelevant.
+ * 
+ * @param user1 - The first character.
+ * @param user2 - The second character.
+ */
+function preparePrivateChat(user1, user2)
 {
   if (chat_msgs[user1] == undefined) chat_msgs[user1] = new Array();
   if (chat_msgs[user2] == undefined) chat_msgs[user2] = new Array();
@@ -197,21 +204,42 @@ function chat_priv_prepair(user1, user2)
 }
 
 
-// ***** chat_priv_switch ************************************************************
-// chat_reset calls this with a '.' and false
+// ***** displayRoomChatWindow ************************************************************
+/** 
+ * Sets the variables properly for displaying a given window of messages. Also
+ * sets up links required for navigating from a private window back to the main room
+ * (or removing them if in a PM and switching out).
+ *
+ * @param focus - Are we going to want to set focus?
+ */
 
-function chat_priv_switch(user, focus)
+function displayRoomChatWindow()
 {
-  if (chat_focu && focus) 
-	document.getElementById('send').focus();
-  if (user == chat_user) return;
-  chat_priv = user;
-  chat_priv_prepair(chat_user, user);
-  if (user == '.')  // if user is '.'
-      document.getElementById('header_messages').innerHTML = chat_room; // show the room name
-  else // otherwise,  show the link back to the main chat
-	  document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;
-  chat_out_msgs();
+    chat_priv = '.'; // We aren't chatting with anyone privately anymore. This resets that.
+    if (chat_focu) 
+        document.getElementById('send').focus();
+    document.getElementById('header_messages').innerHTML = chat_room; // show the room name
+    displayMessages();
+}
+
+// ***** displayPrivateChatWindow ************************************************************
+/** 
+ * Sets the variables properly for displaying a given window of messages. Also
+ * sets up links required for navigating from a private window back to the main room
+ *
+ * @param user - The user to set up the private chat window with.
+ */
+
+function displayPrivateChatWindow(name)
+{
+    if (name == chat_user) return; // No need to private message ourselves.
+    if (chat_focu) 
+        document.getElementById('send').focus();
+
+    chat_priv = name;
+    preparePrivateChat(chat_user, name);
+    document.getElementById('header_messages').innerHTML = '<a href="javascript:displayRoomChatWindow()">Back to '+chat_room+'</a>'+name;
+    displayMessages();
 }
 
 
@@ -235,17 +263,13 @@ function chat_reset(room, user, pass)
   chat_msgs_rcvd = {}; // clear the received post history
   chat_player_rooms = {}; // for tracking who is where
 
-  chat_msgs['.'] = ''; // set messages to .?
-  chat_priv_switch('.', false); // makes sure we aren't in private mode
+  chat_msgs['.'] = ''; // Wipes the message window.
+  displayRoomChatWindow(); // Display the current room.
 
   clearTimeout(chat_tout); // stop the looping ajax
   chat_XMLHttp_add.abort(); // should be able to remove these soon
   chat_XMLHttp_get.abort();
   chat_XMLHttp_log.abort();
-
-  if(user){ // if a user is chosen
-	  //chat_tout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
-  }
 }
 
 // ***** chat_msgs_add *********************************************************
@@ -253,15 +277,14 @@ function chat_reset(room, user, pass)
 function chat_msgs_add()
 {
 	// first, security pass
-    if (!chat_user || !chat_pass) { chat_login(false); return; }
+    if (!chat_user || !chat_pass) { displayLoginPrompt(); return; }
     
     // second, check for blank
 	var post_text = $('#send').val();
     if (!post_text || post_text == "") return;
 	
     // third, build the post
-    chat_rand += 1;
-    var timestamp = new Date().getTime();// I switched the chat rand to a timestamp.  This should fix any guid problems and false duplicate posts.
+    var timestamp = new Date().getTime(); // Switched the rand value to a timestamp.  This should fix any guid problems and false duplicate posts.
     timestamp = timestamp / 1000;
     var newPost = {
 	    rand: timestamp,
@@ -277,7 +300,7 @@ function chat_msgs_add()
     chat_temp_msgs.push(newPost);
     
     // fourth, call it!
-	add_post_ajax(newPost);
+	notifyServer_Post(newPost);
 	
 	// fourth, clean up
 	document.getElementById('send').value = '';
@@ -288,7 +311,7 @@ function resend_dead_posts(){
 	var chat_temp_msgs_length = chat_temp_msgs.length;
 	for(var i = 0; i < chat_temp_msgs_length; i++){
 		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
-			add_post_ajax(chat_temp_msgs[i]);
+			notifyServer_Post(chat_temp_msgs[i]);
 			chat_temp_msgs[i].tries++;
 		}else{
 			confirmPostRand(chat_temp_msgs[i].rand);
@@ -296,7 +319,14 @@ function resend_dead_posts(){
 	}
 }
 
-function add_post_ajax(newPost)
+// ***** notifyServer_Post **********************************************************
+/**
+ * Ship a message off to the server for processing. Still has to be verified that
+ * the user is allowed to post, is posting from a legal character, etc etc. 
+ *
+ * @param newPost - The post data.
+ */
+function notifyServer_Post(newPost)
 {
 	$.ajax({
 		url: chat_path+"php/msg_add.php",
@@ -320,7 +350,7 @@ function add_post_ajax(newPost)
 			}
 	        
 	        confirmPostRand(newPost.rand);
-	        chat_out_msgs();
+	        displayMessages();
 		}
 	});
 
@@ -372,7 +402,7 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) // if system messages are turned on
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> enters the room<br />';
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterLink(line.handle, 'black', false)+'</b> enters the room<br />';
 	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
 	          chat_player_rooms[line.handle] = line.roomname;
 	          //i += 5;
@@ -382,7 +412,7 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) 
 	        	  if (line.roomname == chat_room) 
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> leaves the room<br />';
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterLink(line.handle, 'black', false)+'</b> leaves the room<br />';
 	          chat_usrs[line.handle] = false;
 	          //i += 3;
 	        }
@@ -430,13 +460,13 @@ function chat_msgs_get()
 		          message = replaceURLWithHTMLLinks(message);
 
 		          if (line.recipient_username == '.'){ // if this message is public
-		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		          }
 		          else // it's a private message
 		          {
-		            chat_priv_prepair(line.handle, line.recipient_username);
-		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
-		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            preparePrivateChat(line.handle, line.recipient_username);
+		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		            chat_wait[line.handle][line.recipient_username]  = false;
 		            chat_wait[line.recipient_username][line.handle]  = true;
 		          }
@@ -464,22 +494,30 @@ function chat_msgs_get()
 	      
 	      if (response.lines.length > 0)
 	      {
-	        chat_out_msgs();
-	        chat_out_usrs();
+	        displayMessages();
+	        displayUserList();
 	      }
 		}else{
 			if(response.error.trim() != ""){
 		        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
 			}
-	        chat_out_msgs();
+	        displayMessages();
 		}
 		
 	});
 }
 
-// ***** chat_msgs_log **********************************************************
-
-function chat_msgs_log(asuser)
+// ***** notifyServer_RoomChange **********************************************************
+/**
+ * This function is called any time a character changes the room they are currently in.
+ * Updates the local log with information about characters moving about the rooms.
+ * It will also be called when a user logs in for the first time, or switches characters. One
+ * thing to note is that credentials are checked when this function is called, which is why
+ * document elements are being addressed here. Also calls for a chat reset for the user.
+ *
+ * @param registered_user - Is the user registered, or is it a guest account? (True/False)
+ */
+function notifyServer_RoomChange(registered_user)
 {
   clearTimeout(chat_tout);
   chat_XMLHttp_add.abort();
@@ -487,7 +525,7 @@ function chat_msgs_log(asuser)
   chat_XMLHttp_log.abort();
 
   chat_rand += 1;
-  if (asuser)
+  if (registered_user)
        chat_XMLHttp_log.open("get", chat_path+"php/msg_log.php?rand="+chat_rand+
                                                              "&room="+encodeURIComponent(chat_room)+
                                                              "&user="+encodeURIComponent(document.getElementById( 'user').value)+
@@ -513,66 +551,72 @@ function chat_msgs_log(asuser)
         popup_hide('glogin');
         /*document.location.reload(true);*/
       }
-      if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
+      if (data[0] == 'FAILED') { alert(data[1]); displayLoginPrompt(); }
       chat_msgs_get();
     }
   };
 }
 
 
-// ***** chat_msgs_usr **********************************************************
-/*
- * Takes a user, color, and away status and formats an html dealie for them.
- * */
-function chat_msgs_usr(user, color, sidebar)
+// ***** generateCharacterLink **********************************************************
+/**
+ * Takes in information about a character and returns an html string to allow for private messages
+ * with this character.
+ *
+ * @param name - Name of the character/user to use for the link.
+ * @param color - The color of the link.
+ * @param sidebar - Is this link displayed on the side bar? (True / False )
+ * @return - A valid html string with encoded JS to switch to private messaging.
+ */
+function generateCharacterLink(name, color, sidebar)
 {
-  sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
-  // then build a return string
-  var retString = "";
-  if(sidebar){ retString += '<img style="cursor: pointer;" src="'+SITE_ROOT+'/images/twilight_sparkle_cutie_mark2_15_tall.png" onClick="showHUD(this, \''+user+'\'); return false;" />&nbsp;';}
-  // if there is a status, then add the icon
-  if(typeof chat_usrs[user][2] != 'undefined' && chat_usrs[user][2] != 'none'){
-	  retString += '<img src="'+chat_path+'style/status/'+chat_usrs[user][2]+'.png" alt="" style="margin-right: 0px;" />';
-  }
-  // if there is a gender, then add the icon
-  if(typeof chat_usrs[user][1] != 'undefined' && chat_usrs[user][1] != 'none'){
-	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[user][1]+'.png" alt="" style="margin-right: 2px;" />';
-  }
-  // always add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="#" onClick="chat_priv_switch(\''+user+'\', true); return false;">' + user + '</a>';
+  sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // First, make sure away is not undefined,
 
-  // if the user is away, add this
-  if(sidebar && !chat_usrs[user][3]){
+  var retString = "";
+  if(sidebar){ retString += '<img style="cursor: pointer;" src="'+SITE_ROOT+'/images/twilight_sparkle_cutie_mark2_15_tall.png" onClick="showHUD(this, \''+name+'\'); return false;" />&nbsp;';}
+  // if there is a status, then add the icon
+  if(typeof chat_usrs[name][2] != 'undefined' && chat_usrs[name][2] != 'none'){
+	  retString += '<img src="'+chat_path+'style/status/'+chat_usrs[name][2]+'.png" alt="" style="margin-right: 0px;" />';
+  }
+  // If there is a gender, add the icon.
+  if(typeof chat_usrs[name][1] != 'undefined' && chat_usrs[name][1] != 'none'){
+	  retString += '<img src="'+chat_path+'style/gender/'+chat_usrs[name][1]+'.png" alt="" style="margin-right: 2px;" />';
+  }
+
+  /// Add the name and the javascript that fires the switch to private messaging
+  retString += '<a style="color: '+color+'" href="#" onClick="displayPrivateChatWindow(\''+name+'\', true); return false;">' + name + '</a>';
+
+  // If the character is on the side bar and away, add the message.
+  if(sidebar && !chat_usrs[name][3]){
 	  retString += '&nbsp;(away)';
   }
-  // ship it out
+
   return retString;
 }
 
 
-// ***** chat_out_msgs **********************************************************
-
-function chat_out_msgs()
+// ***** displayMessages **********************************************************
+/* Wipes the message box's text and sets it to whatever is appropriate. Takes in account
+ * whether the user is chatting privately, and makes use of the autofocus checkbox to
+ * determine scrolling behavior.
+ */
+function displayMessages()
 {
-  // the switch between displaying the PM's and the public
+  // Do we display the current room's messages or a set of private messages for a certain user?
   document.getElementById('messages').innerHTML = (chat_priv == '.') ? chat_msgs[chat_priv] : chat_msgs[chat_user][chat_priv];
-  if(document.getElementById('autofocus').checked){ /*Disable autofocus!*/
-	  // I have no idea why this is done 5 times
-	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
-	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
-	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
-	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
+  
+  // If autofocus is checked, scroll to the bottom of the message pane.
+  if(document.getElementById('autofocus').checked){ 
 	  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight+1024;
   }
 }
 
 
-// ***** chat_out_usrs **********************************************************
-/*
- * This seems to be the function that outputs users to the main page.  
- * It draws its data from the chat_usrs variable.
+// ***** displayUserList **********************************************************
+/**
+ * Reads through the chat_usrs variable to generate and display the user list on the side.
  * */
-function chat_out_usrs()
+function displayUserList()
 {
   var users;
   chat_usrs.sort();
@@ -585,7 +629,7 @@ function chat_out_usrs()
 			chat_wait[chat_user] != undefined && // I'm in wait mode?
 			chat_wait[chat_user][i] != undefined && // and I'm waiting on this guy
 			chat_wait[chat_user][i]) // and it's my turn ??( there is a value here besides 'false' ) 
-      users = chat_msgs_usr(i,         'black', true)+'<br />'+users; // get the formated html and then we prepend it to users?
+      users = generateCharacterLink(i,'black', true)+'<br />'+users; 
   document.getElementById('users_priv').innerHTML = users; // get the users_priv element and add the users to it.
   document.getElementById('users_priv').style.display = users ? 'block' : 'none'; // turn the div visible if users is set.
 
@@ -595,9 +639,9 @@ function chat_out_usrs()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // its a user
     		chat_usrs[i][0] == chat_room) // and they're in my room
-      users = chat_msgs_usr(i,         'black', true)+' <br />'+users; // format them
+      users = generateCharacterLink(i,'black', true)+' <br />'+users; 
   if (chat_user) // if I'm here
-      users = chat_msgs_usr(chat_user, 'black', true)+' <br />'+users; // put me on top
+      users = generateCharacterLink(chat_user, 'black', true)+' <br />'+users; // put me on top
   document.getElementById('users_this').innerHTML = users; // connect to this room's div and dump the users in
   document.getElementById('users_this').style.display = users ? 'block' : 'none'; // show it if people are here.
 
@@ -607,7 +651,7 @@ function chat_out_usrs()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // they're truely here
     		chat_usrs[i][0] != chat_room) // and NOT in my room
-      users = chat_msgs_usr(i,         'black', true)+' <br />'+users; // format them up
+      users = generateCharacterLink(i,'black', true)+' <br />'+users; 
   document.getElementById('users_othr').innerHTML = users; // dump them into other.
   document.getElementById('users_othr').style.display = users ? 'block' : 'none';  // show it if it needs to be shown.
   // no return value.
