@@ -400,7 +400,7 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) // if system messages are turned on
 	        	  if (line.roomname == chat_room) // and the room is the room we're in
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterRoomlistLink(line.handle, 'black', false)+'</b> enters the room<br />';
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterLink(line.handle, 'black', false)+'</b> enters the room<br />';
 	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
 	          chat_player_rooms[line.handle] = line.roomname;
 	          //i += 5;
@@ -410,7 +410,7 @@ function chat_msgs_get()
 	        {
 	          if (chat_smsg) 
 	        	  if (line.roomname == chat_room) 
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterRoomlistLink(line.handle, 'black', false)+'</b> leaves the room<br />';
+	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+generateCharacterLink(line.handle, 'black', false)+'</b> leaves the room<br />';
 	          chat_usrs[line.handle] = false;
 	          //i += 3;
 	        }
@@ -458,13 +458,13 @@ function chat_msgs_get()
 		          message = replaceURLWithHTMLLinks(message);
 
 		          if (line.recipient_username == '.'){ // if this message is public
-		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterRoomlistLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		        	  chat_msgs['.'] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		          }
 		          else // it's a private message
 		          {
 		            preparePrivateChat(line.handle, line.recipient_username);
-		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterRoomlistLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
-		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterRoomlistLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
+		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.lineId+'" style="color: '+line.color+'"><b>['+chat_date(-line.interval)+'] '+generateCharacterLink(line.handle, line.color)+'</b>'+ message +'</span><br />';
 		            chat_wait[line.handle][line.recipient_username]  = false;
 		            chat_wait[line.recipient_username][line.handle]  = true;
 		          }
@@ -556,7 +556,7 @@ function notifyServer_RoomChange(registered_user)
 }
 
 
-// ***** generateCharacterRoomlistLink **********************************************************
+// ***** generateCharacterLink **********************************************************
 /**
  * Takes in information about a character and returns an html string to allow for private messages
  * with this character.
@@ -566,9 +566,9 @@ function notifyServer_RoomChange(registered_user)
  * @param sidebar - Is this link displayed on the side bar? (True / False )
  * @return - A valid html string with encoded JS to switch to private messaging.
  */
-function generateCharacterRoomlistLink(name, color, sidebar)
+function generateCharacterLink(name, color, sidebar)
 {
-  sidebar = (typeof away == 'undefined') ? false : sidebar ; // First, make sure away is not undefined,
+  sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // First, make sure away is not undefined,
 
   var retString = "";
   if(sidebar){ retString += '<img style="cursor: pointer;" src="'+SITE_ROOT+'/images/twilight_sparkle_cutie_mark2_15_tall.png" onClick="showHUD(this, \''+name+'\'); return false;" />&nbsp;';}
@@ -582,10 +582,10 @@ function generateCharacterRoomlistLink(name, color, sidebar)
   }
 
   /// Add the name and the javascript that fires the switch to private messaging
-  retString += '<a style="color: '+color+'" href="#" onClick="displayPrivateChatWindow(\''+user+'\', true); return false;">' + user + '</a>';
+  retString += '<a style="color: '+color+'" href="#" onClick="displayPrivateChatWindow(\''+name+'\', true); return false;">' + name + '</a>';
 
-  // If the user is on the side bar and away, add the message.
-  if(sidebar && !chat_usrs[user][3]){
+  // If the character is on the side bar and away, add the message.
+  if(sidebar && !chat_usrs[name][3]){
 	  retString += '&nbsp;(away)';
   }
 
@@ -627,7 +627,7 @@ function displayUserList()
 			chat_wait[chat_user] != undefined && // I'm in wait mode?
 			chat_wait[chat_user][i] != undefined && // and I'm waiting on this guy
 			chat_wait[chat_user][i]) // and it's my turn ??( there is a value here besides 'false' ) 
-      users = generateCharacterRoomlistLink(i,'black', true)+'<br />'+users; 
+      users = generateCharacterLink(i,'black', true)+'<br />'+users; 
   document.getElementById('users_priv').innerHTML = users; // get the users_priv element and add the users to it.
   document.getElementById('users_priv').style.display = users ? 'block' : 'none'; // turn the div visible if users is set.
 
@@ -637,9 +637,9 @@ function displayUserList()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // its a user
     		chat_usrs[i][0] == chat_room) // and they're in my room
-      users = generateCharacterRoomlistLink(i,'black', true)+' <br />'+users; 
+      users = generateCharacterLink(i,'black', true)+' <br />'+users; 
   if (chat_user) // if I'm here
-      users = generateCharacterRoomlistLink(chat_user, 'black', true)+' <br />'+users; // put me on top
+      users = generateCharacterLink(chat_user, 'black', true)+' <br />'+users; // put me on top
   document.getElementById('users_this').innerHTML = users; // connect to this room's div and dump the users in
   document.getElementById('users_this').style.display = users ? 'block' : 'none'; // show it if people are here.
 
@@ -649,7 +649,7 @@ function displayUserList()
     		i != chat_user && // if it's not me
     		chat_usrs[i] && // they're truely here
     		chat_usrs[i][0] != chat_room) // and NOT in my room
-      users = generateCharacterRoomlistLink(i,'black', true)+' <br />'+users; 
+      users = generateCharacterLink(i,'black', true)+' <br />'+users; 
   document.getElementById('users_othr').innerHTML = users; // dump them into other.
   document.getElementById('users_othr').style.display = users ? 'block' : 'none';  // show it if it needs to be shown.
   // no return value.
