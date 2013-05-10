@@ -23,9 +23,8 @@ a:hover, a:active{
 	position: relative; 
 	margin: 2px auto;
 }
-#page-wrap > div { 
-	border: 1px solid #999; 
-	padding: 10px; 
+#page-wrap > div {  
+	padding: 4px 10px 16px;
 	margin-bottom: 5px; 
 }
 #top_menu {     
@@ -36,9 +35,10 @@ a:hover, a:active{
     left: 2px;
     white-space: nowrap;
     vertical-align: bottom;
+    border-bottom: 1px solid #999;
 }
 #chat {
-	background: #222;
+	/*background: #222;*/
     position:fixed !important;
     position: absolute;
     top: 42px; 
@@ -48,22 +48,33 @@ a:hover, a:active{
     overflow: auto;
 }
 #form { 
-    background: #444;
+    /*background: #444;*/
 	position:fixed !important;
     position: absolute;
     height: 12px; 
     bottom: 2px;
     left: 2px;
     right: 2px;
+    border-top: 1px solid #999;
 }
+#send{
+	margin-left: 10px;
+}
+/* RIGHT DIV */
 #room_list { 
-    background: #666;
+    /*background: #666;*/
 	position:fixed !important;
     position: absolute;
     top: 42px; 
     width: 100px; 
     bottom: 36px;
     right: 2px;
+    border-left: 1px solid #999;
+}
+#header_messages{
+	font-weight: bold;
+	background: #444;
+	padding: 2px;
 }
 
 /* ***** Character HUD ***** */
