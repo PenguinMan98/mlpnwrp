@@ -107,7 +107,10 @@ if (isset($_GET['room']) &&
 	      	//$temp['rawtext'] = "{$x['data']}";
 	      	$temp = array_merge($temp, $line->getAsArray()); // store the line as an array
 	      	$temp['interval'] = (time()-$x['time']); 
-
+	      	
+	      	// debug
+	      	$temp['text'] .= " (" . $_GET['mptr'] . ")";
+	      	
 	      	$response->lines[] = $temp; // Add it to the response 
 	      }
 	   }

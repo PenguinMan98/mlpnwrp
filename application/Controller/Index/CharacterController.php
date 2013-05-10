@@ -143,7 +143,11 @@ class Index_CharacterController extends Index_BaseController{
 		if($editing){
 			header('Location: ' . SITE_ROOT . '/character/edit/' . $character_name);
 		}else{
-			header('Location: ' . SITE_ROOT . '/character/view/' . $character_name);
+			if(!empty($_POST['saveandchat'])){
+				header('Location: ' . SITE_ROOT . '/chat');
+			}else{
+				header('Location: ' . SITE_ROOT . '/character/view/' . $character_name);
+			}
 		}
 	}
 }

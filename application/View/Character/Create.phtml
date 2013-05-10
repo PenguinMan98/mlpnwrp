@@ -7,12 +7,16 @@
 	<link href="<?=SITE_ROOT?>/css/le-frog/jquery-ui-1.10.2.custom.css" rel="stylesheet">
 	<script src="<?=SITE_ROOT?>/js/jquery-1.9.1.js"></script>
 	<script src="<?=SITE_ROOT?>/js/jquery-ui-1.10.2.custom.js"></script>
-	<script src="<?=SITE_ROOT?>/js/jquery.colorpicker.js"></script>
-	<link href="<?=SITE_ROOT?>/css/jquery.colorpicker.css" rel="stylesheet" type="text/css"/>
-	<script src="<?=SITE_ROOT?>/js/i18n/jquery.ui.colorpicker-nl.js"></script>
-	<script src="<?=SITE_ROOT?>/js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  </head>
-  <body>
+	<link href="<?=SITE_ROOT?>/js/spectrum/spectrum.css" rel="stylesheet" type="text/css"/>
+	<script src="<?=SITE_ROOT?>/js/spectrum/spectrum.js"></script>
+	<style>
+	label{
+		display: inline-block;
+		width: 200px;
+	}
+	</style>
+</head>
+<body>
     <div id="siteContainer">
       <div id="site">
         <div id="headingContainer">
@@ -56,11 +60,11 @@
 						<input type=submit value="Save New Character!">
 						<hr>
 						<label>Default Chat Colors:</label>
-						<input type=text id="chat_name_color" name="chat_name_color" size="7" placeholder="click here">
-						<input type=text id="chat_text_color" name="chat_text_color" size="7" placeholder="click here"><br>
+						<input type="text" id="chat_name_color" name="chat_name_color" size="7" value="<?=$char['chat_name_color']?>">
+						<input type="text" id="chat_text_color" name="chat_text_color" size="7" value="<?=$char['chat_text_color']?>"><br>
 						<p style="background-color: #000; color: #fff;"><span class="post_sample_1">Character</span>: <span class="post_sample_2">"I say something fun!"</span><br>
 						: <span class="post_sample_1">Character does something fun!</span></p><br>
-						<input type=submit value="Save New Character!">
+						<input type="submit" name="saveandview" value="Save New Character!">&nbsp;&nbsp;&nbsp;<input type="submit" name="saveandchat" value="Save & Go Chat!">
 					</div>
 					<div id="texts">
 						<label>Status</label>
@@ -75,7 +79,7 @@
 						<label>Player Private Notes</label>
 						<textarea id="player_private_notes" name="player_private_notes" rows="5" cols="80" title="Private player notes was designed for players to enter any details about their character that they don't want made public." placeholder="Private Character Notes"></textarea><br>
 						<br>
-						<input type=submit value="Save New Character!">
+						<input type="submit" name="saveandview" value="Save New Character!">&nbsp;&nbsp;&nbsp;<input type="submit" name="saveandchat" value="Save & Go Chat!">
 					</div>
 				</form>
 			</div>
@@ -88,32 +92,36 @@
 <script type="text/javascript">
 	$(function() {
 		$( "#tabs" ).tabs();
-
-		$('#chat_name_color').colorpicker({
-			color: '#ffffff',
-			parts: 'full',
-			showOn: 'both',
-			buttonColorize: true,
-			close: function(event, color) {
-				var samples = $('.post_sample_1');
-				for(var i=0; i < samples.length; i++){
-					samples[i].style.color = '#' + color.formatted;
-				};
-			}
-		});
-		$('#chat_text_color').colorpicker({
-			color: '#ffffff',
-			parts: 'full',
-			showOn: 'both',
-			buttonColorize: true,
-			close: function(event, color) {
-				var samples = $('.post_sample_2');
-				for(var i=0; i < samples.length; i++){
-					samples[i].style.color = '#' + color.formatted;
-				};
-			}
-		});
-
+	});
+	$('#chat_name_color').spectrum({
+		color: "white",
+		preferredFormat: "hex6",
+		showInput: true,
+		clickoutFiresChange: true,
+		showInitial: true,
+		chooseText: "Pick Me!",
+		cancelText: "I liked the old one better.",
+		move: function(hex) {
+			var samples = $('.post_sample_1');
+			for(var i=0; i < samples.length; i++){
+				samples[i].style.color = hex;
+			};
+		}
+	});
+	$('#chat_text_color').spectrum({
+		color: "white",
+		preferredFormat: "hex6",
+		showInput: true,
+		clickoutFiresChange: true,
+		showInitial: true,
+		chooseText: "Pick Me!",
+		cancelText: "I liked the old one better.",
+		move: function(hex) {
+			var samples = $('.post_sample_2');
+			for(var i=0; i < samples.length; i++){
+				samples[i].style.color = hex;
+			};
+		}
 	});
 </script>
 </html>

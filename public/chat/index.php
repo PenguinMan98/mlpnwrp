@@ -1,6 +1,24 @@
 <?php 
 require_once '../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
+
+if (empty($_POST['handle'])) // if no username, 
+{
+	header("Location: ../login.php");// send them to login.php.
+} 
+if($user->data['user_id'] == ANONYMOUS) {
+	echo "Logged in as guest: " . $_POST['handle'] . "<br>";
+} elseif(empty($_POST['character_id'])) {
+	echo "Logged in as user: " . $user->data['username'] . " with guest character: ".$_POST['handle']."<br>";
+} else {
+	echo "Logged in as user: " . $user->data['username'] . " with character: ".$_POST['handle']."<br>";
+}
+
+$chat_logs = array('add' => false, 'get' => false, 'log' => false);
+$chat_show = array('login' => true, 'guest' => true);
+$chat_path = 'ajax-chat/';
+include_once 'ajax-chat/ajax-chat.php';
+
 ?><html>
 <head>
 
@@ -22,10 +40,6 @@ $_bootstrap = Bootstrap::getInstance();
 	  <source src="<?=SITE_ROOT?>/media/12844__schluppipuppie__kling-01.mp3" type="audio/mpeg"></source>
 	</audio>
 <?php
-$chat_logs = array('add' => false, 'get' => false, 'log' => false);
-$chat_show = array('login' => true, 'guest' => true);
-$chat_path = 'ajax-chat/';
-include_once 'ajax-chat/ajax-chat.php';
 ?>
 <!-- <br><br>
 <table width="824">
