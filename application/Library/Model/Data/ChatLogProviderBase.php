@@ -51,9 +51,10 @@ class Model_Data_ChatLogProviderBase
             recipient_username,
             text,
             timestamp,
-            color,
-            chat_rand
-        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            chat_name_color,
+            chat_rand,
+            chat_text_color
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $params = array(
             0,
             $objRecord->getChatRoomId(),
@@ -64,8 +65,9 @@ class Model_Data_ChatLogProviderBase
             $objRecord->getRecipientUsername(),
             $objRecord->getText(),
             $objRecord->getTimestamp(),
-            $objRecord->getColor(),
-            $objRecord->getChatRand()
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatRand(),
+            $objRecord->getChatTextColor()
         );
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
@@ -87,8 +89,9 @@ class Model_Data_ChatLogProviderBase
             recipient_username=?,
             text=?,
             timestamp=?,
-            color=?,
-            chat_rand=?
+            chat_name_color=?,
+            chat_rand=?,
+            chat_text_color=?
         WHERE chat_log_id=?';
         $arrSetParams = array(
             $objRecord->getChatLogId(),
@@ -100,8 +103,9 @@ class Model_Data_ChatLogProviderBase
             $objRecord->getRecipientUsername(),
             $objRecord->getText(),
             $objRecord->getTimestamp(),
-            $objRecord->getColor(),
-            $objRecord->getChatRand()
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatRand(),
+            $objRecord->getChatTextColor()
         );
         $arrKeyParams = array($objRecord->getOrigChatLogId());
         $params = array_merge($arrSetParams, $arrKeyParams);

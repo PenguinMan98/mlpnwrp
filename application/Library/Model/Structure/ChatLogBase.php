@@ -14,8 +14,9 @@ class Model_Structure_ChatLogBase
     protected $m_recipient_username;
     protected $m_text;
     protected $m_timestamp;
-    protected $m_color;
+    protected $m_chat_name_color;
     protected $m_chat_rand;
+    protected $m_chat_text_color;
     protected $m_chat_log_id_Orig;
 
     public function __construct($arrData = null)
@@ -125,13 +126,13 @@ class Model_Structure_ChatLogBase
         return;
     }
 
-    public function getColor()
+    public function getChatNameColor()
     {
-        return $this->m_color;
+        return $this->m_chat_name_color;
     }
-    public function setColor($value)
+    public function setChatNameColor($value)
     {
-        $this->m_color = $value;
+        $this->m_chat_name_color = $value;
         return;
     }
 
@@ -142,6 +143,16 @@ class Model_Structure_ChatLogBase
     public function setChatRand($value)
     {
         $this->m_chat_rand = $value;
+        return;
+    }
+
+    public function getChatTextColor()
+    {
+        return $this->m_chat_text_color;
+    }
+    public function setChatTextColor($value)
+    {
+        $this->m_chat_text_color = $value;
         return;
     }
 
@@ -167,8 +178,9 @@ class Model_Structure_ChatLogBase
         $this->setRecipientUsername($arrValues['recipient_username']);
         $this->setText($arrValues['text']);
         $this->setTimestamp($arrValues['timestamp']);
-        $this->setColor($arrValues['color']);
+        $this->setChatNameColor($arrValues['chat_name_color']);
         $this->setChatRand($arrValues['chat_rand']);
+        $this->setChatTextColor($arrValues['chat_text_color']);
         return;
     }
 
@@ -203,11 +215,14 @@ class Model_Structure_ChatLogBase
                 case 'timestamp':
                     $this->setTimestamp($val);
                     break;
-                case 'color':
-                    $this->setColor($val);
+                case 'chat_name_color':
+                    $this->setChatNameColor($val);
                     break;
                 case 'chat_rand':
                     $this->setChatRand($val);
+                    break;
+                case 'chat_text_color':
+                    $this->setChatTextColor($val);
                     break;
                 default:
                     break;
@@ -228,8 +243,9 @@ class Model_Structure_ChatLogBase
         $arrValues['recipient_username'] = $this->getRecipientUsername();
         $arrValues['text'] = $this->getText();
         $arrValues['timestamp'] = $this->getTimestamp();
-        $arrValues['color'] = $this->getColor();
+        $arrValues['chat_name_color'] = $this->getChatNameColor();
         $arrValues['chat_rand'] = $this->getChatRand();
+        $arrValues['chat_text_color'] = $this->getChatTextColor();
         return $arrValues;
     }
 

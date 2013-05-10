@@ -1,4 +1,9 @@
 <?php 
+/*
+ * Notes to self:
+ * 1) Using the session to store anything specific to one instance of the chat is a bad idea because it will 
+ * cause complications later for having multiple windows open.
+ * */
 require_once '../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
@@ -7,17 +12,19 @@ if (empty($_POST['handle'])) // if no username,
 	header("Location: ../login.php");// send them to login.php.
 } 
 if($user->data['user_id'] == ANONYMOUS) {
-	echo "Logged in as guest: " . $_POST['handle'] . "<br>";
+	//echo "Logged in as guest: " . $_POST['handle'] . "<br>";
+	// add the character handle to the temporary player table
 } elseif(empty($_POST['character_id'])) {
-	echo "Logged in as user: " . $user->data['username'] . " with guest character: ".$_POST['handle']."<br>";
+	//echo "Logged in as user: " . $user->data['username'] . " with guest character: ".$_POST['handle']."<br>";
+	// add the character handle to the temporary player table
 } else {
-	echo "Logged in as user: " . $user->data['username'] . " with character: ".$_POST['handle']."<br>";
+	//echo "Logged in as user: " . $user->data['username'] . " with character: ".$_POST['handle']."<br>";
+	// tell the database this character is logged in
 }
-
-$chat_logs = array('add' => false, 'get' => false, 'log' => false);
-$chat_show = array('login' => true, 'guest' => true);
-$chat_path = 'ajax-chat/';
-include_once 'ajax-chat/ajax-chat.php';
+//$chat_logs = array('add' => false, 'get' => false, 'log' => false);// probably won't need this
+//$chat_show = array('login' => true, 'guest' => true); // or this
+//$chat_path = 'ajax-chat/'; // make everything relative to site_root
+include_once PUBLIC_ROOT . '/chat/ajax-chat/php/init.php'; /*the main php include file*/
 
 ?><html>
 <head>
@@ -28,31 +35,61 @@ include_once 'ajax-chat/ajax-chat.php';
 <meta name="description" content="" />
 <meta name="keywords"    content="" />
 
-<link rel="stylesheet" type="text/css" href="ajax-chat/style/style.css" />
+<link rel="stylesheet" type="text/css" href="<?=SITE_ROOT?>/chat/ajax-chat/style/style.css" />
 
-<style type="text/css"> html, body { padding: 0px; margin: 0px; background: #d0d0d0; } </style>
 <script type="text/javascript" src="<?=SITE_ROOT?>/js/jquery.js" > </script>
+
+<script type="text/javascript">
+var room 		 = 'Main Room'; /* for now default this */
+var handle 		 = '<?=$_POST['handle']?>';
+var forum_login  = <?=($user->data['user_id'] == ANONYMOUS) ? false : true; ?>;
+var chat_timeout = <?=$chat_t_refresh;?>;
+var autofocus    = true;
+var back_posts   = 50;
+var dingOnNew    = false;
+var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
+var SITE_ROOT	 = "<?=SITE_ROOT?>";
+
+</script>
 
 </head>
 <body>
-	<audio id="audio_ding" style="visibility: hidden;" controls>
+	<audio id="audio_ding" style="display: none;" controls>
 	  <source src="<?=SITE_ROOT?>/media/12844__schluppipuppie__kling-01.wav" type="audio/wav"></source>
 	  <source src="<?=SITE_ROOT?>/media/12844__schluppipuppie__kling-01.mp3" type="audio/mpeg"></source>
 	</audio>
-<?php
-?>
-<!-- <br><br>
-<table width="824">
-	<tr>
-		<td width="30%">Some</td>
-		<td width="70%">Test</td>
-	</tr>
-</table> -->
+	<div id="page-wrap">
+
+		<div id="top_menu">&nbsp;&nbsp;<a href="<?=SITE_ROOT?>">Home</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="<?=SITE_ROOT?>/rules">Site Rules</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="#">Chat Commands</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="#">Room List</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="#">Profile</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="#">Logout</a>&nbsp;&nbsp;
+		</div>
+		
+		<div id="chat">Chat
+		
+
+		</div>
+		
+        <div id="room_list">Room List</div>
+
+        <div id="form">Form</div>
+        
+	</div>
+	
+</body>
+	
+
+	<?php include_once PUBLIC_ROOT . '/chat/ajax-chat/ajax-chat.php'; /*the main HTML include file*/?>
 
 </body>
 </html>
 <script>
 	$(function(){
+		// this is the call that starts it all.
 		chat_api_onload('Main Room', false<?if($user->data['is_registered']) echo ", '".$user->data['username']."'";?>);
 
 			/* TAB COMPLETION */
@@ -67,7 +104,6 @@ include_once 'ajax-chat/ajax-chat.php';
 						$('#send').val( post.replace( new RegExp( replaceRegex, 'i'), i) );
 					}
 				}
-				
 				return false;
 			}
 		});

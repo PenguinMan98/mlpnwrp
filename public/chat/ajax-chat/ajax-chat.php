@@ -1,41 +1,20 @@
 <?php
 
-// Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
-// Technical support: http://www.php-development.ru/
-//
-// YOU MAY NOT
-// (1) Remove or modify this copyright notice.
-// (2) Re-distribute this code or any part of it.
-//     Instead, you may link to the homepage of this code:
-//     http://www.php-development.ru/javascripts/ajax-chat.php
-// (3) Use this code or any part of it as part of another product.
-//
-// YOU MAY
-// (1) Use this code on your website.
-//
-// NO WARRANTY
-// This code is provided "as is" without warranty of any kind.
-// You expressly acknowledge and agree that use of this code is at your own risk.
-
-include_once dirname(__FILE__) . '/php/init.php';
+/*
+ * This chat was written by Pengy Programming for www.mlpnwrp.org
+ * Use it if you like, but please give me credit.  This was a labor of love.
+ * 
+ * This is the main setup file. It sets up all the HTML for the widgets on the site,
+ * and a lot of the javascript
+ * */
 
 ?>
 
-<script type="text/javascript">
-var chat_path    = <?="'$chat_path'";   ?>;
-var chat_timeout = <?=  $chat_t_refresh;?>;
-var autofocus    = true;
-var dingOnNew    = false;
-var chat_addr    = "<?= $_SERVER['REMOTE_ADDR'] ?>";
-var SITE_ROOT	 = "<?=SITE_ROOT?>";
-
-</script>
-
-<script type="text/javascript" src="<?=$chat_path;?>js/popup-window.js"></script>
+<!-- <script type="text/javascript" src="<?=$chat_path;?>js/popup-window.js"></script>
 <script type="text/javascript" src="<?=$chat_path;?>js/image-button.js"></script>
 <script type="text/javascript" src="<?=$chat_path;?>js/dropdown.js"    ></script>
 <script type="text/javascript" src="<?=$chat_path;?>js/cookies.js"     ></script>
-<script type="text/javascript" src="<?=$chat_path;?>js/ajax-chat.js"   ></script>
+<script type="text/javascript" src="<?=$chat_path;?>js/ajax-chat.js"   ></script> -->
 
 <!--[if IE]><style type="text/css"> div.chat div.input input { margin-top: -1px; margin-bottom: -1px; } </style><![endif]-->
 
