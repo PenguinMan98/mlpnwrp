@@ -34,14 +34,50 @@ class Model_Data_Phpbb_SessionsProviderBase
 
     public function getOneByPk($session_id)
     {
-        $strSql = 'SELECT * FROM phpbb_sessions WHERE session_id=?';
+        $strSql = 'SELECT * FROM `phpbb_sessions` WHERE session_id=?';
         $params = array($session_id);
         return Model_Data_Phpbb_SessionsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_sessions (
+        $strSql = ' INSERT INTO `phpbb_sessions` (
+            session_id,
+            session_user_id,
+            session_forum_id,
+            session_last_visit,
+            session_start,
+            session_time,
+            session_ip,
+            session_browser,
+            session_forwarded_for,
+            session_page,
+            session_viewonline,
+            session_autologin,
+            session_admin
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getSessionId(),
+            $objRecord->getSessionUserId(),
+            $objRecord->getSessionForumId(),
+            $objRecord->getSessionLastVisit(),
+            $objRecord->getSessionStart(),
+            $objRecord->getSessionTime(),
+            $objRecord->getSessionIp(),
+            $objRecord->getSessionBrowser(),
+            $objRecord->getSessionForwardedFor(),
+            $objRecord->getSessionPage(),
+            $objRecord->getSessionViewonline(),
+            $objRecord->getSessionAutologin(),
+            $objRecord->getSessionAdmin()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_sessions` (
             session_id,
             session_user_id,
             session_forum_id,
@@ -77,7 +113,7 @@ class Model_Data_Phpbb_SessionsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_sessions SET 
+        $strSql = 'UPDATE `phpbb_sessions` SET 
             session_id=?,
             session_user_id=?,
             session_forum_id=?,
@@ -116,7 +152,7 @@ class Model_Data_Phpbb_SessionsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_sessions WHERE session_id=?';
+        $strSql = 'DELETE FROM `phpbb_sessions` WHERE session_id=?';
         $params = array($objRecord->getSessionId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

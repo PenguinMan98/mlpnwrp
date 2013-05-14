@@ -34,14 +34,40 @@ class Model_Data_Phpbb_IconsProviderBase
 
     public function getOneByPk($icons_id)
     {
-        $strSql = 'SELECT * FROM phpbb_icons WHERE icons_id=?';
+        $strSql = 'SELECT * FROM `phpbb_icons` WHERE icons_id=?';
         $params = array($icons_id);
         return Model_Data_Phpbb_IconsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_icons (
+        $strSql = ' INSERT INTO `phpbb_icons` (
+            icons_id,
+            icons_url,
+            icons_width,
+            icons_height,
+            icons_order,
+            display_on_posting
+        ) VALUES  (?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getIconsUrl(),
+            $objRecord->getIconsWidth(),
+            $objRecord->getIconsHeight(),
+            $objRecord->getIconsOrder(),
+            $objRecord->getDisplayOnPosting()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setIconsId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_icons` (
             icons_id,
             icons_url,
             icons_width,
@@ -67,7 +93,7 @@ class Model_Data_Phpbb_IconsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_icons SET 
+        $strSql = 'UPDATE `phpbb_icons` SET 
             icons_id=?,
             icons_url=?,
             icons_width=?,
@@ -92,7 +118,7 @@ class Model_Data_Phpbb_IconsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_icons WHERE icons_id=?';
+        $strSql = 'DELETE FROM `phpbb_icons` WHERE icons_id=?';
         $params = array($objRecord->getIconsId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

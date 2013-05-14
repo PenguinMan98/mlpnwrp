@@ -34,14 +34,34 @@ class Model_Data_Phpbb_WordsProviderBase
 
     public function getOneByPk($word_id)
     {
-        $strSql = 'SELECT * FROM phpbb_words WHERE word_id=?';
+        $strSql = 'SELECT * FROM `phpbb_words` WHERE word_id=?';
         $params = array($word_id);
         return Model_Data_Phpbb_WordsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_words (
+        $strSql = ' INSERT INTO `phpbb_words` (
+            word_id,
+            word,
+            replacement
+        ) VALUES  (?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getWord(),
+            $objRecord->getReplacement()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setWordId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_words` (
             word_id,
             word,
             replacement
@@ -61,7 +81,7 @@ class Model_Data_Phpbb_WordsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_words SET 
+        $strSql = 'UPDATE `phpbb_words` SET 
             word_id=?,
             word=?,
             replacement=?
@@ -80,7 +100,7 @@ class Model_Data_Phpbb_WordsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_words WHERE word_id=?';
+        $strSql = 'DELETE FROM `phpbb_words` WHERE word_id=?';
         $params = array($objRecord->getWordId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

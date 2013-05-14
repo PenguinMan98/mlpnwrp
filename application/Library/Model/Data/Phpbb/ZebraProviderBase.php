@@ -34,14 +34,32 @@ class Model_Data_Phpbb_ZebraProviderBase
 
     public function getOneByPk($user_id, $zebra_id)
     {
-        $strSql = 'SELECT * FROM phpbb_zebra WHERE user_id=? AND zebra_id=?';
+        $strSql = 'SELECT * FROM `phpbb_zebra` WHERE user_id=? AND zebra_id=?';
         $params = array($user_id, $zebra_id);
         return Model_Data_Phpbb_ZebraProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_zebra (
+        $strSql = ' INSERT INTO `phpbb_zebra` (
+            user_id,
+            zebra_id,
+            friend,
+            foe
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getUserId(),
+            $objRecord->getZebraId(),
+            $objRecord->getFriend(),
+            $objRecord->getFoe()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_zebra` (
             user_id,
             zebra_id,
             friend,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_ZebraProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_zebra SET 
+        $strSql = 'UPDATE `phpbb_zebra` SET 
             user_id=?,
             zebra_id=?,
             friend=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_ZebraProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_zebra WHERE user_id=? AND zebra_id=?';
+        $strSql = 'DELETE FROM `phpbb_zebra` WHERE user_id=? AND zebra_id=?';
         $params = array($objRecord->getUserId(), $objRecord->getZebraId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

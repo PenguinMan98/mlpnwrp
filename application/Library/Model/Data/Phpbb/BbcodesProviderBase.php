@@ -34,14 +34,44 @@ class Model_Data_Phpbb_BbcodesProviderBase
 
     public function getOneByPk($bbcode_id)
     {
-        $strSql = 'SELECT * FROM phpbb_bbcodes WHERE bbcode_id=?';
+        $strSql = 'SELECT * FROM `phpbb_bbcodes` WHERE bbcode_id=?';
         $params = array($bbcode_id);
         return Model_Data_Phpbb_BbcodesProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_bbcodes (
+        $strSql = ' INSERT INTO `phpbb_bbcodes` (
+            bbcode_id,
+            bbcode_tag,
+            bbcode_helpline,
+            display_on_posting,
+            bbcode_match,
+            bbcode_tpl,
+            first_pass_match,
+            first_pass_replace,
+            second_pass_match,
+            second_pass_replace
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getBbcodeId(),
+            $objRecord->getBbcodeTag(),
+            $objRecord->getBbcodeHelpline(),
+            $objRecord->getDisplayOnPosting(),
+            $objRecord->getBbcodeMatch(),
+            $objRecord->getBbcodeTpl(),
+            $objRecord->getFirstPassMatch(),
+            $objRecord->getFirstPassReplace(),
+            $objRecord->getSecondPassMatch(),
+            $objRecord->getSecondPassReplace()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_bbcodes` (
             bbcode_id,
             bbcode_tag,
             bbcode_helpline,
@@ -71,7 +101,7 @@ class Model_Data_Phpbb_BbcodesProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_bbcodes SET 
+        $strSql = 'UPDATE `phpbb_bbcodes` SET 
             bbcode_id=?,
             bbcode_tag=?,
             bbcode_helpline=?,
@@ -104,7 +134,7 @@ class Model_Data_Phpbb_BbcodesProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_bbcodes WHERE bbcode_id=?';
+        $strSql = 'DELETE FROM `phpbb_bbcodes` WHERE bbcode_id=?';
         $params = array($objRecord->getBbcodeId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

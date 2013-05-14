@@ -34,14 +34,32 @@ class Model_Data_Phpbb_PollVotesProviderBase
 
     public function getOneByPk($topic_id, $poll_option_id, $vote_user_id, $vote_user_ip)
     {
-        $strSql = 'SELECT * FROM phpbb_poll_votes WHERE topic_id=? AND poll_option_id=? AND vote_user_id=? AND vote_user_ip=?';
+        $strSql = 'SELECT * FROM `phpbb_poll_votes` WHERE topic_id=? AND poll_option_id=? AND vote_user_id=? AND vote_user_ip=?';
         $params = array($topic_id, $poll_option_id, $vote_user_id, $vote_user_ip);
         return Model_Data_Phpbb_PollVotesProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_poll_votes (
+        $strSql = ' INSERT INTO `phpbb_poll_votes` (
+            topic_id,
+            poll_option_id,
+            vote_user_id,
+            vote_user_ip
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getTopicId(),
+            $objRecord->getPollOptionId(),
+            $objRecord->getVoteUserId(),
+            $objRecord->getVoteUserIp()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_poll_votes` (
             topic_id,
             poll_option_id,
             vote_user_id,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_PollVotesProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_poll_votes SET 
+        $strSql = 'UPDATE `phpbb_poll_votes` SET 
             topic_id=?,
             poll_option_id=?,
             vote_user_id=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_PollVotesProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_poll_votes WHERE topic_id=? AND poll_option_id=? AND vote_user_id=? AND vote_user_ip=?';
+        $strSql = 'DELETE FROM `phpbb_poll_votes` WHERE topic_id=? AND poll_option_id=? AND vote_user_id=? AND vote_user_ip=?';
         $params = array($objRecord->getTopicId(), $objRecord->getPollOptionId(), $objRecord->getVoteUserId(), $objRecord->getVoteUserIp());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

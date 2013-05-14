@@ -69,6 +69,36 @@ class Model_Data_BlogPostProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `blog_post` (
+            blog_post_id,
+            blog_id,
+            title,
+            text,
+            user_id,
+            creation_date,
+            publish_date,
+            image
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getBlogId(),
+            $objRecord->getTitle(),
+            $objRecord->getText(),
+            $objRecord->getUserId(),
+            $objRecord->getCreationDate(),
+            $objRecord->getPublishDate(),
+            $objRecord->getImage()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setBlogPostId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `blog_post` SET 

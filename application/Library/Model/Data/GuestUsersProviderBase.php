@@ -32,54 +32,94 @@ class Model_Data_GuestUsersProviderBase
         return null;
     }
 
-    public function getOneByPk($guest_user_id)
+    public function getOneByPk($handle)
     {
-        $strSql = 'SELECT * FROM `guest_users` WHERE guest_user_id=?';
-        $params = array($guest_user_id);
+        $strSql = 'SELECT * FROM `guest_users` WHERE handle=?';
+        $params = array($handle);
         return Model_Data_GuestUsersProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
         $strSql = ' INSERT INTO `guest_users` (
-            guest_user_id,
             handle,
             chat_room_id,
             user_id,
-            created_date
-        ) VALUES  (?, ?, ?, ?, ?)';
-        $params = array(
-            0,
-            $objRecord->getHandle(),
+            created_date,
+            guest_ip,
+            chat_name_color,
+            chat_text_color,
+            chat_status_id,
+            last_activity
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getHandle(),
             $objRecord->getChatRoomId(),
             $objRecord->getUserId(),
-            $objRecord->getCreatedDate()
+            $objRecord->getCreatedDate(),
+            $objRecord->getGuestIp(),
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatTextColor(),
+            $objRecord->getChatStatusId(),
+            $objRecord->getLastActivity()
         );
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
-        if ($blnResult) {
-            $objRecord->setGuestUserId(DAO::getInsertId());
-        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `guest_users` (
+            handle,
+            chat_room_id,
+            user_id,
+            created_date,
+            guest_ip,
+            chat_name_color,
+            chat_text_color,
+            chat_status_id,
+            last_activity
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getHandle(),
+            $objRecord->getChatRoomId(),
+            $objRecord->getUserId(),
+            $objRecord->getCreatedDate(),
+            $objRecord->getGuestIp(),
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatTextColor(),
+            $objRecord->getChatStatusId(),
+            $objRecord->getLastActivity()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
         return $blnResult;
     }
 
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `guest_users` SET 
-            guest_user_id=?,
             handle=?,
             chat_room_id=?,
             user_id=?,
-            created_date=?
-        WHERE guest_user_id=?';
+            created_date=?,
+            guest_ip=?,
+            chat_name_color=?,
+            chat_text_color=?,
+            chat_status_id=?,
+            last_activity=?
+        WHERE handle=?';
         $arrSetParams = array(
-            $objRecord->getGuestUserId(),
             $objRecord->getHandle(),
             $objRecord->getChatRoomId(),
             $objRecord->getUserId(),
-            $objRecord->getCreatedDate()
+            $objRecord->getCreatedDate(),
+            $objRecord->getGuestIp(),
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatTextColor(),
+            $objRecord->getChatStatusId(),
+            $objRecord->getLastActivity()
         );
-        $arrKeyParams = array($objRecord->getOrigGuestUserId());
+        $arrKeyParams = array($objRecord->getOrigHandle());
         $params = array_merge($arrSetParams, $arrKeyParams);
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
@@ -88,8 +128,8 @@ class Model_Data_GuestUsersProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM `guest_users` WHERE guest_user_id=?';
-        $params = array($objRecord->getGuestUserId());
+        $strSql = 'DELETE FROM `guest_users` WHERE handle=?';
+        $params = array($objRecord->getHandle());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
         return $blnResult;

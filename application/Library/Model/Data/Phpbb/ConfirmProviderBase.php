@@ -34,14 +34,36 @@ class Model_Data_Phpbb_ConfirmProviderBase
 
     public function getOneByPk($confirm_id, $session_id)
     {
-        $strSql = 'SELECT * FROM phpbb_confirm WHERE confirm_id=? AND session_id=?';
+        $strSql = 'SELECT * FROM `phpbb_confirm` WHERE confirm_id=? AND session_id=?';
         $params = array($confirm_id, $session_id);
         return Model_Data_Phpbb_ConfirmProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_confirm (
+        $strSql = ' INSERT INTO `phpbb_confirm` (
+            confirm_id,
+            session_id,
+            confirm_type,
+            code,
+            seed,
+            attempts
+        ) VALUES  (?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getConfirmId(),
+            $objRecord->getSessionId(),
+            $objRecord->getConfirmType(),
+            $objRecord->getCode(),
+            $objRecord->getSeed(),
+            $objRecord->getAttempts()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_confirm` (
             confirm_id,
             session_id,
             confirm_type,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_ConfirmProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_confirm SET 
+        $strSql = 'UPDATE `phpbb_confirm` SET 
             confirm_id=?,
             session_id=?,
             confirm_type=?,
@@ -88,7 +110,7 @@ class Model_Data_Phpbb_ConfirmProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_confirm WHERE confirm_id=? AND session_id=?';
+        $strSql = 'DELETE FROM `phpbb_confirm` WHERE confirm_id=? AND session_id=?';
         $params = array($objRecord->getConfirmId(), $objRecord->getSessionId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

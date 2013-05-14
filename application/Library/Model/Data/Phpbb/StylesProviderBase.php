@@ -34,14 +34,42 @@ class Model_Data_Phpbb_StylesProviderBase
 
     public function getOneByPk($style_id)
     {
-        $strSql = 'SELECT * FROM phpbb_styles WHERE style_id=?';
+        $strSql = 'SELECT * FROM `phpbb_styles` WHERE style_id=?';
         $params = array($style_id);
         return Model_Data_Phpbb_StylesProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles (
+        $strSql = ' INSERT INTO `phpbb_styles` (
+            style_id,
+            style_name,
+            style_copyright,
+            style_active,
+            template_id,
+            theme_id,
+            imageset_id
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getStyleName(),
+            $objRecord->getStyleCopyright(),
+            $objRecord->getStyleActive(),
+            $objRecord->getTemplateId(),
+            $objRecord->getThemeId(),
+            $objRecord->getImagesetId()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setStyleId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles` (
             style_id,
             style_name,
             style_copyright,
@@ -69,7 +97,7 @@ class Model_Data_Phpbb_StylesProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles SET 
+        $strSql = 'UPDATE `phpbb_styles` SET 
             style_id=?,
             style_name=?,
             style_copyright=?,
@@ -96,7 +124,7 @@ class Model_Data_Phpbb_StylesProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles WHERE style_id=?';
+        $strSql = 'DELETE FROM `phpbb_styles` WHERE style_id=?';
         $params = array($objRecord->getStyleId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

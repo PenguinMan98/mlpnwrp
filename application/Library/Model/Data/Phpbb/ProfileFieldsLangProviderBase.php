@@ -34,14 +34,34 @@ class Model_Data_Phpbb_ProfileFieldsLangProviderBase
 
     public function getOneByPk($field_id, $lang_id, $option_id)
     {
-        $strSql = 'SELECT * FROM phpbb_profile_fields_lang WHERE field_id=? AND lang_id=? AND option_id=?';
+        $strSql = 'SELECT * FROM `phpbb_profile_fields_lang` WHERE field_id=? AND lang_id=? AND option_id=?';
         $params = array($field_id, $lang_id, $option_id);
         return Model_Data_Phpbb_ProfileFieldsLangProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_profile_fields_lang (
+        $strSql = ' INSERT INTO `phpbb_profile_fields_lang` (
+            field_id,
+            lang_id,
+            option_id,
+            field_type,
+            lang_value
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array($objRecord->getFieldId(),
+            $objRecord->getLangId(),
+            $objRecord->getOptionId(),
+            $objRecord->getFieldType(),
+            $objRecord->getLangValue()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_profile_fields_lang` (
             field_id,
             lang_id,
             option_id,
@@ -61,7 +81,7 @@ class Model_Data_Phpbb_ProfileFieldsLangProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_profile_fields_lang SET 
+        $strSql = 'UPDATE `phpbb_profile_fields_lang` SET 
             field_id=?,
             lang_id=?,
             option_id=?,
@@ -84,7 +104,7 @@ class Model_Data_Phpbb_ProfileFieldsLangProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_profile_fields_lang WHERE field_id=? AND lang_id=? AND option_id=?';
+        $strSql = 'DELETE FROM `phpbb_profile_fields_lang` WHERE field_id=? AND lang_id=? AND option_id=?';
         $params = array($objRecord->getFieldId(), $objRecord->getLangId(), $objRecord->getOptionId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

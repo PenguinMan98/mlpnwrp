@@ -34,14 +34,30 @@ class Model_Data_Phpbb_ForumsWatchProviderBase
 
     public function getOneByPk($forum_id, $user_id, $notify_status)
     {
-        $strSql = 'SELECT * FROM phpbb_forums_watch WHERE forum_id=? AND user_id=? AND notify_status=?';
+        $strSql = 'SELECT * FROM `phpbb_forums_watch` WHERE forum_id=? AND user_id=? AND notify_status=?';
         $params = array($forum_id, $user_id, $notify_status);
         return Model_Data_Phpbb_ForumsWatchProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_forums_watch (
+        $strSql = ' INSERT INTO `phpbb_forums_watch` (
+            forum_id,
+            user_id,
+            notify_status
+        ) VALUES  (?, ?, ?)';
+        $params = array($objRecord->getForumId(),
+            $objRecord->getUserId(),
+            $objRecord->getNotifyStatus()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_forums_watch` (
             forum_id,
             user_id,
             notify_status
@@ -57,7 +73,7 @@ class Model_Data_Phpbb_ForumsWatchProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_forums_watch SET 
+        $strSql = 'UPDATE `phpbb_forums_watch` SET 
             forum_id=?,
             user_id=?,
             notify_status=?
@@ -76,7 +92,7 @@ class Model_Data_Phpbb_ForumsWatchProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_forums_watch WHERE forum_id=? AND user_id=? AND notify_status=?';
+        $strSql = 'DELETE FROM `phpbb_forums_watch` WHERE forum_id=? AND user_id=? AND notify_status=?';
         $params = array($objRecord->getForumId(), $objRecord->getUserId(), $objRecord->getNotifyStatus());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

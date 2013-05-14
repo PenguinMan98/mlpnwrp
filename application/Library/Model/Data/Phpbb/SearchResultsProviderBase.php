@@ -34,14 +34,32 @@ class Model_Data_Phpbb_SearchResultsProviderBase
 
     public function getOneByPk($search_key)
     {
-        $strSql = 'SELECT * FROM phpbb_search_results WHERE search_key=?';
+        $strSql = 'SELECT * FROM `phpbb_search_results` WHERE search_key=?';
         $params = array($search_key);
         return Model_Data_Phpbb_SearchResultsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_search_results (
+        $strSql = ' INSERT INTO `phpbb_search_results` (
+            search_key,
+            search_time,
+            search_keywords,
+            search_authors
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getSearchKey(),
+            $objRecord->getSearchTime(),
+            $objRecord->getSearchKeywords(),
+            $objRecord->getSearchAuthors()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_search_results` (
             search_key,
             search_time,
             search_keywords,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_SearchResultsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_search_results SET 
+        $strSql = 'UPDATE `phpbb_search_results` SET 
             search_key=?,
             search_time=?,
             search_keywords=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_SearchResultsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_search_results WHERE search_key=?';
+        $strSql = 'DELETE FROM `phpbb_search_results` WHERE search_key=?';
         $params = array($objRecord->getSearchKey());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

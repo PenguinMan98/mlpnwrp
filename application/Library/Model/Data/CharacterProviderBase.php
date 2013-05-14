@@ -60,8 +60,11 @@ class Model_Data_CharacterProviderBase
             chat_status_id,
             character_race_id,
             character_race_note,
-            character_age_id
-        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            character_age_id,
+            created_date,
+            chat_room_id,
+            last_activity
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $params = array(
             0,
             $objRecord->getCreatorUserId(),
@@ -81,7 +84,68 @@ class Model_Data_CharacterProviderBase
             $objRecord->getChatStatusId(),
             $objRecord->getCharacterRaceId(),
             $objRecord->getCharacterRaceNote(),
-            $objRecord->getCharacterAgeId()
+            $objRecord->getCharacterAgeId(),
+            $objRecord->getCreatedDate(),
+            $objRecord->getChatRoomId(),
+            $objRecord->getLastActivity()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setCharacterId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `character` (
+            character_id,
+            creator_user_id,
+            name,
+            bio,
+            status,
+            logged_in,
+            born_female,
+            currently_female,
+            image,
+            icon,
+            chat_name_color,
+            chat_name_formatted,
+            chat_text_color,
+            player_notes,
+            player_private_notes,
+            chat_status_id,
+            character_race_id,
+            character_race_note,
+            character_age_id,
+            created_date,
+            chat_room_id,
+            last_activity
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getCreatorUserId(),
+            $objRecord->getName(),
+            $objRecord->getBio(),
+            $objRecord->getStatus(),
+            $objRecord->getLoggedIn(),
+            $objRecord->getBornFemale(),
+            $objRecord->getCurrentlyFemale(),
+            $objRecord->getImage(),
+            $objRecord->getIcon(),
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatNameFormatted(),
+            $objRecord->getChatTextColor(),
+            $objRecord->getPlayerNotes(),
+            $objRecord->getPlayerPrivateNotes(),
+            $objRecord->getChatStatusId(),
+            $objRecord->getCharacterRaceId(),
+            $objRecord->getCharacterRaceNote(),
+            $objRecord->getCharacterAgeId(),
+            $objRecord->getCreatedDate(),
+            $objRecord->getChatRoomId(),
+            $objRecord->getLastActivity()
         );
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
@@ -112,7 +176,10 @@ class Model_Data_CharacterProviderBase
             chat_status_id=?,
             character_race_id=?,
             character_race_note=?,
-            character_age_id=?
+            character_age_id=?,
+            created_date=?,
+            chat_room_id=?,
+            last_activity=?
         WHERE character_id=?';
         $arrSetParams = array(
             $objRecord->getCharacterId(),
@@ -133,7 +200,10 @@ class Model_Data_CharacterProviderBase
             $objRecord->getChatStatusId(),
             $objRecord->getCharacterRaceId(),
             $objRecord->getCharacterRaceNote(),
-            $objRecord->getCharacterAgeId()
+            $objRecord->getCharacterAgeId(),
+            $objRecord->getCreatedDate(),
+            $objRecord->getChatRoomId(),
+            $objRecord->getLastActivity()
         );
         $arrKeyParams = array($objRecord->getOrigCharacterId());
         $params = array_merge($arrSetParams, $arrKeyParams);

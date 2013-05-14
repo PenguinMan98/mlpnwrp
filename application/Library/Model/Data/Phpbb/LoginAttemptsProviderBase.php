@@ -34,14 +34,38 @@ class Model_Data_Phpbb_LoginAttemptsProviderBase
 
     public function getOneByPk($attempt_ip, $attempt_browser, $attempt_forwarded_for, $attempt_time, $user_id, $username, $username_clean)
     {
-        $strSql = 'SELECT * FROM phpbb_login_attempts WHERE attempt_ip=? AND attempt_browser=? AND attempt_forwarded_for=? AND attempt_time=? AND user_id=? AND username=? AND username_clean=?';
+        $strSql = 'SELECT * FROM `phpbb_login_attempts` WHERE attempt_ip=? AND attempt_browser=? AND attempt_forwarded_for=? AND attempt_time=? AND user_id=? AND username=? AND username_clean=?';
         $params = array($attempt_ip, $attempt_browser, $attempt_forwarded_for, $attempt_time, $user_id, $username, $username_clean);
         return Model_Data_Phpbb_LoginAttemptsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_login_attempts (
+        $strSql = ' INSERT INTO `phpbb_login_attempts` (
+            attempt_ip,
+            attempt_browser,
+            attempt_forwarded_for,
+            attempt_time,
+            user_id,
+            username,
+            username_clean
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?)';
+        $params = array($objRecord->getAttemptIp(),
+            $objRecord->getAttemptBrowser(),
+            $objRecord->getAttemptForwardedFor(),
+            $objRecord->getAttemptTime(),
+            $objRecord->getUserId(),
+            $objRecord->getUsername(),
+            $objRecord->getUsernameClean()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_login_attempts` (
             attempt_ip,
             attempt_browser,
             attempt_forwarded_for,
@@ -65,7 +89,7 @@ class Model_Data_Phpbb_LoginAttemptsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_login_attempts SET 
+        $strSql = 'UPDATE `phpbb_login_attempts` SET 
             attempt_ip=?,
             attempt_browser=?,
             attempt_forwarded_for=?,
@@ -92,7 +116,7 @@ class Model_Data_Phpbb_LoginAttemptsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_login_attempts WHERE attempt_ip=? AND attempt_browser=? AND attempt_forwarded_for=? AND attempt_time=? AND user_id=? AND username=? AND username_clean=?';
+        $strSql = 'DELETE FROM `phpbb_login_attempts` WHERE attempt_ip=? AND attempt_browser=? AND attempt_forwarded_for=? AND attempt_time=? AND user_id=? AND username=? AND username_clean=?';
         $params = array($objRecord->getAttemptIp(), $objRecord->getAttemptBrowser(), $objRecord->getAttemptForwardedFor(), $objRecord->getAttemptTime(), $objRecord->getUserId(), $objRecord->getUsername(), $objRecord->getUsernameClean());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

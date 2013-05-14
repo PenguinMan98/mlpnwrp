@@ -34,14 +34,32 @@ class Model_Data_Phpbb_DisallowProviderBase
 
     public function getOneByPk($disallow_id)
     {
-        $strSql = 'SELECT * FROM phpbb_disallow WHERE disallow_id=?';
+        $strSql = 'SELECT * FROM `phpbb_disallow` WHERE disallow_id=?';
         $params = array($disallow_id);
         return Model_Data_Phpbb_DisallowProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_disallow (
+        $strSql = ' INSERT INTO `phpbb_disallow` (
+            disallow_id,
+            disallow_username
+        ) VALUES  (?, ?)';
+        $params = array(
+            0,
+            $objRecord->getDisallowUsername()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setDisallowId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_disallow` (
             disallow_id,
             disallow_username
         ) VALUES  (?, ?)';
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_DisallowProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_disallow SET 
+        $strSql = 'UPDATE `phpbb_disallow` SET 
             disallow_id=?,
             disallow_username=?
         WHERE disallow_id=?';
@@ -76,7 +94,7 @@ class Model_Data_Phpbb_DisallowProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_disallow WHERE disallow_id=?';
+        $strSql = 'DELETE FROM `phpbb_disallow` WHERE disallow_id=?';
         $params = array($objRecord->getDisallowId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

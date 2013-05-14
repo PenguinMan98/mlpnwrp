@@ -34,14 +34,38 @@ class Model_Data_Phpbb_RanksProviderBase
 
     public function getOneByPk($rank_id)
     {
-        $strSql = 'SELECT * FROM phpbb_ranks WHERE rank_id=?';
+        $strSql = 'SELECT * FROM `phpbb_ranks` WHERE rank_id=?';
         $params = array($rank_id);
         return Model_Data_Phpbb_RanksProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_ranks (
+        $strSql = ' INSERT INTO `phpbb_ranks` (
+            rank_id,
+            rank_title,
+            rank_min,
+            rank_special,
+            rank_image
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getRankTitle(),
+            $objRecord->getRankMin(),
+            $objRecord->getRankSpecial(),
+            $objRecord->getRankImage()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setRankId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_ranks` (
             rank_id,
             rank_title,
             rank_min,
@@ -65,7 +89,7 @@ class Model_Data_Phpbb_RanksProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_ranks SET 
+        $strSql = 'UPDATE `phpbb_ranks` SET 
             rank_id=?,
             rank_title=?,
             rank_min=?,
@@ -88,7 +112,7 @@ class Model_Data_Phpbb_RanksProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_ranks WHERE rank_id=?';
+        $strSql = 'DELETE FROM `phpbb_ranks` WHERE rank_id=?';
         $params = array($objRecord->getRankId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

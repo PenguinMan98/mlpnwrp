@@ -34,14 +34,44 @@ class Model_Data_Phpbb_StylesTemplateProviderBase
 
     public function getOneByPk($template_id)
     {
-        $strSql = 'SELECT * FROM phpbb_styles_template WHERE template_id=?';
+        $strSql = 'SELECT * FROM `phpbb_styles_template` WHERE template_id=?';
         $params = array($template_id);
         return Model_Data_Phpbb_StylesTemplateProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles_template (
+        $strSql = ' INSERT INTO `phpbb_styles_template` (
+            template_id,
+            template_name,
+            template_copyright,
+            template_path,
+            bbcode_bitfield,
+            template_storedb,
+            template_inherits_id,
+            template_inherit_path
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getTemplateName(),
+            $objRecord->getTemplateCopyright(),
+            $objRecord->getTemplatePath(),
+            $objRecord->getBbcodeBitfield(),
+            $objRecord->getTemplateStoredb(),
+            $objRecord->getTemplateInheritsId(),
+            $objRecord->getTemplateInheritPath()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setTemplateId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles_template` (
             template_id,
             template_name,
             template_copyright,
@@ -71,7 +101,7 @@ class Model_Data_Phpbb_StylesTemplateProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles_template SET 
+        $strSql = 'UPDATE `phpbb_styles_template` SET 
             template_id=?,
             template_name=?,
             template_copyright=?,
@@ -100,7 +130,7 @@ class Model_Data_Phpbb_StylesTemplateProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles_template WHERE template_id=?';
+        $strSql = 'DELETE FROM `phpbb_styles_template` WHERE template_id=?';
         $params = array($objRecord->getTemplateId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

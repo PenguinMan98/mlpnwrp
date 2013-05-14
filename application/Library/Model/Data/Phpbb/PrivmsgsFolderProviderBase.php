@@ -34,14 +34,36 @@ class Model_Data_Phpbb_PrivmsgsFolderProviderBase
 
     public function getOneByPk($folder_id)
     {
-        $strSql = 'SELECT * FROM phpbb_privmsgs_folder WHERE folder_id=?';
+        $strSql = 'SELECT * FROM `phpbb_privmsgs_folder` WHERE folder_id=?';
         $params = array($folder_id);
         return Model_Data_Phpbb_PrivmsgsFolderProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_privmsgs_folder (
+        $strSql = ' INSERT INTO `phpbb_privmsgs_folder` (
+            folder_id,
+            user_id,
+            folder_name,
+            pm_count
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getUserId(),
+            $objRecord->getFolderName(),
+            $objRecord->getPmCount()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setFolderId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_privmsgs_folder` (
             folder_id,
             user_id,
             folder_name,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_PrivmsgsFolderProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_privmsgs_folder SET 
+        $strSql = 'UPDATE `phpbb_privmsgs_folder` SET 
             folder_id=?,
             user_id=?,
             folder_name=?,
@@ -84,7 +106,7 @@ class Model_Data_Phpbb_PrivmsgsFolderProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_privmsgs_folder WHERE folder_id=?';
+        $strSql = 'DELETE FROM `phpbb_privmsgs_folder` WHERE folder_id=?';
         $params = array($objRecord->getFolderId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

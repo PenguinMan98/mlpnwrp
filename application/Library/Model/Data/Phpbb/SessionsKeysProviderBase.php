@@ -34,14 +34,32 @@ class Model_Data_Phpbb_SessionsKeysProviderBase
 
     public function getOneByPk($key_id, $user_id)
     {
-        $strSql = 'SELECT * FROM phpbb_sessions_keys WHERE key_id=? AND user_id=?';
+        $strSql = 'SELECT * FROM `phpbb_sessions_keys` WHERE key_id=? AND user_id=?';
         $params = array($key_id, $user_id);
         return Model_Data_Phpbb_SessionsKeysProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_sessions_keys (
+        $strSql = ' INSERT INTO `phpbb_sessions_keys` (
+            key_id,
+            user_id,
+            last_ip,
+            last_login
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getKeyId(),
+            $objRecord->getUserId(),
+            $objRecord->getLastIp(),
+            $objRecord->getLastLogin()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_sessions_keys` (
             key_id,
             user_id,
             last_ip,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_SessionsKeysProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_sessions_keys SET 
+        $strSql = 'UPDATE `phpbb_sessions_keys` SET 
             key_id=?,
             user_id=?,
             last_ip=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_SessionsKeysProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_sessions_keys WHERE key_id=? AND user_id=?';
+        $strSql = 'DELETE FROM `phpbb_sessions_keys` WHERE key_id=? AND user_id=?';
         $params = array($objRecord->getKeyId(), $objRecord->getUserId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

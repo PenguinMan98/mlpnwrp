@@ -34,14 +34,36 @@ class Model_Data_Phpbb_SearchWordlistProviderBase
 
     public function getOneByPk($word_id)
     {
-        $strSql = 'SELECT * FROM phpbb_search_wordlist WHERE word_id=?';
+        $strSql = 'SELECT * FROM `phpbb_search_wordlist` WHERE word_id=?';
         $params = array($word_id);
         return Model_Data_Phpbb_SearchWordlistProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_search_wordlist (
+        $strSql = ' INSERT INTO `phpbb_search_wordlist` (
+            word_id,
+            word_text,
+            word_common,
+            word_count
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getWordText(),
+            $objRecord->getWordCommon(),
+            $objRecord->getWordCount()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setWordId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_search_wordlist` (
             word_id,
             word_text,
             word_common,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_SearchWordlistProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_search_wordlist SET 
+        $strSql = 'UPDATE `phpbb_search_wordlist` SET 
             word_id=?,
             word_text=?,
             word_common=?,
@@ -84,7 +106,7 @@ class Model_Data_Phpbb_SearchWordlistProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_search_wordlist WHERE word_id=?';
+        $strSql = 'DELETE FROM `phpbb_search_wordlist` WHERE word_id=?';
         $params = array($objRecord->getWordId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

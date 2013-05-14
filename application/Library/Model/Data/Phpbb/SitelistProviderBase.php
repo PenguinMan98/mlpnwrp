@@ -34,14 +34,36 @@ class Model_Data_Phpbb_SitelistProviderBase
 
     public function getOneByPk($site_id)
     {
-        $strSql = 'SELECT * FROM phpbb_sitelist WHERE site_id=?';
+        $strSql = 'SELECT * FROM `phpbb_sitelist` WHERE site_id=?';
         $params = array($site_id);
         return Model_Data_Phpbb_SitelistProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_sitelist (
+        $strSql = ' INSERT INTO `phpbb_sitelist` (
+            site_id,
+            site_ip,
+            site_hostname,
+            ip_exclude
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getSiteIp(),
+            $objRecord->getSiteHostname(),
+            $objRecord->getIpExclude()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setSiteId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_sitelist` (
             site_id,
             site_ip,
             site_hostname,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_SitelistProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_sitelist SET 
+        $strSql = 'UPDATE `phpbb_sitelist` SET 
             site_id=?,
             site_ip=?,
             site_hostname=?,
@@ -84,7 +106,7 @@ class Model_Data_Phpbb_SitelistProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_sitelist WHERE site_id=?';
+        $strSql = 'DELETE FROM `phpbb_sitelist` WHERE site_id=?';
         $params = array($objRecord->getSiteId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

@@ -34,14 +34,38 @@ class Model_Data_Phpbb_WarningsProviderBase
 
     public function getOneByPk($warning_id)
     {
-        $strSql = 'SELECT * FROM phpbb_warnings WHERE warning_id=?';
+        $strSql = 'SELECT * FROM `phpbb_warnings` WHERE warning_id=?';
         $params = array($warning_id);
         return Model_Data_Phpbb_WarningsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_warnings (
+        $strSql = ' INSERT INTO `phpbb_warnings` (
+            warning_id,
+            user_id,
+            post_id,
+            log_id,
+            warning_time
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getUserId(),
+            $objRecord->getPostId(),
+            $objRecord->getLogId(),
+            $objRecord->getWarningTime()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setWarningId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_warnings` (
             warning_id,
             user_id,
             post_id,
@@ -65,7 +89,7 @@ class Model_Data_Phpbb_WarningsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_warnings SET 
+        $strSql = 'UPDATE `phpbb_warnings` SET 
             warning_id=?,
             user_id=?,
             post_id=?,
@@ -88,7 +112,7 @@ class Model_Data_Phpbb_WarningsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_warnings WHERE warning_id=?';
+        $strSql = 'DELETE FROM `phpbb_warnings` WHERE warning_id=?';
         $params = array($objRecord->getWarningId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

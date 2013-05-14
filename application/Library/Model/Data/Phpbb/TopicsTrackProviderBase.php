@@ -34,14 +34,32 @@ class Model_Data_Phpbb_TopicsTrackProviderBase
 
     public function getOneByPk($user_id, $topic_id)
     {
-        $strSql = 'SELECT * FROM phpbb_topics_track WHERE user_id=? AND topic_id=?';
+        $strSql = 'SELECT * FROM `phpbb_topics_track` WHERE user_id=? AND topic_id=?';
         $params = array($user_id, $topic_id);
         return Model_Data_Phpbb_TopicsTrackProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_topics_track (
+        $strSql = ' INSERT INTO `phpbb_topics_track` (
+            user_id,
+            topic_id,
+            forum_id,
+            mark_time
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getUserId(),
+            $objRecord->getTopicId(),
+            $objRecord->getForumId(),
+            $objRecord->getMarkTime()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_topics_track` (
             user_id,
             topic_id,
             forum_id,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_TopicsTrackProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_topics_track SET 
+        $strSql = 'UPDATE `phpbb_topics_track` SET 
             user_id=?,
             topic_id=?,
             forum_id=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_TopicsTrackProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_topics_track WHERE user_id=? AND topic_id=?';
+        $strSql = 'DELETE FROM `phpbb_topics_track` WHERE user_id=? AND topic_id=?';
         $params = array($objRecord->getUserId(), $objRecord->getTopicId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

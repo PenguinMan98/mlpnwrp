@@ -34,14 +34,72 @@ class Model_Data_Phpbb_PrivmsgsProviderBase
 
     public function getOneByPk($msg_id)
     {
-        $strSql = 'SELECT * FROM phpbb_privmsgs WHERE msg_id=?';
+        $strSql = 'SELECT * FROM `phpbb_privmsgs` WHERE msg_id=?';
         $params = array($msg_id);
         return Model_Data_Phpbb_PrivmsgsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_privmsgs (
+        $strSql = ' INSERT INTO `phpbb_privmsgs` (
+            msg_id,
+            root_level,
+            author_id,
+            icon_id,
+            author_ip,
+            message_time,
+            enable_bbcode,
+            enable_smilies,
+            enable_magic_url,
+            enable_sig,
+            message_subject,
+            message_text,
+            message_edit_reason,
+            message_edit_user,
+            message_attachment,
+            bbcode_bitfield,
+            bbcode_uid,
+            message_edit_time,
+            message_edit_count,
+            to_address,
+            bcc_address,
+            message_reported
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getRootLevel(),
+            $objRecord->getAuthorId(),
+            $objRecord->getIconId(),
+            $objRecord->getAuthorIp(),
+            $objRecord->getMessageTime(),
+            $objRecord->getEnableBbcode(),
+            $objRecord->getEnableSmilies(),
+            $objRecord->getEnableMagicUrl(),
+            $objRecord->getEnableSig(),
+            $objRecord->getMessageSubject(),
+            $objRecord->getMessageText(),
+            $objRecord->getMessageEditReason(),
+            $objRecord->getMessageEditUser(),
+            $objRecord->getMessageAttachment(),
+            $objRecord->getBbcodeBitfield(),
+            $objRecord->getBbcodeUid(),
+            $objRecord->getMessageEditTime(),
+            $objRecord->getMessageEditCount(),
+            $objRecord->getToAddress(),
+            $objRecord->getBccAddress(),
+            $objRecord->getMessageReported()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setMsgId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_privmsgs` (
             msg_id,
             root_level,
             author_id,
@@ -99,7 +157,7 @@ class Model_Data_Phpbb_PrivmsgsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_privmsgs SET 
+        $strSql = 'UPDATE `phpbb_privmsgs` SET 
             msg_id=?,
             root_level=?,
             author_id=?,
@@ -156,7 +214,7 @@ class Model_Data_Phpbb_PrivmsgsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_privmsgs WHERE msg_id=?';
+        $strSql = 'DELETE FROM `phpbb_privmsgs` WHERE msg_id=?';
         $params = array($objRecord->getMsgId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

@@ -13,7 +13,7 @@
 <!-- <script type="text/javascript" src="<?=$chat_path;?>js/popup-window.js"></script>
 <script type="text/javascript" src="<?=$chat_path;?>js/image-button.js"></script>
 <script type="text/javascript" src="<?=$chat_path;?>js/dropdown.js"    ></script>
-<script type="text/javascript" src="<?=$chat_path;?>js/cookies.js"     ></script>
+
 <script type="text/javascript" src="<?=$chat_path;?>js/ajax-chat.js"   ></script> -->
 
 <!--[if IE]><style type="text/css"> div.chat div.input input { margin-top: -1px; margin-bottom: -1px; } </style><![endif]-->
@@ -102,89 +102,6 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 </div>
 </div>
 
-<!-- ***** Login *********************************************************** -->
-
-<div>
-<div class="login"          id="login">
-<div class="menu_form_head" id="login_drag">
-<div class="menu_form_exit" id="login_exit">&nbsp;</div>Login
-</div>
-<div class="menu_form_body">
-
-<div class="padding">
-<form action="" onsubmit="chat_msgs_log(true); return false;">
-
-  <div class="form_title">Username:</div>
-  <div class="form_input"><div class="input"><input id="user" type="text" /></div></div>
-  <table class="form_separator"><tr><td></td></tr></table>
-
-  <div class="form_title">Password:</div>
-  <div class="form_input"><div class="input"><input id="pass" type="password" /></div></div>
-  <table class="form_separator"><tr><td></td></tr></table>
-
-  <div class="form_input"><input id="submit_login" class="submit" type="submit" value="" /></div>
-  <table class="form_separator"><tr><td></td></tr></table>
-
-</form>
-</div>
-
-</div>
-</div>
-</div>
-
-<script type="text/javascript"> imageButtonAdd('submit_login'); </script>
-
-
-<!-- ***** Login as Guest ************************************************** -->
-
-<div>
-<div class="login"          id="glogin">
-<div class="menu_form_head" id="glogin_drag">
-<div class="menu_form_exit" id="glogin_exit">&nbsp;</div>Login as Guest
-</div>
-<div class="menu_form_body">
-
-<div class="padding">
-<form action="" onsubmit="chat_msgs_log(false); return false;">
-
-  <div class="form_title">Username:</div>
-  <div class="form_input"><div class="input"><input id="guser" type="text" /></div></div>
-  <table class="form_separator"><tr><td></td></tr></table>
-
-  <div class="form_input"><input id="submit_glogin" class="submit" type="submit" value="" onClick="if(rejectName()){return false}" /></div>
-  <table class="form_separator"><tr><td></td></tr></table>
-
-</form>
-</div>
-
-</div>
-</div>
-</div>
-
-<script type="text/javascript">
-	imageButtonAdd('submit_glogin');
-	function rejectName(){
-		var name = document.getElementById("guser").value.toLowerCase();
-		if(name.indexOf("fuck") != -1
-			|| name.indexOf("shit") != -1
-			|| name.indexOf("bitch") != -1
-			/*|| name.indexOf("hell") != -1*/
-			|| name.indexOf("damn") != -1
-			/*|| name.indexOf("ass") != -1*/
-			|| name.indexOf("pussy") != -1
-			|| name.indexOf("penis") != -1
-			|| name.indexOf("dick") != -1
-			|| name.indexOf("vagina") != -1
-			){
-			alert("Not that one buddy.");
-			return true;
-		}else{
-			return false;
-		}
-	}
-</script>
-
-
 <!-- ***** Rooms *********************************************************** -->
 
 <div class="room" id="room_child" style="display: none;">
@@ -195,20 +112,6 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 
 <script type="text/javascript">
 if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room_child", "hover", "y", "default");
-</script>
-
-
-<!-- ***** Characters *********************************************************** -->
-
-<div class="room" id="character_child" style="display: none;">
-<?php if($characterList) foreach ($characterList as $char): ?>
-<a class="main" href="javascript:$('#user').val('<?=$char->getName()?>');chat_msgs_log(true);"><?=$char->getName()?></a>
-<?php endforeach; ?>
-<a class="main" target="_blank" href="<?=SITE_ROOT?>/character/create">New Character</a>
-</div>
-
-<script type="text/javascript">
-if (document.getElementById("character_parent")) dropdown_attach("character_parent", "character_child", "hover", "y", "default");
 </script>
 
 

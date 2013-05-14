@@ -63,6 +63,30 @@ class Model_Data_LogProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `log` (
+            log_id,
+            file,
+            log_entry,
+            severity,
+            timestamp
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getFile(),
+            $objRecord->getLogEntry(),
+            $objRecord->getSeverity(),
+            $objRecord->getTimestamp()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setLogId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `log` SET 

@@ -34,14 +34,42 @@ class Model_Data_Phpbb_DraftsProviderBase
 
     public function getOneByPk($draft_id)
     {
-        $strSql = 'SELECT * FROM phpbb_drafts WHERE draft_id=?';
+        $strSql = 'SELECT * FROM `phpbb_drafts` WHERE draft_id=?';
         $params = array($draft_id);
         return Model_Data_Phpbb_DraftsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_drafts (
+        $strSql = ' INSERT INTO `phpbb_drafts` (
+            draft_id,
+            user_id,
+            topic_id,
+            forum_id,
+            save_time,
+            draft_subject,
+            draft_message
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getUserId(),
+            $objRecord->getTopicId(),
+            $objRecord->getForumId(),
+            $objRecord->getSaveTime(),
+            $objRecord->getDraftSubject(),
+            $objRecord->getDraftMessage()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setDraftId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_drafts` (
             draft_id,
             user_id,
             topic_id,
@@ -69,7 +97,7 @@ class Model_Data_Phpbb_DraftsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_drafts SET 
+        $strSql = 'UPDATE `phpbb_drafts` SET 
             draft_id=?,
             user_id=?,
             topic_id=?,
@@ -96,7 +124,7 @@ class Model_Data_Phpbb_DraftsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_drafts WHERE draft_id=?';
+        $strSql = 'DELETE FROM `phpbb_drafts` WHERE draft_id=?';
         $params = array($objRecord->getDraftId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

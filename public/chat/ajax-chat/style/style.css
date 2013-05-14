@@ -36,6 +36,7 @@ a:hover, a:active{
     white-space: nowrap;
     vertical-align: bottom;
     border-bottom: 1px solid #999;
+    z-index: 5;
 }
 #chat {
 	/*background: #222;*/
@@ -46,6 +47,7 @@ a:hover, a:active{
     left: 2px;
     right: 120px;
     overflow: auto;
+    z-index: 1;
 }
 #form { 
     /*background: #444;*/
@@ -56,13 +58,19 @@ a:hover, a:active{
     left: 2px;
     right: 2px;
     border-top: 1px solid #999;
+    z-index: 5;
 }
 #send{
 	margin-left: 10px;
 }
+/*Debugging.  Hide the UI*/
+#top_menu, #form {     /*#chat, , #room_list*/
+	/*display: none;*/
+}
 /* RIGHT DIV */
 #room_list { 
     /*background: #666;*/
+    background-color: #000;
 	position:fixed !important;
     position: absolute;
     top: 42px; 
@@ -70,11 +78,22 @@ a:hover, a:active{
     bottom: 36px;
     right: 2px;
     border-left: 1px solid #999;
+    z-index: 5;
 }
 #header_messages{
 	font-weight: bold;
 	background: #444;
 	padding: 2px;
+}
+
+/* Exit PM */
+#exit_pm{
+	position: absolute;
+	white-space: nowrap;
+	z-index: 3;
+	background-color: #333;
+	opacity: 0;
+	display: none;
 }
 
 /* ***** Character HUD ***** */

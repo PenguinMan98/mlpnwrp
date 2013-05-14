@@ -53,6 +53,20 @@ class Model_Data_CharacterUserProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `character_user` (
+            character_id,
+            user_id
+        ) VALUES  (?, ?)';
+        $params = array($objRecord->getCharacterId(),
+            $objRecord->getUserId()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `character_user` SET 

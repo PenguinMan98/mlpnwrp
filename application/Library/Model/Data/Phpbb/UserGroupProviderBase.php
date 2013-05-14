@@ -34,14 +34,32 @@ class Model_Data_Phpbb_UserGroupProviderBase
 
     public function getOneByPk($group_id, $user_id, $group_leader, $user_pending)
     {
-        $strSql = 'SELECT * FROM phpbb_user_group WHERE group_id=? AND user_id=? AND group_leader=? AND user_pending=?';
+        $strSql = 'SELECT * FROM `phpbb_user_group` WHERE group_id=? AND user_id=? AND group_leader=? AND user_pending=?';
         $params = array($group_id, $user_id, $group_leader, $user_pending);
         return Model_Data_Phpbb_UserGroupProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_user_group (
+        $strSql = ' INSERT INTO `phpbb_user_group` (
+            group_id,
+            user_id,
+            group_leader,
+            user_pending
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array($objRecord->getGroupId(),
+            $objRecord->getUserId(),
+            $objRecord->getGroupLeader(),
+            $objRecord->getUserPending()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_user_group` (
             group_id,
             user_id,
             group_leader,
@@ -59,7 +77,7 @@ class Model_Data_Phpbb_UserGroupProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_user_group SET 
+        $strSql = 'UPDATE `phpbb_user_group` SET 
             group_id=?,
             user_id=?,
             group_leader=?,
@@ -80,7 +98,7 @@ class Model_Data_Phpbb_UserGroupProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_user_group WHERE group_id=? AND user_id=? AND group_leader=? AND user_pending=?';
+        $strSql = 'DELETE FROM `phpbb_user_group` WHERE group_id=? AND user_id=? AND group_leader=? AND user_pending=?';
         $params = array($objRecord->getGroupId(), $objRecord->getUserId(), $objRecord->getGroupLeader(), $objRecord->getUserPending());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

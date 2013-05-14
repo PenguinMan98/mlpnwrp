@@ -59,6 +59,26 @@ class Model_Data_CharacterRaceProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `character_race` (
+            character_race_id,
+            name,
+            description
+        ) VALUES  (?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getName(),
+            $objRecord->getDescription()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setCharacterRaceId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `character_race` SET 

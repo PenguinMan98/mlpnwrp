@@ -34,14 +34,42 @@ class Model_Data_Phpbb_StylesImagesetDataProviderBase
 
     public function getOneByPk($image_id)
     {
-        $strSql = 'SELECT * FROM phpbb_styles_imageset_data WHERE image_id=?';
+        $strSql = 'SELECT * FROM `phpbb_styles_imageset_data` WHERE image_id=?';
         $params = array($image_id);
         return Model_Data_Phpbb_StylesImagesetDataProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles_imageset_data (
+        $strSql = ' INSERT INTO `phpbb_styles_imageset_data` (
+            image_id,
+            image_name,
+            image_filename,
+            image_lang,
+            image_height,
+            image_width,
+            imageset_id
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getImageName(),
+            $objRecord->getImageFilename(),
+            $objRecord->getImageLang(),
+            $objRecord->getImageHeight(),
+            $objRecord->getImageWidth(),
+            $objRecord->getImagesetId()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setImageId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles_imageset_data` (
             image_id,
             image_name,
             image_filename,
@@ -69,7 +97,7 @@ class Model_Data_Phpbb_StylesImagesetDataProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles_imageset_data SET 
+        $strSql = 'UPDATE `phpbb_styles_imageset_data` SET 
             image_id=?,
             image_name=?,
             image_filename=?,
@@ -96,7 +124,7 @@ class Model_Data_Phpbb_StylesImagesetDataProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles_imageset_data WHERE image_id=?';
+        $strSql = 'DELETE FROM `phpbb_styles_imageset_data` WHERE image_id=?';
         $params = array($objRecord->getImageId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

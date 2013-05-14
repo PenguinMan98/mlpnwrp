@@ -93,4 +93,12 @@ LIMIT ' . intval($count);
 		}
 		return $arrResults;
 	}
+	
+	public function getAllLoggedIn(){
+		$strSql = '
+SELECT * FROM `character` c
+WHERE `logged_in`=1';
+		$params = array( );
+		return Model_Data_CharacterProvider::getArrayFromQuery($strSql, $params);
+	}
 }

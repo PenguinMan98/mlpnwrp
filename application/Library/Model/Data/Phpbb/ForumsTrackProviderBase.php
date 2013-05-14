@@ -34,14 +34,30 @@ class Model_Data_Phpbb_ForumsTrackProviderBase
 
     public function getOneByPk($user_id, $forum_id)
     {
-        $strSql = 'SELECT * FROM phpbb_forums_track WHERE user_id=? AND forum_id=?';
+        $strSql = 'SELECT * FROM `phpbb_forums_track` WHERE user_id=? AND forum_id=?';
         $params = array($user_id, $forum_id);
         return Model_Data_Phpbb_ForumsTrackProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_forums_track (
+        $strSql = ' INSERT INTO `phpbb_forums_track` (
+            user_id,
+            forum_id,
+            mark_time
+        ) VALUES  (?, ?, ?)';
+        $params = array($objRecord->getUserId(),
+            $objRecord->getForumId(),
+            $objRecord->getMarkTime()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_forums_track` (
             user_id,
             forum_id,
             mark_time
@@ -57,7 +73,7 @@ class Model_Data_Phpbb_ForumsTrackProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_forums_track SET 
+        $strSql = 'UPDATE `phpbb_forums_track` SET 
             user_id=?,
             forum_id=?,
             mark_time=?
@@ -76,7 +92,7 @@ class Model_Data_Phpbb_ForumsTrackProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_forums_track WHERE user_id=? AND forum_id=?';
+        $strSql = 'DELETE FROM `phpbb_forums_track` WHERE user_id=? AND forum_id=?';
         $params = array($objRecord->getUserId(), $objRecord->getForumId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

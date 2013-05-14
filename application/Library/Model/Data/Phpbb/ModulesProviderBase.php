@@ -34,14 +34,50 @@ class Model_Data_Phpbb_ModulesProviderBase
 
     public function getOneByPk($module_id)
     {
-        $strSql = 'SELECT * FROM phpbb_modules WHERE module_id=?';
+        $strSql = 'SELECT * FROM `phpbb_modules` WHERE module_id=?';
         $params = array($module_id);
         return Model_Data_Phpbb_ModulesProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_modules (
+        $strSql = ' INSERT INTO `phpbb_modules` (
+            module_id,
+            module_enabled,
+            module_display,
+            module_basename,
+            module_class,
+            parent_id,
+            left_id,
+            right_id,
+            module_langname,
+            module_mode,
+            module_auth
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getModuleEnabled(),
+            $objRecord->getModuleDisplay(),
+            $objRecord->getModuleBasename(),
+            $objRecord->getModuleClass(),
+            $objRecord->getParentId(),
+            $objRecord->getLeftId(),
+            $objRecord->getRightId(),
+            $objRecord->getModuleLangname(),
+            $objRecord->getModuleMode(),
+            $objRecord->getModuleAuth()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setModuleId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_modules` (
             module_id,
             module_enabled,
             module_display,
@@ -77,7 +113,7 @@ class Model_Data_Phpbb_ModulesProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_modules SET 
+        $strSql = 'UPDATE `phpbb_modules` SET 
             module_id=?,
             module_enabled=?,
             module_display=?,
@@ -112,7 +148,7 @@ class Model_Data_Phpbb_ModulesProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_modules WHERE module_id=?';
+        $strSql = 'DELETE FROM `phpbb_modules` WHERE module_id=?';
         $params = array($objRecord->getModuleId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

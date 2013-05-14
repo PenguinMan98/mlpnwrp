@@ -34,14 +34,40 @@ class Model_Data_Phpbb_BotsProviderBase
 
     public function getOneByPk($bot_id)
     {
-        $strSql = 'SELECT * FROM phpbb_bots WHERE bot_id=?';
+        $strSql = 'SELECT * FROM `phpbb_bots` WHERE bot_id=?';
         $params = array($bot_id);
         return Model_Data_Phpbb_BotsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_bots (
+        $strSql = ' INSERT INTO `phpbb_bots` (
+            bot_id,
+            bot_active,
+            bot_name,
+            user_id,
+            bot_agent,
+            bot_ip
+        ) VALUES  (?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getBotActive(),
+            $objRecord->getBotName(),
+            $objRecord->getUserId(),
+            $objRecord->getBotAgent(),
+            $objRecord->getBotIp()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setBotId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_bots` (
             bot_id,
             bot_active,
             bot_name,
@@ -67,7 +93,7 @@ class Model_Data_Phpbb_BotsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_bots SET 
+        $strSql = 'UPDATE `phpbb_bots` SET 
             bot_id=?,
             bot_active=?,
             bot_name=?,
@@ -92,7 +118,7 @@ class Model_Data_Phpbb_BotsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_bots WHERE bot_id=?';
+        $strSql = 'DELETE FROM `phpbb_bots` WHERE bot_id=?';
         $params = array($objRecord->getBotId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

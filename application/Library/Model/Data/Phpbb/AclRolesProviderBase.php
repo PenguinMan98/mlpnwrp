@@ -34,14 +34,38 @@ class Model_Data_Phpbb_AclRolesProviderBase
 
     public function getOneByPk($role_id)
     {
-        $strSql = 'SELECT * FROM phpbb_acl_roles WHERE role_id=?';
+        $strSql = 'SELECT * FROM `phpbb_acl_roles` WHERE role_id=?';
         $params = array($role_id);
         return Model_Data_Phpbb_AclRolesProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_acl_roles (
+        $strSql = ' INSERT INTO `phpbb_acl_roles` (
+            role_id,
+            role_name,
+            role_description,
+            role_type,
+            role_order
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getRoleName(),
+            $objRecord->getRoleDescription(),
+            $objRecord->getRoleType(),
+            $objRecord->getRoleOrder()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setRoleId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_acl_roles` (
             role_id,
             role_name,
             role_description,
@@ -65,7 +89,7 @@ class Model_Data_Phpbb_AclRolesProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_acl_roles SET 
+        $strSql = 'UPDATE `phpbb_acl_roles` SET 
             role_id=?,
             role_name=?,
             role_description=?,
@@ -88,7 +112,7 @@ class Model_Data_Phpbb_AclRolesProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_acl_roles WHERE role_id=?';
+        $strSql = 'DELETE FROM `phpbb_acl_roles` WHERE role_id=?';
         $params = array($objRecord->getRoleId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

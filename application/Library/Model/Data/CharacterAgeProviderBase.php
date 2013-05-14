@@ -61,6 +61,28 @@ class Model_Data_CharacterAgeProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `character_age` (
+            character_age_id,
+            name,
+            adult,
+            description
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getName(),
+            $objRecord->getAdult(),
+            $objRecord->getDescription()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setCharacterAgeId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `character_age` SET 

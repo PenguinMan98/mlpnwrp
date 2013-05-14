@@ -34,14 +34,26 @@ class Model_Data_Phpbb_ProfileFieldsDataProviderBase
 
     public function getOneByPk($user_id)
     {
-        $strSql = 'SELECT * FROM phpbb_profile_fields_data WHERE user_id=?';
+        $strSql = 'SELECT * FROM `phpbb_profile_fields_data` WHERE user_id=?';
         $params = array($user_id);
         return Model_Data_Phpbb_ProfileFieldsDataProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_profile_fields_data (
+        $strSql = ' INSERT INTO `phpbb_profile_fields_data` (
+            user_id
+        ) VALUES  (?)';
+        $params = array($objRecord->getUserId()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_profile_fields_data` (
             user_id
         ) VALUES  (?)';
         $params = array($objRecord->getUserId()
@@ -53,7 +65,7 @@ class Model_Data_Phpbb_ProfileFieldsDataProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_profile_fields_data SET 
+        $strSql = 'UPDATE `phpbb_profile_fields_data` SET 
             user_id=?
         WHERE user_id=?';
         $arrSetParams = array(
@@ -68,7 +80,7 @@ class Model_Data_Phpbb_ProfileFieldsDataProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_profile_fields_data WHERE user_id=?';
+        $strSql = 'DELETE FROM `phpbb_profile_fields_data` WHERE user_id=?';
         $params = array($objRecord->getUserId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

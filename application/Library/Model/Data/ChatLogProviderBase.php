@@ -77,6 +77,44 @@ class Model_Data_ChatLogProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `chat_log` (
+            chat_log_id,
+            chat_room_id,
+            user_id,
+            handle,
+            character_id,
+            recipient_user_id,
+            recipient_username,
+            text,
+            timestamp,
+            chat_name_color,
+            chat_rand,
+            chat_text_color
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getChatRoomId(),
+            $objRecord->getUserId(),
+            $objRecord->getHandle(),
+            $objRecord->getCharacterId(),
+            $objRecord->getRecipientUserId(),
+            $objRecord->getRecipientUsername(),
+            $objRecord->getText(),
+            $objRecord->getTimestamp(),
+            $objRecord->getChatNameColor(),
+            $objRecord->getChatRand(),
+            $objRecord->getChatTextColor()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setChatLogId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `chat_log` SET 

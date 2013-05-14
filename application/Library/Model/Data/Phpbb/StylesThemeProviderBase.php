@@ -34,14 +34,42 @@ class Model_Data_Phpbb_StylesThemeProviderBase
 
     public function getOneByPk($theme_id)
     {
-        $strSql = 'SELECT * FROM phpbb_styles_theme WHERE theme_id=?';
+        $strSql = 'SELECT * FROM `phpbb_styles_theme` WHERE theme_id=?';
         $params = array($theme_id);
         return Model_Data_Phpbb_StylesThemeProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles_theme (
+        $strSql = ' INSERT INTO `phpbb_styles_theme` (
+            theme_id,
+            theme_name,
+            theme_copyright,
+            theme_path,
+            theme_storedb,
+            theme_mtime,
+            theme_data
+        ) VALUES  (?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getThemeName(),
+            $objRecord->getThemeCopyright(),
+            $objRecord->getThemePath(),
+            $objRecord->getThemeStoredb(),
+            $objRecord->getThemeMtime(),
+            $objRecord->getThemeData()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setThemeId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles_theme` (
             theme_id,
             theme_name,
             theme_copyright,
@@ -69,7 +97,7 @@ class Model_Data_Phpbb_StylesThemeProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles_theme SET 
+        $strSql = 'UPDATE `phpbb_styles_theme` SET 
             theme_id=?,
             theme_name=?,
             theme_copyright=?,
@@ -96,7 +124,7 @@ class Model_Data_Phpbb_StylesThemeProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles_theme WHERE theme_id=?';
+        $strSql = 'DELETE FROM `phpbb_styles_theme` WHERE theme_id=?';
         $params = array($objRecord->getThemeId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

@@ -34,14 +34,36 @@ class Model_Data_Phpbb_StylesImagesetProviderBase
 
     public function getOneByPk($imageset_id)
     {
-        $strSql = 'SELECT * FROM phpbb_styles_imageset WHERE imageset_id=?';
+        $strSql = 'SELECT * FROM `phpbb_styles_imageset` WHERE imageset_id=?';
         $params = array($imageset_id);
         return Model_Data_Phpbb_StylesImagesetProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles_imageset (
+        $strSql = ' INSERT INTO `phpbb_styles_imageset` (
+            imageset_id,
+            imageset_name,
+            imageset_copyright,
+            imageset_path
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getImagesetName(),
+            $objRecord->getImagesetCopyright(),
+            $objRecord->getImagesetPath()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setImagesetId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles_imageset` (
             imageset_id,
             imageset_name,
             imageset_copyright,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_StylesImagesetProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles_imageset SET 
+        $strSql = 'UPDATE `phpbb_styles_imageset` SET 
             imageset_id=?,
             imageset_name=?,
             imageset_copyright=?,
@@ -84,7 +106,7 @@ class Model_Data_Phpbb_StylesImagesetProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles_imageset WHERE imageset_id=?';
+        $strSql = 'DELETE FROM `phpbb_styles_imageset` WHERE imageset_id=?';
         $params = array($objRecord->getImagesetId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

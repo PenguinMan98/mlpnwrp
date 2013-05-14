@@ -34,14 +34,36 @@ class Model_Data_Phpbb_ReportsReasonsProviderBase
 
     public function getOneByPk($reason_id)
     {
-        $strSql = 'SELECT * FROM phpbb_reports_reasons WHERE reason_id=?';
+        $strSql = 'SELECT * FROM `phpbb_reports_reasons` WHERE reason_id=?';
         $params = array($reason_id);
         return Model_Data_Phpbb_ReportsReasonsProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_reports_reasons (
+        $strSql = ' INSERT INTO `phpbb_reports_reasons` (
+            reason_id,
+            reason_title,
+            reason_description,
+            reason_order
+        ) VALUES  (?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getReasonTitle(),
+            $objRecord->getReasonDescription(),
+            $objRecord->getReasonOrder()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setReasonId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_reports_reasons` (
             reason_id,
             reason_title,
             reason_description,
@@ -63,7 +85,7 @@ class Model_Data_Phpbb_ReportsReasonsProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_reports_reasons SET 
+        $strSql = 'UPDATE `phpbb_reports_reasons` SET 
             reason_id=?,
             reason_title=?,
             reason_description=?,
@@ -84,7 +106,7 @@ class Model_Data_Phpbb_ReportsReasonsProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_reports_reasons WHERE reason_id=?';
+        $strSql = 'DELETE FROM `phpbb_reports_reasons` WHERE reason_id=?';
         $params = array($objRecord->getReasonId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

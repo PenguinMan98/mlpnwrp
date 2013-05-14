@@ -24,6 +24,9 @@ class Model_Structure_CharacterBase
     protected $m_character_race_id;
     protected $m_character_race_note;
     protected $m_character_age_id;
+    protected $m_created_date;
+    protected $m_chat_room_id;
+    protected $m_last_activity;
     protected $m_character_id_Orig;
 
     public function __construct($arrData = null)
@@ -35,6 +38,7 @@ class Model_Structure_CharacterBase
             $this->setLoggedIn(0);
             $this->setChatNameColor('#ffffff');
             $this->setChatTextColor('#ffffff');
+            $this->setCreatedDate('CURRENT_TIMESTAMP');
         }
         return;
     }
@@ -235,6 +239,36 @@ class Model_Structure_CharacterBase
         return;
     }
 
+    public function getCreatedDate()
+    {
+        return $this->m_created_date;
+    }
+    public function setCreatedDate($value)
+    {
+        $this->m_created_date = $value;
+        return;
+    }
+
+    public function getChatRoomId()
+    {
+        return $this->m_chat_room_id;
+    }
+    public function setChatRoomId($value)
+    {
+        $this->m_chat_room_id = $value;
+        return;
+    }
+
+    public function getLastActivity()
+    {
+        return $this->m_last_activity;
+    }
+    public function setLastActivity($value)
+    {
+        $this->m_last_activity = $value;
+        return;
+    }
+
     public function getOrigCharacterId()
     {
         return $this->m_character_id_Orig;
@@ -267,6 +301,9 @@ class Model_Structure_CharacterBase
         $this->setCharacterRaceId($arrValues['character_race_id']);
         $this->setCharacterRaceNote($arrValues['character_race_note']);
         $this->setCharacterAgeId($arrValues['character_age_id']);
+        $this->setCreatedDate($arrValues['created_date']);
+        $this->setChatRoomId($arrValues['chat_room_id']);
+        $this->setLastActivity($arrValues['last_activity']);
         return;
     }
 
@@ -331,6 +368,15 @@ class Model_Structure_CharacterBase
                 case 'character_age_id':
                     $this->setCharacterAgeId($val);
                     break;
+                case 'created_date':
+                    $this->setCreatedDate($val);
+                    break;
+                case 'chat_room_id':
+                    $this->setChatRoomId($val);
+                    break;
+                case 'last_activity':
+                    $this->setLastActivity($val);
+                    break;
                 default:
                     break;
             }
@@ -360,6 +406,9 @@ class Model_Structure_CharacterBase
         $arrValues['character_race_id'] = $this->getCharacterRaceId();
         $arrValues['character_race_note'] = $this->getCharacterRaceNote();
         $arrValues['character_age_id'] = $this->getCharacterAgeId();
+        $arrValues['created_date'] = $this->getCreatedDate();
+        $arrValues['chat_room_id'] = $this->getChatRoomId();
+        $arrValues['last_activity'] = $this->getLastActivity();
         return $arrValues;
     }
 

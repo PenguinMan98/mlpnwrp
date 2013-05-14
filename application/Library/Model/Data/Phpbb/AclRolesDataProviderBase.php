@@ -34,14 +34,30 @@ class Model_Data_Phpbb_AclRolesDataProviderBase
 
     public function getOneByPk($role_id, $auth_option_id)
     {
-        $strSql = 'SELECT * FROM phpbb_acl_roles_data WHERE role_id=? AND auth_option_id=?';
+        $strSql = 'SELECT * FROM `phpbb_acl_roles_data` WHERE role_id=? AND auth_option_id=?';
         $params = array($role_id, $auth_option_id);
         return Model_Data_Phpbb_AclRolesDataProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_acl_roles_data (
+        $strSql = ' INSERT INTO `phpbb_acl_roles_data` (
+            role_id,
+            auth_option_id,
+            auth_setting
+        ) VALUES  (?, ?, ?)';
+        $params = array($objRecord->getRoleId(),
+            $objRecord->getAuthOptionId(),
+            $objRecord->getAuthSetting()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_acl_roles_data` (
             role_id,
             auth_option_id,
             auth_setting
@@ -57,7 +73,7 @@ class Model_Data_Phpbb_AclRolesDataProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_acl_roles_data SET 
+        $strSql = 'UPDATE `phpbb_acl_roles_data` SET 
             role_id=?,
             auth_option_id=?,
             auth_setting=?
@@ -76,7 +92,7 @@ class Model_Data_Phpbb_AclRolesDataProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_acl_roles_data WHERE role_id=? AND auth_option_id=?';
+        $strSql = 'DELETE FROM `phpbb_acl_roles_data` WHERE role_id=? AND auth_option_id=?';
         $params = array($objRecord->getRoleId(), $objRecord->getAuthOptionId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

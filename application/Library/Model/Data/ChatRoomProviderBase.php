@@ -65,6 +65,32 @@ class Model_Data_ChatRoomProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `chat_room` (
+            chat_room_id,
+            room_name,
+            description,
+            permission_level,
+            chat_room_type_id,
+            is_active
+        ) VALUES  (?, ?, ?, ?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getRoomName(),
+            $objRecord->getDescription(),
+            $objRecord->getPermissionLevel(),
+            $objRecord->getChatRoomTypeId(),
+            $objRecord->getIsActive()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setChatRoomId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `chat_room` SET 

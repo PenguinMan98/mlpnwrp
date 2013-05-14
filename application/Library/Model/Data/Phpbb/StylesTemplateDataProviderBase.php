@@ -34,14 +34,34 @@ class Model_Data_Phpbb_StylesTemplateDataProviderBase
 
     public function getOneByPk($template_id, $template_filename, $template_included, $template_mtime, $template_data)
     {
-        $strSql = 'SELECT * FROM phpbb_styles_template_data WHERE template_id=? AND template_filename=? AND template_included=? AND template_mtime=? AND template_data=?';
+        $strSql = 'SELECT * FROM `phpbb_styles_template_data` WHERE template_id=? AND template_filename=? AND template_included=? AND template_mtime=? AND template_data=?';
         $params = array($template_id, $template_filename, $template_included, $template_mtime, $template_data);
         return Model_Data_Phpbb_StylesTemplateDataProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_styles_template_data (
+        $strSql = ' INSERT INTO `phpbb_styles_template_data` (
+            template_id,
+            template_filename,
+            template_included,
+            template_mtime,
+            template_data
+        ) VALUES  (?, ?, ?, ?, ?)';
+        $params = array($objRecord->getTemplateId(),
+            $objRecord->getTemplateFilename(),
+            $objRecord->getTemplateIncluded(),
+            $objRecord->getTemplateMtime(),
+            $objRecord->getTemplateData()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_styles_template_data` (
             template_id,
             template_filename,
             template_included,
@@ -61,7 +81,7 @@ class Model_Data_Phpbb_StylesTemplateDataProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_styles_template_data SET 
+        $strSql = 'UPDATE `phpbb_styles_template_data` SET 
             template_id=?,
             template_filename=?,
             template_included=?,
@@ -84,7 +104,7 @@ class Model_Data_Phpbb_StylesTemplateDataProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_styles_template_data WHERE template_id=? AND template_filename=? AND template_included=? AND template_mtime=? AND template_data=?';
+        $strSql = 'DELETE FROM `phpbb_styles_template_data` WHERE template_id=? AND template_filename=? AND template_included=? AND template_mtime=? AND template_data=?';
         $params = array($objRecord->getTemplateId(), $objRecord->getTemplateFilename(), $objRecord->getTemplateIncluded(), $objRecord->getTemplateMtime(), $objRecord->getTemplateData());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

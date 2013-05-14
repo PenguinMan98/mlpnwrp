@@ -5,12 +5,16 @@
 */
 class Model_Structure_GuestUsersBase
 {
-    protected $m_guest_user_id;
     protected $m_handle;
     protected $m_chat_room_id;
     protected $m_user_id;
     protected $m_created_date;
-    protected $m_guest_user_id_Orig;
+    protected $m_guest_ip;
+    protected $m_chat_name_color;
+    protected $m_chat_text_color;
+    protected $m_chat_status_id;
+    protected $m_last_activity;
+    protected $m_handle_Orig;
 
     public function __construct($arrData = null)
     {
@@ -28,17 +32,6 @@ class Model_Structure_GuestUsersBase
         return;
     }
 
-    public function getGuestUserId()
-    {
-        return $this->m_guest_user_id;
-    }
-    public function setGuestUserId($value)
-    {
-        $this->m_guest_user_id = $value;
-        $this->setOrigGuestUserId($value);
-        return;
-    }
-
     public function getHandle()
     {
         return $this->m_handle;
@@ -46,6 +39,7 @@ class Model_Structure_GuestUsersBase
     public function setHandle($value)
     {
         $this->m_handle = $value;
+        $this->setOrigHandle($value);
         return;
     }
 
@@ -79,24 +73,78 @@ class Model_Structure_GuestUsersBase
         return;
     }
 
-    public function getOrigGuestUserId()
+    public function getGuestIp()
     {
-        return $this->m_guest_user_id_Orig;
+        return $this->m_guest_ip;
     }
-    public function setOrigGuestUserId($value)
+    public function setGuestIp($value)
     {
-        if (isset($this->m_guest_user_id_Orig)) { return; }
-        $this->m_guest_user_id_Orig = $value;
+        $this->m_guest_ip = $value;
+        return;
+    }
+
+    public function getChatNameColor()
+    {
+        return $this->m_chat_name_color;
+    }
+    public function setChatNameColor($value)
+    {
+        $this->m_chat_name_color = $value;
+        return;
+    }
+
+    public function getChatTextColor()
+    {
+        return $this->m_chat_text_color;
+    }
+    public function setChatTextColor($value)
+    {
+        $this->m_chat_text_color = $value;
+        return;
+    }
+
+    public function getChatStatusId()
+    {
+        return $this->m_chat_status_id;
+    }
+    public function setChatStatusId($value)
+    {
+        $this->m_chat_status_id = $value;
+        return;
+    }
+
+    public function getLastActivity()
+    {
+        return $this->m_last_activity;
+    }
+    public function setLastActivity($value)
+    {
+        $this->m_last_activity = $value;
+        return;
+    }
+
+    public function getOrigHandle()
+    {
+        return $this->m_handle_Orig;
+    }
+    public function setOrigHandle($value)
+    {
+        if (isset($this->m_handle_Orig)) { return; }
+        $this->m_handle_Orig = $value;
         return;
     }
 
     public function loadFromArray($arrValues)
     {
-        $this->setGuestUserId($arrValues['guest_user_id']);
         $this->setHandle($arrValues['handle']);
         $this->setChatRoomId($arrValues['chat_room_id']);
         $this->setUserId($arrValues['user_id']);
         $this->setCreatedDate($arrValues['created_date']);
+        $this->setGuestIp($arrValues['guest_ip']);
+        $this->setChatNameColor($arrValues['chat_name_color']);
+        $this->setChatTextColor($arrValues['chat_text_color']);
+        $this->setChatStatusId($arrValues['chat_status_id']);
+        $this->setLastActivity($arrValues['last_activity']);
         return;
     }
 
@@ -104,9 +152,6 @@ class Model_Structure_GuestUsersBase
     {
         foreach ($arrValues as $key=>$val) {
             switch ($key) {
-                case 'guest_user_id':
-                    $this->setGuestUserId($val);
-                    break;
                 case 'handle':
                     $this->setHandle($val);
                     break;
@@ -119,6 +164,21 @@ class Model_Structure_GuestUsersBase
                 case 'created_date':
                     $this->setCreatedDate($val);
                     break;
+                case 'guest_ip':
+                    $this->setGuestIp($val);
+                    break;
+                case 'chat_name_color':
+                    $this->setChatNameColor($val);
+                    break;
+                case 'chat_text_color':
+                    $this->setChatTextColor($val);
+                    break;
+                case 'chat_status_id':
+                    $this->setChatStatusId($val);
+                    break;
+                case 'last_activity':
+                    $this->setLastActivity($val);
+                    break;
                 default:
                     break;
             }
@@ -129,11 +189,15 @@ class Model_Structure_GuestUsersBase
     public function getAsArray()
     {
         $arrValues = array();
-        $arrValues['guest_user_id'] = $this->getGuestUserId();
         $arrValues['handle'] = $this->getHandle();
         $arrValues['chat_room_id'] = $this->getChatRoomId();
         $arrValues['user_id'] = $this->getUserId();
         $arrValues['created_date'] = $this->getCreatedDate();
+        $arrValues['guest_ip'] = $this->getGuestIp();
+        $arrValues['chat_name_color'] = $this->getChatNameColor();
+        $arrValues['chat_text_color'] = $this->getChatTextColor();
+        $arrValues['chat_status_id'] = $this->getChatStatusId();
+        $arrValues['last_activity'] = $this->getLastActivity();
         return $arrValues;
     }
 

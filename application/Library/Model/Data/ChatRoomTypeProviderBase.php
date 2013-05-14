@@ -59,6 +59,26 @@ class Model_Data_ChatRoomTypeProviderBase
         return $blnResult;
     }
 
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `chat_room_type` (
+            chat_room_type_id,
+            name,
+            description
+        ) VALUES  (?, ?, ?)';
+        $params = array(
+            0,
+            $objRecord->getName(),
+            $objRecord->getDescription()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        if ($blnResult) {
+            $objRecord->setChatRoomTypeId(DAO::getInsertId());
+        }
+        return $blnResult;
+    }
+
     public function updateOne($objRecord, &$arrErrors)
     {
         $strSql = 'UPDATE `chat_room_type` SET 

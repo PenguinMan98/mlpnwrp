@@ -34,14 +34,28 @@ class Model_Data_Phpbb_BookmarksProviderBase
 
     public function getOneByPk($topic_id, $user_id)
     {
-        $strSql = 'SELECT * FROM phpbb_bookmarks WHERE topic_id=? AND user_id=?';
+        $strSql = 'SELECT * FROM `phpbb_bookmarks` WHERE topic_id=? AND user_id=?';
         $params = array($topic_id, $user_id);
         return Model_Data_Phpbb_BookmarksProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_bookmarks (
+        $strSql = ' INSERT INTO `phpbb_bookmarks` (
+            topic_id,
+            user_id
+        ) VALUES  (?, ?)';
+        $params = array($objRecord->getTopicId(),
+            $objRecord->getUserId()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_bookmarks` (
             topic_id,
             user_id
         ) VALUES  (?, ?)';
@@ -55,7 +69,7 @@ class Model_Data_Phpbb_BookmarksProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_bookmarks SET 
+        $strSql = 'UPDATE `phpbb_bookmarks` SET 
             topic_id=?,
             user_id=?
         WHERE topic_id=? AND user_id=?';
@@ -72,7 +86,7 @@ class Model_Data_Phpbb_BookmarksProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_bookmarks WHERE topic_id=? AND user_id=?';
+        $strSql = 'DELETE FROM `phpbb_bookmarks` WHERE topic_id=? AND user_id=?';
         $params = array($objRecord->getTopicId(), $objRecord->getUserId());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);

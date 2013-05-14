@@ -34,14 +34,30 @@ class Model_Data_Phpbb_ConfigProviderBase
 
     public function getOneByPk($config_name)
     {
-        $strSql = 'SELECT * FROM phpbb_config WHERE config_name=?';
+        $strSql = 'SELECT * FROM `phpbb_config` WHERE config_name=?';
         $params = array($config_name);
         return Model_Data_Phpbb_ConfigProvider::getOneFromQuery($strSql, $params);
     }
 
     public function insertOne(&$objRecord, &$arrErrors)
     {
-        $strSql = ' INSERT INTO phpbb_config (
+        $strSql = ' INSERT INTO `phpbb_config` (
+            config_name,
+            config_value,
+            is_dynamic
+        ) VALUES  (?, ?, ?)';
+        $params = array($objRecord->getConfigName(),
+            $objRecord->getConfigValue(),
+            $objRecord->getIsDynamic()
+        );
+        $arrErrors = array();
+        $blnResult = DAO::execute($strSql, $params, $arrErrors);
+        return $blnResult;
+    }
+
+    public function replaceOne(&$objRecord, &$arrErrors)
+    {
+        $strSql = ' REPLACE INTO `phpbb_config` (
             config_name,
             config_value,
             is_dynamic
@@ -57,7 +73,7 @@ class Model_Data_Phpbb_ConfigProviderBase
 
     public function updateOne($objRecord, &$arrErrors)
     {
-        $strSql = 'UPDATE phpbb_config SET 
+        $strSql = 'UPDATE `phpbb_config` SET 
             config_name=?,
             config_value=?,
             is_dynamic=?
@@ -76,7 +92,7 @@ class Model_Data_Phpbb_ConfigProviderBase
 
     public function deleteOne($objRecord, &$arrErrors)
     {
-        $strSql = 'DELETE FROM phpbb_config WHERE config_name=?';
+        $strSql = 'DELETE FROM `phpbb_config` WHERE config_name=?';
         $params = array($objRecord->getConfigName());
         $arrErrors = array();
         $blnResult = DAO::execute($strSql, $params, $arrErrors);
