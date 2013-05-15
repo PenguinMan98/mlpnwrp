@@ -236,8 +236,9 @@ function chat_reset(room, registered, handle)
 
   clearTimeout(chat_timeout); // stop the looping ajax
 
-  chat_setup();
-  //chat_timeout = setTimeout("chat_msgs_get();", 1); // start the ajax
+  //chat_setup();
+  console.log("Starting the Ajax");
+  chat_timeout = setInterval("chat_setup()", 1000); // start the ajax
   
   /*if(handle){ // if a user is chosen
 	  //chat_timeout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
@@ -258,12 +259,12 @@ function chat_users_get(){
 		dataType: "JSON"
 	})
 	.done(function(response) {
-		  console.log('chat_users_get.  Handle (now chat_user):',chat_user);
+		  //console.log('chat_users_get.  Handle (now chat_user):',chat_user);
 
 		response.characters.sort(handleSort);
 		chat_usrs = response.characters;
 		chat_out_usrs(); // output the users
-		console.log('chat_users_get.  Handle (now chat_user):',chat_user);
+		//console.log('chat_users_get.  Handle (now chat_user):',chat_user);
 		/*var thisRoom = $('#users_this_room');
 		var otherRoom = $('#users_other');
 		for(var i = 0; i < chat_usrs.length; i++){ // go through each returned user
@@ -284,8 +285,8 @@ function handleSort(a, b){
 
 function chat_msgs_add()
 {
-	// first, security pass
-    if (!chat_user || !chat_pass) { chat_login(false); return; }
+	// first, security pass // unneccesary now
+    //if (!chat_user || !chat_pass) { chat_login(false); return; }
     
     // second, check for blank
 	var post_text = $('#send').val();
@@ -300,9 +301,11 @@ function chat_msgs_add()
 	    user: chat_user,
 	    pass: chat_pass,
 	    priv: chat_priv,
-	    colr: chat_colr,
+	    chat_name_color: chat_name_color,
+	    chat_text_color: chat_text_color,
 	    data: post_text,
 	    room: chat_room,
+	    guest: guest_char,
 	    tries: 1
     };
     chat_temp_msgs.push(newPost);
@@ -348,9 +351,9 @@ function add_post_ajax(newPost)
 	})
 	.done(function(response) {
 		if(response.success){
-			document.getElementById('log_add').innerHTML = response.text;
+			//document.getElementById('log_add').innerHTML = response.text;
 			
-			if(typeof(response.messages.length) != 'undefined' && response.messages.length > 0){
+			if(typeof response.messages != 'undefined' && typeof response.messages.length != 'undefined' && response.messages.length > 0){
 				for(var i = 0; i< response.messages.length; i++){
 					if(response.messages[i].trim() != ""){
 						chat_msgs['.'] += '<b>System:</b> '+response.messages[i]+'<br />';
@@ -378,7 +381,7 @@ function chat_msgs_get()
   
   //chat_timeout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
   //chat_rand += 1;
-  console.log(chat_rand, chat_room, chat_user, chat_pass, chat_message_id);
+  //console.log(chat_rand, chat_room, chat_user, chat_pass, chat_message_id);
   var rand = chat_rand;
   var room = chat_room;
   var user = chat_user;
@@ -564,7 +567,7 @@ function chat_msgs_get()
  * */
 function chat_msgs_usr(handle, color, sidebar)
 {
-	console.log('chat_msgs_usr called with:',handle,color,sidebar);
+	//console.log('chat_msgs_usr called with:',handle,color,sidebar);
   sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
   // then build a return string
   var retString = "";

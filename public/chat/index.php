@@ -82,6 +82,9 @@ var handle 		 = '<?=$handle?>';
 <?php if(is_object($character)): ?>
 var chat_name_color = '<?=$character->getChatNameColor()?>';
 var chat_text_color = '<?=$character->getChatTextColor()?>';
+<?php else: ?>
+var chat_name_color = 'white';
+var chat_text_color = 'white';
 <?php endif; ?>
 var guest_char   = <?=is_object($guestUser) ? 'true' : 'false'?>;
 var forum_login  = <?=($user->data['user_id'] == 'ANONYMOUS') ? 'false' : 'true'; ?>;
@@ -133,11 +136,13 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
         </div>
 
         <div id="form">
-        	<span id="character_name"><?=$handle?></span>:
-        	<input id="send" type="text" size="100" autocomplete="off" />
-    		<input id="submit_send" class="submit" type="submit" value="Send" />
-    		&nbsp;&nbsp;Autofocus&nbsp;<input id="autofocus" checked=true class="input" type="checkbox" onclick="autofocus = this.checked;" />
-    		&nbsp;&nbsp;Ping On New&nbsp;<input id="pingOnNew" class="input" type="checkbox" onclick="pingOnNew = this.checked;" />
+        	<form class="send" action="POST" onsubmit="chat_msgs_add(); return false;">
+	        	<span id="character_name"><?=$handle?></span>:
+	        	<input id="send" type="text" size="100" autocomplete="off" />
+	    		<input id="submit_send" class="submit" type="submit" value="Send" />
+	    		&nbsp;&nbsp;Autofocus&nbsp;<input id="autofocus" checked=true class="input" type="checkbox" onclick="autofocus = this.checked;" />
+	    		&nbsp;&nbsp;Ping On New&nbsp;<input id="pingOnNew" class="input" type="checkbox" onclick="pingOnNew = this.checked;" />
+	    	</form>
     	</div>
         
 	</div>

@@ -8,6 +8,10 @@ class Model_Data_ChatLogProviderBase
 {
     protected function getOneFromQuery($strSql, $params)
     {
+    	echo "Inside getonefromquery: $strSql<br>";
+    	echo "<pre>";
+    	print_r($params);
+    	echo "</pre>";
         $arrResults = array();
         $arrErrors = array();
         if (DAO::getAssoc($strSql, $params, $arrResults, $arrErrors)) {

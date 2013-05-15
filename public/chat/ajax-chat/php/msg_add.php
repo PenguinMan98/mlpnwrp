@@ -1,5 +1,13 @@
 <?php
+// must bootstrap the ajax calls
+require_once '../../../../application/Core/Bootstrap.php'; // load everything
+$_bootstrap = Bootstrap::getInstance();
+
 include("TokenOperation.php");
+
+echo "<pre>";
+print_r($_REQUEST);
+echo "</pre>";
 
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
@@ -23,40 +31,45 @@ $response = new stdClass();
 $response->success = true;
 $response->text = "";
 
-if (isset($_GET['rand']) && $_GET['rand'] &&
-	isset($_GET['user']) && $_GET['user'] &&
-    isset($_GET['pass']) && $_GET['pass'] &&
-    isset($_GET['priv']) && $_GET['priv'] &&
-    isset($_GET['colr']) && $_GET['colr'] &&
-    isset($_GET['data']) && $_GET['data'])
+if (!empty($_GET['rand']) &&
+	!empty($_GET['user']) && 
+    !empty($_GET['chat_name_color']) &&
+    !empty($_GET['chat_text_color']) && 
+    !empty($_GET['priv']) && 
+    !empty($_GET['data']) )
 {
   include_once 'init.php';
   
   // log all calls to this file
-  $logProvider = new Model_Data_LogProvider();
+  /*$logProvider = new Model_Data_LogProvider();
   $log = new Model_Structure_Log(array(
   		'file'=>__FILE__,
   		'log_entry'=>serialize($_REQUEST),
   		'severity'=>'notice'
   ));
   $arrErrors = array();
-  $logProvider->insertOne($log, $arrErrors);
+  $logProvider->insertOne($log, $arrErrors);*/
   
-  $modified = unlog_users();/* refresh the user list and note if we changed it */
+  //TODO: Some function here to unlog users
+  //$modified = unlog_users();/* refresh the user list and note if we changed it */
 
   $time = time(); // declare the variables and grab the input that we need
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
-  $response->rand = $rand;
   // all the preg replace does is replace strings of multiple spaces with just one space.
   $room = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['room']), ENT_QUOTES);
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['rand']), ENT_QUOTES);
+  $response->rand = $rand;
   $handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['priv']), ENT_QUOTES);
-  $colr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['colr']), ENT_QUOTES);
+  $chat_name_color = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['chat_name_color']), ENT_QUOTES);
+  $chat_text_color = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['chat_text_color']), ENT_QUOTES);
   $data = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['data']), ENT_QUOTES, 'utf-8');
   $addr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['addr']), ENT_QUOTES);
+  $guest = !empty($_GET['guest']);
   $guid = $handle.$rand.$handle;
+  
+  //echo "(".$time.")(".$gndr.")(".$stat.")(".$room.")(".$rand.")(".$handle.")(".$priv.")(".$chat_name_color.")(".$chat_text_color.")(".$data.")(".$addr.")(".$guest.")(".$guid.")<br>";
   
   // Joe added a word filter
   $badWords = array("/fuck\S*/i",
@@ -106,11 +119,11 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
     die;
   }
 
-  if (isset($chat_data['room'][$handle]) &&// verifies that a username and password are stored and the char is in a room
+  /*if (isset($chat_data['room'][$handle]) &&// verifies that a username and password are stored and the char is in a room
       isset($chat_data['user'][$handle]) &&
       isset($chat_data['pass'][$handle]) &&
            ($chat_data['pass'][$handle]) == $_GET['pass'])
-  {
+  {*/
     $modified = true; // set modified to true because we're adding a post.
     $chat_data['time'][$handle] = $time;  // set the time into the chat data
 
@@ -171,7 +184,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
    		  
    		  //----------- Store post in the file
     		
-	      $chat_data['data'][] = array('time' => $time, // add all this crap to an element of chat_data
+	      /*$chat_data['data'][] = array('time' => $time, // add all this crap to an element of chat_data
 	                                   'guid' => $guid,
 	      							   'chat_rand' => $rand,
 	                                   'room' => $room,
@@ -184,7 +197,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	        if (count($chat_data['data']) <= $chat_histlen) 
 	        	break;
 	        unset($chat_data['data'][$i]);
-	      }
+	      }*/
 	      
 	      //--------------- Store the post in the DB
 	      
@@ -197,7 +210,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	       
 	      //get the chat room id
 	      $chatRoomProvider = new Model_Data_ChatRoomProvider();
-	      $chatRoom = $chatRoomProvider->getOneByName($room);
+	      $chatRoom = $chatRoomProvider->getOneByPk($room);
 	      $chatLog->setChatRoomId($chatRoom->getChatRoomId());
 	       
 	      // get the user from the PHPBB
@@ -216,7 +229,8 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
 	      	$chatLog->setCharacterId($character->getCharacterId());
 	      }
 	       
-	      $chatLog->setColor($colr);
+	      $chatLog->setChatTextColor($chat_text_color);
+	      $chatLog->setChatNameColor($chat_name_color);
 	      $chatLog->setText($data);
 	      $chatLog->setChatRand($rand);
 	       
@@ -244,7 +258,7 @@ if (isset($_GET['rand']) && $_GET['rand'] &&
         	$response->success = false;
         }
     }
-  }
+  /*}*/
 
   if ($modified){
   	file_put_contents('data.txt', serialize($chat_data));
