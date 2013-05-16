@@ -18,9 +18,9 @@
 
 <!--[if IE]><style type="text/css"> div.chat div.input input { margin-top: -1px; margin-bottom: -1px; } </style><![endif]-->
 
-<div class="chat">
+<!-- <div class="chat"> -->
 
-<!-- ***** About *********************************************************** -->
+<!-- ***** About *********************************************************** 
 
 <div>
 <div class="about"          id="about">
@@ -59,10 +59,10 @@ Ajax chat <a href="http://www.php-development.ru/javascripts/ajax-chat.php">home
 
 </div>
 </div>
-</div>
+</div>-->
 
 
-<!-- ***** Color *********************************************************** -->
+<!-- ***** Color *********************************************************** 
 
 <div>
 <div class="color"          id="color">
@@ -100,9 +100,9 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 
 </div>
 </div>
-</div>
+</div>-->
 
-<!-- ***** Rooms *********************************************************** -->
+<!-- ***** Rooms *********************************************************** 
 
 <div class="room" id="room_child" style="display: none;">
 <?php foreach ($chat_list as $chatRoom) { ?>
@@ -112,10 +112,10 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 
 <script type="text/javascript">
 if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room_child", "hover", "y", "default");
-</script>
+</script>-->
 
 
-<!-- ***** Smiley ********************************************************** -->
+<!-- ***** Smiley ********************************************************** 
 
 <div>
 
@@ -162,7 +162,7 @@ if ($handle = opendir($dir))
 </div>
 
 
-</div>
+</div>-->
 
 <!-- ***** Character_Info ********************************************************** -->
 

@@ -82,7 +82,7 @@ function chat_api_smiley(str)
 function chat_api_onload(room, registered, handle)//, focu
 {
   //chat_focu = focu; // set the global
-  document.getElementById('room_child').style.display = 'none'; // hide the room panel
+  //document.getElementById('room_child').style.display = 'none'; // hide the room panel
   //if (chat_focu) 
   document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not
   
@@ -236,9 +236,11 @@ function chat_reset(room, registered, handle)
 
   clearTimeout(chat_timeout); // stop the looping ajax
 
-  //chat_setup();
-  console.log("Starting the Ajax");
-  chat_timeout = setInterval("chat_setup()", 1000); // start the ajax
+  chat_setup(); // initial run to get things set up
+  
+  //console.log("Starting the Ajax");
+  chat_timeout = setInterval("chat_users_get()", 5000); // start the ajax
+  chat_timeout = setInterval("chat_msgs_get()", 1000); // start the ajax
   
   /*if(handle){ // if a user is chosen
 	  //chat_timeout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
@@ -259,21 +261,11 @@ function chat_users_get(){
 		dataType: "JSON"
 	})
 	.done(function(response) {
-		  //console.log('chat_users_get.  Handle (now chat_user):',chat_user);
 
 		response.characters.sort(handleSort);
 		chat_usrs = response.characters;
 		chat_out_usrs(); // output the users
 		//console.log('chat_users_get.  Handle (now chat_user):',chat_user);
-		/*var thisRoom = $('#users_this_room');
-		var otherRoom = $('#users_other');
-		for(var i = 0; i < chat_usrs.length; i++){ // go through each returned user
-			if(chat_usrs[i].chat_room_id == chat_room){ // this guy is in my room
-				thisRoom.append('<div class="rightMenuUser" style="color: '+chat_usrs[i].chat_name_color+'">'+chat_usrs[i].name+'</div>');
-			}else{
-				otherRoom.append('<div class="rightMenuUser" style="color: '+chat_usrs[i].chat_name_color+'">'+chat_usrs[i].name+'</div>');
-			}
-		}*/
 	});
 }
 

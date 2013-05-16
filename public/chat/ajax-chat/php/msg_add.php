@@ -5,9 +5,9 @@ $_bootstrap = Bootstrap::getInstance();
 
 include("TokenOperation.php");
 
-echo "<pre>";
+/*echo "<pre>";
 print_r($_REQUEST);
-echo "</pre>";
+echo "</pre>";*/
 
 // Copyright (C) 2008 Ilya S. Lyubinskiy. All rights reserved.
 // Technical support: http://www.php-development.ru/
@@ -50,9 +50,6 @@ if (!empty($_GET['rand']) &&
   $arrErrors = array();
   $logProvider->insertOne($log, $arrErrors);*/
   
-  //TODO: Some function here to unlog users
-  //$modified = unlog_users();/* refresh the user list and note if we changed it */
-
   $time = time(); // declare the variables and grab the input that we need
   $gndr = $chat_data['gndr'][$_GET['user']];
   $stat = $chat_data['stat'][$_GET['user']];
@@ -182,23 +179,6 @@ if (!empty($_GET['rand']) &&
     	if(!$duplicatePost && !$flood){ // if it's no duplicate, and it's not flood,
    		  $response->text = $data;
    		  
-   		  //----------- Store post in the file
-    		
-	      /*$chat_data['data'][] = array('time' => $time, // add all this crap to an element of chat_data
-	                                   'guid' => $guid,
-	      							   'chat_rand' => $rand,
-	                                   'room' => $room,
-	      							   'user' => $handle,
-	                                   'priv' => $priv,
-	                                   'addr' => $addr,
-	      							   'data' => "m\r\n$colr\r\n$gndr\r\n$stat\r\n$handle\r\n$priv\r\n$data");
-	      foreach($chat_data['data'] as $i => $x)
-	      {
-	        if (count($chat_data['data']) <= $chat_histlen) 
-	        	break;
-	        unset($chat_data['data'][$i]);
-	      }*/
-	      
 	      //--------------- Store the post in the DB
 	      
 	      $arrErrors = array();
@@ -242,15 +222,28 @@ if (!empty($_GET['rand']) &&
 	      		$chatLog->setRecipientUsername($priv);
 	      	}
 	      }
-	      $chatLog->setTimestamp(date('Y-m-d H:i:s'));
-	       
+	      $chatLog->setTimestamp(null);
 	      try{
 	      	$chatLogProvider->insertBlogPost($chatLog);
+	      	
+	      	$arrErrors = array();
+	      	if(is_object($character)){ // registered user
+	      		$character->setLastActivity(time());
+	      		$characterProvider->updateOne($character, $arrErrors);
+	      	}else{
+	      		$guestUserHelper = new Model_Data_GuestUsersProvider();
+	      		$guestUser = $guestUserHelper->getOneByPk($handle);
+	      		if(is_object($guestUser)){
+	      			$guestUser->setLastActivity(time());
+	      			$guestUserHelper->updateOne($guestUser, $arrErrors);
+	      		}
+	      	}
+	      	if(!empty($arrErrors))
+	      		throw new Exception("Error setting last Activity: ". implode('|',$arrErrors));
 	      }catch(Exception $e){
 	      	$response->text = "I just don't know what went wrong!  But the system says this: " . implode('|',$arrErrors);
 	      	$response->success = false;
 	      }
-	       
         }elseif($flood){
         	$response->text = "Your post \"$data\" was not registered due to flood protection.";
         	$response->success = false;

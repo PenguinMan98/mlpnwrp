@@ -21,6 +21,7 @@ if(!preg_match("/^[\w_-]*$/", $_POST['handle'])){
 	header("Location: ../login.php");// reject a bad username.
 }
 $handle = $_POST['handle'];
+$characterId = $_POST['character_id'];
 
 include_once PUBLIC_ROOT . '/chat/ajax-chat/php/init.php'; /*the main php include file*/
 
@@ -36,7 +37,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$guestUser->setGuestIp($_SERVER['REMOTE_ADDR']);
 	$guestUserHelper->replaceOne($guestUser, $arrErrors);
 	// add the character handle to the temporary player table
-} elseif(empty($_POST['character_id'])) {
+} elseif(empty($characterId)) {
 	//echo "Logged in as user: " . $user->data['username'] . " with guest character: ".$_POST['handle']."<br>";
 	$guestUserHelper = new Model_Data_GuestUsersProvider();
 	$guestUser = new Model_Structure_GuestUsers();
@@ -112,7 +113,7 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 			|&nbsp;&nbsp;<a href="#">Room List</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Profile</a>&nbsp;&nbsp;
-			|&nbsp;&nbsp;<a href="#">Logout</a>&nbsp;&nbsp;
+			|&nbsp;&nbsp;<a href="<?=SITE_ROOT?>/chat/ajax-chat/php/logout.php?handle=<?=$handle?><?php if($characterId) echo "&character_id=$characterId"?>">Logout</a>&nbsp;&nbsp;
 		</div>
 		
 		<div id="chat">

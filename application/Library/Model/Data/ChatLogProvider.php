@@ -51,12 +51,10 @@ WHERE recipient_user_id IS NULL AND recipient_username IS NULL AND ' . implode('
 	
 	function insertBlogPost(Model_Structure_ChatLog $chatLog){
 		// handle/rand/text should be unique enough for a key
-		echo "inside insertBlogPost<br>";
 		$strSql = 'SELECT * FROM `chat_log`
 WHERE `handle`= ? AND `chat_rand` = ? and `text` = ?';
 		$params = array($chatLog->getHandle(), $chatLog->getChatRand(), $chatLog->getText());
 		$result = parent::getOneFromQuery($strSql, $params);
-		print_r($result);
 		if(is_object($result)){
 			return true; // it's already here.
 		}else{
@@ -99,4 +97,5 @@ LIMIT " . intval($post_count);
 		if(!empty($arrErrors)) throw new Exception("Error getting posts: " . implode('|',$arrErrors));
 		return array_reverse($arrResults);
 	}
+	
 }
