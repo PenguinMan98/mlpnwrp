@@ -102,17 +102,17 @@ for ($r = 0; $r < 6; $r++) for ($g = 0; $g < 6; $g++) for ($b = 0; $b < 6; $b++)
 </div>
 </div>-->
 
-<!-- ***** Rooms *********************************************************** 
+<!-- ***** Rooms *********************************************************** -->
+<script>
+	var roomList = {};
+	<?php foreach ($chatRoomList as $chatRoom): ?>
+	roomList[<?=$chatRoom->getChatRoomId()?>] = '<?=$chatRoom->getRoomName()?>';
+	<?php endforeach; ?>
+</script>
 
-<div class="room" id="room_child" style="display: none;">
-<?php foreach ($chat_list as $chatRoom) { ?>
-<a class="main" href="javascript:chat_api_onload('<?=$chatRoom->getRoomName();?>', true, chat_user, chat_pass);"><?=$chatRoom->getRoomName();?></a>
-<?php } ?>
-</div>
-
-<script type="text/javascript">
+<!-- <script type="text/javascript">chat_api_onload(room, registered, handle)
 if (document.getElementById("room_parent")) dropdown_attach("room_parent", "room_child", "hover", "y", "default");
-</script>-->
+</script> -->
 
 
 <!-- ***** Smiley ********************************************************** 

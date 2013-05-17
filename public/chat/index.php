@@ -35,6 +35,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$guestUser->setChatRoomId($current_room->getChatRoomId());
 	$guestUser->setHandle($handle);
 	$guestUser->setGuestIp($_SERVER['REMOTE_ADDR']);
+	$guestUser->setLastActivity(time());
 	$guestUserHelper->replaceOne($guestUser, $arrErrors);
 	// add the character handle to the temporary player table
 } elseif(empty($characterId)) {
@@ -45,6 +46,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$guestUser->setHandle($handle);
 	$guestUser->setUserId($user->data['username']);
 	$guestUser->setGuestIp($_SERVER['REMOTE_ADDR']);
+	$guestUser->setLastActivity(time());
 	$guestUserHelper->replaceOne($guestUser, $arrErrors);
 	// add the character handle to the temporary player table
 } else {
@@ -52,6 +54,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$characterHelper = new Model_Data_CharacterProvider();
 	$character = $characterHelper->getOneByCharacterName($handle);
 	$character->setLoggedIn(true);
+	$character->setLastActivity(time());
 	$character->setChatRoomId($current_room->getChatRoomId());
 	$characterHelper->updateOne($character, $arrErrors);
 	// tell the database this character is logged in
@@ -110,9 +113,8 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 		<div id="top_menu">&nbsp;&nbsp;<a href="<?=SITE_ROOT?>">Home</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="<?=SITE_ROOT?>/rules">Site Rules</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Chat Commands</a>&nbsp;&nbsp;
-			|&nbsp;&nbsp;<a href="#">Room List</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;
-			|&nbsp;&nbsp;<a href="#">Profile</a>&nbsp;&nbsp;
+			<?php if(is_object($character)):?>|&nbsp;&nbsp;<a target="_blank" href="<?=SITE_ROOT?>/character/edit/<?=$handle?>">Profile</a>&nbsp;&nbsp;<?php endif;?>
 			|&nbsp;&nbsp;<a href="<?=SITE_ROOT?>/chat/ajax-chat/php/logout.php?handle=<?=$handle?><?php if($characterId) echo "&character_id=$characterId"?>">Logout</a>&nbsp;&nbsp;
 		</div>
 		
@@ -132,6 +134,18 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 		      <b class="first">Private msgs</b><div id="users_private"></div>
 		      <b class="other">This room   </b><div id="users_this_room"></div>
 		      <b id="other_rooms" class="other">Other rooms </b><div id="users_other"></div>
+		    </div>
+		    <div id="rooms">
+<?php 
+$chatRoomHelper = new Model_Data_ChatRoomProvider();
+$chatRoomList = $chatRoomHelper->getChatList();
+?>
+				<div class="room" id="room_child">
+<?php foreach ($chatRoomList as $chatRoom) { ?>
+					<a class="main" href="javascript:room_change(<?=$chatRoom->getChatRoomId();?>, <?=is_object($character)? 'true':'false'?>, '<?=$handle?>');"><?=$chatRoom->getRoomName();?></a><br>
+<?php } ?>
+				</div>
+		    
 		    </div>
         
         </div>
@@ -171,6 +185,14 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 					}
 				}
 				return false;
+			}
+		});
+
+		$('#header_messages').on('click',function(){
+			if($('#rooms').css('display')=='block'){
+				hideRooms();
+			}else{
+				showRooms();
 			}
 		});
 

@@ -81,24 +81,12 @@ function chat_api_smiley(str)
 
 function chat_api_onload(room, registered, handle)//, focu
 {
-  //chat_focu = focu; // set the global
-  //document.getElementById('room_child').style.display = 'none'; // hide the room panel
-  //if (chat_focu) 
-  document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not
-  
-  chat_reset(room, registered, handle); // reset the chat
-  
-  // login is handled already
-  /*if (handle) // if a user was given,
-  {
-    document.getElementById( 'user').value = handle; // assume both a user and a pass were entered
-    document.getElementById( 'pass').value = pass; // set them on the page
-    document.getElementById('guser').value = (user.indexOf('GT-') == 0) ? user.substr('GT-'.length, 1024) : ''; // set the guest username while you're at it
-    chat_msgs_log(user.indexOf('GT-') != 0); // log the incident
-  }
-  else chat_login(true); // login succeeded*/
+	hideRooms(); // hide the rooms panel
+	$('#header_messages').html(roomList[room]); // change the room name
 
-  //chat_focu = true;
+	document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not
+	
+	chat_reset(room, registered, handle); // reset the chat
 }
 
 
@@ -208,6 +196,26 @@ function hideExitPM(){
 			elem.css('display','none');
 		});
 }
+function showRooms(){
+	elem = $('#rooms');
+	// show the element
+	elem.css('display','block');
+	// animate moving right to 0
+	elem.animate({
+			opacity: '1',
+			right: '150px'
+		},1000,'swing');
+}
+function hideRooms(){
+	elem = $('#rooms');
+	// animate moving left to 0
+	elem.animate({
+			opacity: '0',
+			right: '0px'
+		},1000,'swing',function(){
+			elem.css('display','none');
+		});
+}
 
 
 // ***** chat_reset ************************************************************
@@ -239,8 +247,10 @@ function chat_reset(room, registered, handle)
   chat_setup(); // initial run to get things set up
   
   //console.log("Starting the Ajax");
-  chat_timeout = setInterval("chat_users_get()", 5000); // start the ajax
-  chat_timeout = setInterval("chat_msgs_get()", 1000); // start the ajax
+  if(typeof chat_users_timeout != 'undefined') clearInterval(chat_users_timeout);
+  chat_users_timeout = setInterval("chat_users_get()", 5000); // start the ajax
+  if(typeof chat_messages_timeout != 'undefined') clearInterval(chat_messages_timeout);
+  chat_messages_timeout = setInterval("chat_msgs_get()", 1000); // start the ajax
   
   /*if(handle){ // if a user is chosen
 	  //chat_timeout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
@@ -353,12 +363,18 @@ function add_post_ajax(newPost)
 				}
 			}
 		}else{
-			if(response.text.trim() != ""){
+			if(typeof response.text != 'undefined' && response.text.trim() != ""){
 				chat_msgs['.'] += '<b>System:</b> '+response.text+'<br />';
 			}
 	        
 	        confirmPostRand(newPost.rand);
 	        chat_out_msgs();
+	        
+			if(typeof response.text != 'undefined' && response.text.trim() == "Character Not Logged In"){
+				clearInterval(chat_users_timeout);
+				clearInterval(chat_messages_timeout);
+				window.location = SITE_ROOT + "/login.php";
+			}
 		}
 	});
 }
@@ -508,9 +524,36 @@ function chat_msgs_get()
 		        chat_msgs['.'] += '<b>System:</b> '+response.error+'<br />';
 			}
 	        chat_out_msgs();
+	        
+			if(typeof response.error != 'undefined' && response.error.trim() == "Character Not Logged In"){
+				clearInterval(chat_users_timeout);
+				clearInterval(chat_messages_timeout);
+				window.location = SITE_ROOT + "/login.php";
+			}
+
 		}
 		
 	});
+}
+
+function room_change(room, registered, handle){
+	
+	$.ajax({
+		url: chat_path+"php/room_change.php",
+		dataType: "JSON",
+		data: {
+			handle: handle,
+			room: room
+		}
+	})
+	.done(function(response) {
+		if(response.success){
+			chat_api_onload(room, registered, handle)
+		}else{
+			/*alert('Invalid Room Change');*/
+		}
+	});
+
 }
 
 // ***** chat_msgs_log **********************************************************

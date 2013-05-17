@@ -3,7 +3,29 @@
 require_once '../../../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
+$response = new stdClass();
+
+// verify login
+$handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
+if($user->data['user_id'] != "ANONYMOUS") { // logged in
+	$characterHelper = new Model_Data_CharacterProvider();
+	$character = $characterHelper->getOneByCharacterName($handle);
+}
+if($user->data['user_id'] == "ANONYMOUS" || !is_object($character)){ // guest
+	$guestUserHelper = new Model_Data_GuestUsersProvider();
+	$guestUser = $guestUserHelper->getOneByPk($handle);
+}
+if((!is_object($character) && !is_object($guestUser)) || // no character match or
+		(is_object($character) && !$character->getLoggedIn()) ){ // registered character isn't logged in
+	$response->success = false;
+	$response->text = "Character Not Logged In";
+	echo json_encode($response);
+	die();
+}
+
 include("TokenOperation.php");
+
+
 
 /*echo "<pre>";
 print_r($_REQUEST);
@@ -26,7 +48,6 @@ echo "</pre>";*/
 // This code is provided "as is" without warranty of any kind.
 // You expressly acknowledge and agree that use of this code is at your own risk.
 
-$response = new stdClass();
 //$response->messages = array(); // do not initialize this
 $response->success = true;
 $response->text = "";
@@ -57,7 +78,7 @@ if (!empty($_GET['rand']) &&
   $room = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['room']), ENT_QUOTES);
   $rand = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['rand']), ENT_QUOTES);
   $response->rand = $rand;
-  $handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
+  
   $priv = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['priv']), ENT_QUOTES);
   $chat_name_color = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['chat_name_color']), ENT_QUOTES);
   $chat_text_color = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['chat_text_color']), ENT_QUOTES);

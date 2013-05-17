@@ -6,6 +6,25 @@ require_once '../../../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
 $response = new stdClass();
+
+// verify login
+$handle = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['user']), ENT_QUOTES);
+if($user->data['user_id'] != "ANONYMOUS") { // logged in
+	$characterHelper = new Model_Data_CharacterProvider();
+	$character = $characterHelper->getOneByCharacterName($handle);
+}
+if($user->data['user_id'] == "ANONYMOUS" || !is_object($character)){ // guest
+	$guestUserHelper = new Model_Data_GuestUsersProvider();
+	$guestUser = $guestUserHelper->getOneByPk($handle);
+}
+if((!is_object($character) && !is_object($guestUser)) || // no character match or
+		(is_object($character) && !$character->getLoggedIn()) ){ // registered character isn't logged in
+	$response->success = false;
+	$response->error = "Character Not Logged In";
+	echo json_encode($response);
+	die();
+}
+
 $response->success = true;
 $response->text = "";
 $response->lines = array();

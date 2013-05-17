@@ -88,12 +88,25 @@ a:hover, a:active{
 
 /* Exit PM */
 #exit_pm{
-	position: absolute;
-	white-space: nowrap;
-	z-index: 3;
-	background-color: #333;
-	opacity: 0;
-	display: none;
+    position: absolute;
+    white-space: nowrap;
+    z-index: 3;
+    background-color: #333;
+    opacity: 0;
+    display: none;
+}
+
+#header_messages{
+	cursor: pointer;
+}
+
+#rooms{
+    position: absolute;
+    white-space: nowrap;
+    z-index: 3;
+    background-color: #333;
+    opacity: 0;
+    display: none;
 }
 
 /* ***** Character HUD ***** */
