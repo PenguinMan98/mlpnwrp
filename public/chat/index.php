@@ -12,7 +12,8 @@ $_bootstrap = Bootstrap::getInstance();
 /*echo "<pre>";
 print_r($_REQUEST);
 print_r($user->data);
-echo "</pre>";*/
+echo "</pre>";
+die();*/
 if (empty($_POST['handle'])) // if no username, 
 {
 	header("Location: ../login.php");// send them to login.php.

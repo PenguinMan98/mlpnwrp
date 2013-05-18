@@ -101,6 +101,9 @@ $(function() {
 			var select = $('#chat_character');
 			for(var i = 0; i < response.characterList.length; i++){ 
 				select.append('<option value="'+response.characterList[i].character_id+'">'+response.characterList[i].name+'</option>');
+				if(i==0){ // store the name of the first character in 'handle'
+					$('#handle').val(response.characterList[i].name);
+				}
 			}
 			$('#character_selection').append('<label></label><a href="<?=SITE_ROOT?>/character/create">Create a new character!</a>');
 		}else if(response.success){ // no characters!
@@ -128,6 +131,7 @@ function logMeIn(){
 	}
 	// use ajax call to log into the forum and set the forum cookies and return a list of characters
 	if($('#chat_character').val() == null){
+		console.log('get the characters');
 		$.ajax({
 			url: "chat/ajax-chat/php/login.php",
 			data: {username: username, password: $('#forum_password').val() },
@@ -154,6 +158,7 @@ function logMeIn(){
 			}
 		});
 	}else{
+		console.log('submit the form');
 		$('#login_form').submit();
 	}
 }
