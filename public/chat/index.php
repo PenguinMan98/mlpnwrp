@@ -128,14 +128,6 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 				<span id="exit_pm_text"></span>
 				<input type="button" onClick="chat_priv_switch('.',true);" value="X">
 			</div>
-	        <div id="header_messages"><?=$current_room->getRoomName()?></div>
-        	<div id="messages"></div>
-            <div id="header_users">Users</div>
-		    <div id="users">
-		      <b class="first">Private msgs</b><div id="users_private"></div>
-		      <b class="other">This room   </b><div id="users_this_room"></div>
-		      <b id="other_rooms" class="other">Other rooms </b><div id="users_other"></div>
-		    </div>
 		    <div id="rooms">
 <?php 
 $chatRoomHelper = new Model_Data_ChatRoomProvider();
@@ -148,7 +140,14 @@ $chatRoomList = $chatRoomHelper->getChatList();
 				</div>
 		    
 		    </div>
-        
+			<div id="header_messages"><?=$current_room->getRoomName()?></div>
+        	<div id="messages"></div>
+            <div id="header_users">Users</div>
+		    <div id="users">
+		      <b class="first">Private msgs</b><div id="users_private"></div>
+		      <b class="other">This room   </b><div id="users_this_room"></div>
+		      <b id="other_rooms" class="other">Other rooms </b><div id="users_other"></div>
+		    </div>
         </div>
 
         <div id="form">
