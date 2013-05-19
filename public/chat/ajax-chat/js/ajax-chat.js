@@ -177,46 +177,43 @@ function chat_priv_switch(user, focus)
   chat_out_msgs();
 }
 function showExitPM(){
-	elem = $('#exit_pm');
 	// show the element
-	elem.css('display','block');
+	$('#exit_pm').css('display','block');
 	// animate moving right to 0
-	elem.animate({
+	$('#exit_pm').animate({
 			opacity: '1',
 			right: '150px'
-		},1000,'swing');
+		},1000,'swing',function(){
+		});
 }
 function hideExitPM(){
-	elem = $('#exit_pm');
 	// animate moving left to 0
-	elem.animate({
+	$('#exit_pm').animate({
 			opacity: '0',
 			right: '0px'
 		},1000,'swing',function(){
-			elem.css('display','none');
+			$('#exit_pm').css('display','none');
 		});
 }
 function showRooms(){
-	elem = $('#rooms');
 	// show the element
-	elem.css('display','block');
+	$('#rooms').css('display','block');
 	// animate moving right to 0
-	elem.animate({
+	$('#rooms').animate({
 			opacity: '1',
 			right: '150px'
-		},1000,'swing');
+		},1000,'swing',function(){
+		});
 }
 function hideRooms(){
-	elem = $('#rooms');
 	// animate moving left to 0
-	elem.animate({
+	$('#rooms').animate({
 			opacity: '0',
 			right: '0px'
 		},1000,'swing',function(){
-			elem.css('display','none');
+			$('#rooms').css('display','none');
 		});
 }
-
 
 // ***** chat_reset ************************************************************
 // may be called with only a room and null user/pass
