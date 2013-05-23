@@ -73,24 +73,34 @@ WHERE `handle`= ? AND `chat_rand` = ? and `text` = ?';
 		$params = array($roomId);
 		$strSql = "
 SELECT * FROM chat_log
-WHERE chat_room_id = ? ";
+WHERE	( 
+			( 
+				chat_room_id = ? 
+				AND `recipient_username` IS NULL
+				AND `recipient_user_id` IS NULL
+			)";
+		if($mptr >= 0 || $registered){ // if this is not an initialization, or a registered user, get PM's.
+			$strSql .= "
+			OR (
+				`recipient_username` = ? 
+			)
+			OR (
+				`handle` = ?
+				AND NOT `recipient_username` IS NULL
+			)";
+			$params[] = $handle;
+			$params[] = $handle;
+		}
+		$strSql .= "
+		)";
 		if($mptr >= 0){ // if the pointer is set, only get the newer things
 			$strSql .= "AND chat_log_id > ?	";
 			$params[] = $mptr;
 		}
 		$strSql .= "
-	AND (	(`recipient_username` IS NULL AND `recipient_user_id` IS NULL) ";
-		if($mptr >= 0 || $registered){ // if this is not an initialization, or a registered user, get PM's.
-			$strSql .= "
-			OR `recipient_username` = ?
-			OR `handle` = ? ";
-			$params[] = $handle;
-			$params[] = $handle;
-		}
-		$strSql .= "
-		)
 ORDER BY TIMESTAMP DESC
 LIMIT " . intval($post_count);
+		
 		$arrResults = array();
 		$arrErrors = array();
 		DAO::getAssoc($strSql, $params, $arrResults, $arrErrors);

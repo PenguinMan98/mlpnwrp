@@ -61,7 +61,9 @@ if (isset($_GET['room']) &&
 	  	throw new Exception("This user is kicked");
 	  }
 	
-	  $response->operator .= "+"; // this routine won't be called without users being logged in.
+	  $response->operator .= "+"; // I think this operator system is obsolete
+	  
+	  // this routine won't be called without users being logged in.
 	  /*if (isset($chat_data['user'][$_GET['user']]) &&
 	      isset($chat_data['pass'][$_GET['user']]) &&
 	           ($chat_data['pass'][$_GET['user']]) == $_GET['pass']) { // If the user is logged in, 
@@ -80,7 +82,7 @@ if (isset($_GET['room']) &&
 	  	$line['interval'] = (time()-$postDate->format('U'));
 	  }
   }catch(Exception $e){
-  	$response->operator = "-"; /*return a - */
+  	$response->operator = "-"; //return a -    May be obsolete
   	$response->success = false;
   	$response->error = $e->getMessage();
   }

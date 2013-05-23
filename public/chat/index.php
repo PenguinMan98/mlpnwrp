@@ -144,9 +144,12 @@ $chatRoomList = $chatRoomHelper->getChatList();
         	<div id="messages"></div>
             <div id="header_users">Users</div>
 		    <div id="users">
-		      <b class="first">Private msgs</b><div id="users_private"></div>
-		      <b class="other">This room   </b><div id="users_this_room"></div>
-		      <b id="other_rooms" class="other">Other rooms </b><div id="users_other"></div>
+		      <b class="first">Private msgs</b><br>
+		      <div id="users_private"></div>
+		      <b class="other">This room</b><br>
+		      <div id="users_this_room"></div>
+		      <b id="other_rooms" class="other">Other rooms</b><br>
+		      <div id="users_other"></div>
 		    </div>
         </div>
 
@@ -159,7 +162,6 @@ $chatRoomList = $chatRoomHelper->getChatList();
 	    		&nbsp;&nbsp;Ping On New&nbsp;<input id="pingOnNew" class="input" type="checkbox" onclick="pingOnNew = this.checked;" />
 	    	</form>
     	</div>
-        
 	</div>
 	
 <?php include_once PUBLIC_ROOT . '/chat/ajax-chat/ajax-chat.php'; /*the main HTML include file*/?>
@@ -196,9 +198,20 @@ $chatRoomList = $chatRoomHelper->getChatList();
 			}
 		});
 
+		/*$(window).unload( logmeout() );*/
+		
 		/*$('#exit_pm').on('click',function(){chat_priv_switch('.',true);});*/
 	});
 	
+	function logmeout(){
+		$.ajax({
+			url: chat_path+"php/logout.php",
+			data: {handle: handle
+				<?php if($characterId): ?>, character_id: <?=$characterId?> <?php endif;?>},
+			dataType: "JSON" 
+		});
+	}
+
 	/*character HUD*/
 	function showHUD(element, charName){
 		var linkRect = element.getBoundingClientRect();

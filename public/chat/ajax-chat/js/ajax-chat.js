@@ -21,7 +21,7 @@ var chat_priv;
 var chat_temp_msgs = new Array();
 var chat_msgs_rcvd = {};
 var chat_player_rooms = {};
-var chat_private = new Array();
+var chat_private = {};
 
 var chat_focu = true;
 var chat_colr = '#484848';
@@ -165,9 +165,15 @@ function chat_priv_switch(user, focus)
   chat_priv = user;
   chat_priv_prepair(chat_user, user);
   if (user != '.'){
+	  if(typeof chat_private[user] == 'undefined') chat_private[user] = {};
+	  chat_private[user]['active'] = true;
 	  $('#exit_pm_text').html('Private with '+user);
 	  showExitPM();
+	  // mark that I've seen the latest.
+	  chat_private[user]['last_seen'] = chat_private[user]['last_received'];
   }else{
+	  for(var i in chat_private)
+		  chat_private[i]['active'] = false;
 	  hideExitPM();
   }
   /*if (user == '.')  // if user is '.', I'm exiting.
@@ -229,7 +235,7 @@ function chat_reset(room, registered, handle)
   chat_usrs = new Array(); // re-initialize these arrays
   chat_msgs = new Array();
   chat_wait = new Array();
-  chat_private = new Array(); // clears private messages
+  //chat_private = {}; // clears private messages
   chat_priv = '.';
 
   chat_temp_msgs = new Array(); // clear the pending messages
@@ -410,50 +416,24 @@ function chat_msgs_get()
 	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
 	      }
-	      /*var initializationRun = (chat_message_id == -1);*/  // I'm sure I'll need this eventually
+	      var initializationRun = (chat_message_id == -1);  // I'm sure I'll need this eventually
 	      for (var i = 0; i < response.lines.length; i++) // now, go through the lines
 	      {
-	    	line = response.lines[i];
+	    	  line = response.lines[i];
 	    	
-	    	if(typeof(chat_msgs_rcvd[line.chat_log_id]) != "undefined"){ continue; }; // if I've already seen this post, skip.
-	    	chat_msgs_rcvd[line.chat_log_id] = true; // set this to true, then process the post.
-	        chat_message_id =  Math.max(chat_message_id, line.chat_log_id);
+	    	  if(typeof(chat_msgs_rcvd[line.chat_log_id]) != "undefined"){ continue; }; // if I've already seen this post, skip.
+	    	  chat_msgs_rcvd[line.chat_log_id] = true; // set this to true, then process the post.  Perhaps I should move this to after I've completely processed the post.
+	    	  chat_message_id =  Math.max(chat_message_id, line.chat_log_id); // set the chat_message_id
 
-	        /*if (line.type == 'room' && line.operation == 'add') // add someone to the room
-	        {
-	          if (chat_smsg) // if system messages are turned on
-	        	  if (line.roomname == chat_room) // and the room is the room we're in
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> enters the room<br />';
-	          chat_usrs[line.handle] = new Array(line.roomname, line.gender, line.status, true);
-	          chat_player_rooms[line.handle] = line.roomname;
-	          //i += 5;
-	        }
-
-	        if (line.type == 'room' && line.operation == 'remove') // remove someone from the room
-	        {
-	          if (chat_smsg) 
-	        	  if (line.roomname == chat_room) 
-	        		  chat_msgs['.'] += '<b>System:</b> user <b>'+chat_msgs_usr(line.handle, 'black', false)+'</b> leaves the room<br />';
-	          chat_usrs[line.handle] = false;
-	          //i += 3;
-	        }
-
-	        if (line.type == 'away') // set the away status
-	        {
-	          if (chat_usrs[line.handle]) 
-	        	  chat_usrs[line.handle][3] = line.operation == 'activate';
-	          //i += 3;
-	        }*/
-
-	          confirmPostRand(line.chat_rand);
+	          confirmPostRand(line.chat_rand); // flag that this post was received.  Might be superfluous now.
 
 	          var message = "";
 	          if($('#msg_'+line.chat_log_id).length == 0){ // if the element does not exist in the form already 
-		          chat_usrs[line.handle] = new Array(chat_room, line.gender, line.status, true);
-		          message = line.text;
+		          chat_usrs[line.handle] = new Array(chat_room, line.gender, line.status, true);// this appears to refresh some information about the user.
+		          message = line.text; // get the text
 		          
 		          // parse emoticons
-		          message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');
+		          //message = message.replace(/%%(\w+)%%/g, '<img src="'+chat_path+'smileys/$1.gif" alt="" />');// unneeded
 		          
 		          // check for operators
 		          var delimPos = message.indexOf(" ");
@@ -479,17 +459,31 @@ function chat_msgs_get()
 	
 		          // convert url's into hyperlinks
 		          message = replaceURLWithHTMLLinks(message);
-
+		          
 		          if (line.recipient_username == null || line.recipient_username == '.'){ // if this message is public
 		        	  chat_msgs['.'] += '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
 		          }
 		          else // it's a private message
 		          {
-		            chat_priv_prepair(line.handle, line.recipient_username);
-		            chat_msgs[line.handle][line.recipient_username] += '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
-		            chat_msgs[line.recipient_username][line.handle] += '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
-		            chat_wait[line.handle][line.recipient_username]  = false;
-		            chat_wait[line.recipient_username][line.handle]  = true;
+					chat_priv_prepair(line.handle, line.recipient_username); // not entirely sure what this does
+					var nameLine = '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
+
+					// if it's from somebody to me, (new system)
+					if(line.recipient_username == chat_user){
+						if(typeof chat_private[line.handle] == 'undefined')	chat_private[line.handle] = {};
+						chat_private[line.handle]['last_received'] = line.chat_log_id;  // store that I got a priv from this guy.
+						if(chat_private[line.handle]['active']){ // if I'm currently chatting with this guy
+							chat_private[line.handle]['last_seen'] = chat_private[line.handle]['last_received']; // then I'm going to see the new message.
+						}
+					}
+					
+					// I don't think we use this anymore (old system)
+					chat_msgs[line.handle][line.recipient_username] += nameLine;
+					chat_msgs[line.recipient_username][line.handle] += nameLine;
+					// chat wait is what tells people they have a PM and who from.
+					chat_wait[line.handle][line.recipient_username]  = false; // sender to recipient is false.
+					chat_wait[line.recipient_username][line.handle]  = true; // recipient to sender is true.
+					
 		          }
 	          }
 	          
@@ -502,10 +496,11 @@ function chat_msgs_get()
 		    		  playDing = true;
 		    	  }
 		      }
-		      if(line.recipient_username == chat_user){ // ding if I get a Priv
+		      if(line.recipient_username == chat_user && !chat_private[line.handle]['active'] && !initializationRun){ // ding if I get a Priv and I'm not chatting with him
 		    	  playDing = true;
 		      }
-	      }
+	      }// end of line loop
+
 	      if(playDing){
 	          var ding = $('#audio_ding');
 	          ding = ding.get(0).play();
@@ -514,7 +509,7 @@ function chat_msgs_get()
 	      if (response.lines.length > 0)
 	      {
 	        chat_out_msgs();
-	        //chat_out_usrs();
+	        show_pm();
 	      }
 		}else{
 			if(response.error.trim() != ""){
@@ -649,20 +644,10 @@ function chat_out_usrs()
 {
   var users = '';
   //chat_usrs.sort(); // I've already sorted
-  var pmNotice = $('#users_private');
   var thisRoom = $('#users_this_room');
   var otherRoom = $('#users_other'); 
 
-  for (var i in chat_usrs){ // for every character in the internal list of presumable all characters who were tracked in the history of the logfile...
-	if (
-			chat_usrs[i].name != chat_user && // it's not me
-			typeof chat_private[chat_usrs[i].name] != 'undefined' && // If I've gotten a private from this guy
-			chat_private[chat_usrs[i].name]['last_seen'] < chat_private[chat_usrs[i].name]['last_received']  // and I haven't seen the latest
-			)
-		users += chat_msgs_usr(chat_usrs[i].name, chat_usrs[i].chat_name_color, true)+'<br />'; // get the formated html and then we append it to users
-  }
-  pmNotice.html(users); // get the users_priv element and add the users to it.
-  pmNotice.css('display', (users ? 'block' : 'none')); // turn the div visible if users is set.
+  show_pm();
 
   users = ''; // reset users.
   for (var i in chat_usrs){// for each char
@@ -684,6 +669,18 @@ function chat_out_usrs()
   otherRoom.css('display', (users ? 'block' : 'none'));  // show it if it needs to be shown.
   // no return value.
 };
+
+function show_pm(){
+	var pmNotice = $('#users_private');
+	var users = '';
+	
+	for(var i in chat_private){
+		if(typeof chat_private[i]['last_seen'] == 'undefined' || chat_private[i]['last_seen'] < chat_private[i]['last_received']) // if there is a new priv
+			users += chat_msgs_usr(i, 'white', true)+'<br />'; // get the formated html and then we append it to users
+	}
+	pmNotice.html(users); // dump them into other.
+	pmNotice.css('display', (users ? 'block' : 'none'));  // show it if it needs to be shown.
+}
 
 //***** replaceURLWithHTMLLinks **********************************************************
 
