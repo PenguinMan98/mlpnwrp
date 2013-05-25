@@ -274,9 +274,17 @@ function chat_users_get(){
 		dataType: "JSON"
 	})
 	.done(function(response) {
-
 		response.characters.sort(handleSort);
 		chat_usrs = response.characters;
+
+		for(var i in chat_usrs){
+			if(typeof chat_private[chat_usrs[i]['name']] == 'undefined'){ // initialize chat_private for this handle
+				chat_private[chat_usrs[i]['name']] = {};
+				chat_private[chat_usrs[i]['name']]['last_seen'] = 0;
+				chat_private[chat_usrs[i]['name']]['last_received'] = 0;
+			}
+		}
+		
 		chat_out_usrs(); // output the users
 		//console.log('chat_users_get.  Handle (now chat_user):',chat_user);
 	});
@@ -465,6 +473,7 @@ function chat_msgs_get()
 		          }
 		          else // it's a private message
 		          {
+		        	//console.log('I got a PM from', line.handle, 'to',line.recipient_username, message);
 					chat_priv_prepair(line.handle, line.recipient_username); // not entirely sure what this does
 					var nameLine = '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
 
@@ -671,12 +680,15 @@ function chat_out_usrs()
 };
 
 function show_pm(){
+	//console.log('show_pm called');
 	var pmNotice = $('#users_private');
 	var users = '';
 	
 	for(var i in chat_private){
-		if(typeof chat_private[i]['last_seen'] == 'undefined' || chat_private[i]['last_seen'] < chat_private[i]['last_received']) // if there is a new priv
+		//console.log('var: ', typeof chat_private[i]['last_seen'], typeof chat_private[i]['last_seen'] != 'undefined',chat_private[i]['last_seen'], chat_private[i]['last_received'],chat_private[i]['last_seen'] < chat_private[i]['last_received']);
+		if(typeof chat_private[i]['last_seen'] != 'undefined' && chat_private[i]['last_seen'] < chat_private[i]['last_received']){ // if there is a new priv
 			users += chat_msgs_usr(i, 'white', true)+'<br />'; // get the formated html and then we append it to users
+		}
 	}
 	pmNotice.html(users); // dump them into other.
 	pmNotice.css('display', (users ? 'block' : 'none'));  // show it if it needs to be shown.

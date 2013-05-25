@@ -84,8 +84,8 @@ if (!empty($_GET['rand']) &&
   $chat_text_color = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['chat_text_color']), ENT_QUOTES);
   $data = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['data']), ENT_QUOTES, 'utf-8');
   $addr = htmlentities(preg_replace("/\\s+/iX", " ", $_GET['addr']), ENT_QUOTES);
-  $guest = !empty($_GET['guest']);
-  $guid = $handle.$rand.$handle;
+  //$guest = isset($_GET['guest'])? $_GET['guest']: true; // unused
+  $guid = $handle.$rand.$handle; 
   
   //echo "(".$time.")(".$gndr.")(".$stat.")(".$room.")(".$rand.")(".$handle.")(".$priv.")(".$chat_name_color.")(".$chat_text_color.")(".$data.")(".$addr.")(".$guest.")(".$guid.")<br>";
   
@@ -129,27 +129,27 @@ if (!empty($_GET['rand']) &&
   }
   
 
-  if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] || // if this character is muted or their ip is muted
+  /*if ($chat_data['mute'][$handle] || $chat_data['mute'][$_SERVER['REMOTE_ADDR']] || // if this character is muted or their ip is muted
       $chat_data['kick'][$handle] || $chat_data['kick'][$_SERVER['REMOTE_ADDR']])// if this character is kicked or their ip is kicked
   {
     $response->text = $chat_err_mute; // throw an error
     $response->success = false;
     die;
-  }
+  }*/
 
   /*if (isset($chat_data['room'][$handle]) &&// verifies that a username and password are stored and the char is in a room
       isset($chat_data['user'][$handle]) &&
       isset($chat_data['pass'][$handle]) &&
            ($chat_data['pass'][$handle]) == $_GET['pass'])
   {*/
-    $modified = true; // set modified to true because we're adding a post.
-    $chat_data['time'][$handle] = $time;  // set the time into the chat data
+    //$modified = true; // set modified to true because we're adding a post. unused
+    //$chat_data['time'][$handle] = $time;  // set the time into the chat data
 
-    if ($chat_data['away'][$handle]) // if I'm away,
+    /*if ($chat_data['away'][$handle]) // if I'm away,
     	$chat_data['data'][] = "s\r\n$handle\r\n+";// put an s notice into the data stream to make me active again
-    $chat_data['away'][$handle] = false; // set my away status to false in the chat data
+    $chat_data['away'][$handle] = false; // set my away status to false in the chat data*/
 
-    if(in_array($_GET['user'], $chat_admins) && // if the user is an admin, 
+    /*if(in_array($_GET['user'], $chat_admins) && // if the user is an admin, 
             preg_match("/^\\s*\\/(kick|mute)\\s*([0-9a-zA-Z_]+)\\s*([0-9]+)\\s*$/", $_GET['data'], $matches)) // and it's a mute or kick command
     {
       $cmd_type = $matches[1]; // kick or mute
@@ -168,14 +168,16 @@ if (!empty($_GET['rand']) &&
       if ($matches[2] == 'mute') $response->text = count($chat_data['mute']) . " user(s)  muted: " . implode(', ', array_keys($chat_data['mute']));
       $response->success = false; // why not true?
     }
-    else
+    else*/
     {
     	$duplicatePost = false; 
     	$flood = false;
     	$ipPosts = array();
+    	$FLOODCUTOFFTIME = 5; // can't post more than 3 times in a 5 second period.
+    	$FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
     	
-    	// loop through the existing lines
-    	foreach($chat_data['data'] as $line){
+    	// loop through the existing lines // GET THEM FROM THE DB INSTEAD
+    	/*foreach($chat_data['data'] as $line){
 	    	// check for duplicate post
     		if(isset($line['guid']) && $line['guid'] == $guid){
     			$duplicatePost = true;
@@ -184,18 +186,32 @@ if (!empty($_GET['rand']) &&
     		if(isset($line['addr']) && $line['addr'] == $addr){
     			$ipPosts[] = $line;
     		}
+    	}*/
+    	
+    	// duplicate check
+    	$chatLogHelper = new Model_Data_ChatLogProvider();
+    	$duplicatePost = $chatLogHelper->getOneByHandleAndRand($handle, $rand);
+    	$duplicate = is_object($duplicatePost);
+    	
+    	// flood check
+    	$recentPosts = $chatLogHelper->getMyPosts($room, $handle, -1, $FLOODCUTOFFPOSTS, is_object($character));
+    	$floodCheckPost = isset($recentPosts[0]) ? $recentPosts[0] : null; // they come out in reverse order so post 0 is the oldest of the three
+    	if($floodCheckPost){
+    		$timeDiff = time() - floor($floodCheckPost['chat_rand']/10); // must convert chat_rand into seconds
+    		$flood = $timeDiff < $FLOODCUTOFFTIME;
     	}
+    	/*echo "<pre>";
+    	echo "$timeDiff = ".time()." - ".(floor($floodCheckPost['chat_rand']/10))."<br>";
+    	print_r($recentPosts);*/
 
     	// Joe built better flood protection
-    	$FLOODCUTOFFTIME = 5; // can't post more than 3 times in a 5 second period.
-    	$FLOODCUTOFFPOSTS = 3; // can't post more than 3 times in a 5 second period.
-    	if(count($ipPosts) > $FLOODCUTOFFPOSTS){ // can't flood if you haven't posted enough
+    	/*if(count($ipPosts) > $FLOODCUTOFFPOSTS){ // can't flood if you haven't posted enough
     		$timeToCheckAgainst = $ipPosts[count($ipPosts)-$FLOODCUTOFFPOSTS]['time'];// get the time from the post a few back
 	    	//$timeDiff = $FLOODCUTOFFTIME+1; // initialize it to something acceptable
 	    	if(time() - $timeToCheckAgainst < $FLOODCUTOFFTIME){
 	    		$flood = true;
 	    	}
-    	}
+    	}*/
     	 
     	if(!$duplicatePost && !$flood){ // if it's no duplicate, and it's not flood,
    		  $response->text = $data;
@@ -224,8 +240,8 @@ if (!empty($_GET['rand']) &&
 	      $chatLog->setHandle($handle);
 	      
 	      // check the handle against the list of valid character names
-	      $characterProvider = new Model_Data_CharacterProvider(); // by redeclaring the class, I ensure a fresh pull of the current list.  This may be overdoing it.
-	      $character = $characterProvider->getOneByCharacterName($handle);
+	      /*$characterProvider = new Model_Data_CharacterProvider(); // by redeclaring the class, I ensure a fresh pull of the current list.  This may be overdoing it.
+	      $character = $characterProvider->getOneByCharacterName($handle);*/
 	      if(is_object($character)){
 	      	$chatLog->setCharacterId($character->getCharacterId());
 	      }
@@ -236,12 +252,11 @@ if (!empty($_GET['rand']) &&
 	      $chatLog->setChatRand($rand);
 	       
 	      if(!empty($priv) && $priv != '.'){
-	      	$recipient = $userProvider->getOneByName(str_replace("GT-","",$priv));
+	      	$recipient = $userProvider->getOneByName($priv);
 	      	if(is_object($recipient)){ // this is a registered user
 	      		$chatLog->setRecipientUserId($recipient->getUserId());
-	      	}else{
-	      		$chatLog->setRecipientUsername($priv);
 	      	}
+	      	$chatLog->setRecipientUsername($priv);
 	      }
 	      $chatLog->setTimestamp(null);
 	      try{
@@ -252,12 +267,8 @@ if (!empty($_GET['rand']) &&
 	      		$character->setLastActivity(time());
 	      		$characterProvider->updateOne($character, $arrErrors);
 	      	}else{
-	      		$guestUserHelper = new Model_Data_GuestUsersProvider();
-	      		$guestUser = $guestUserHelper->getOneByPk($handle);
-	      		if(is_object($guestUser)){
-	      			$guestUser->setLastActivity(time());
-	      			$guestUserHelper->updateOne($guestUser, $arrErrors);
-	      		}
+      			$guestUser->setLastActivity(time());
+      			$guestUserHelper->updateOne($guestUser, $arrErrors);
 	      	}
 	      	if(!empty($arrErrors))
 	      		throw new Exception("Error setting last Activity: ". implode('|',$arrErrors));
