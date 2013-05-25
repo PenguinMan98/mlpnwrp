@@ -111,7 +111,7 @@ var chat_path	 = "<?=SITE_ROOT?>/chat/ajax-chat/";
 	</audio>
 	<div id="page-wrap">
 
-		<div id="top_menu">&nbsp;&nbsp;<a href="<?=SITE_ROOT?>">Home</a>&nbsp;&nbsp;
+		<div id="top_menu">&nbsp;&nbsp;<a target="_blank" href="<?=SITE_ROOT?>">Home</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="<?=SITE_ROOT?>/rules">Site Rules</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Chat Commands</a>&nbsp;&nbsp;
 			|&nbsp;&nbsp;<a href="#">Preferences</a>&nbsp;&nbsp;
@@ -177,13 +177,14 @@ $chatRoomList = $chatRoomHelper->getChatList();
 			/* TAB COMPLETION */
 		$('#send').keydown(function( e ){
 			if(e.which == 9){
-				var post = $('#send').val();
-				var lastWord = post.match(/\w*$/i);
+				var tc_post = $('#send').val();
+				var tc_lastWord = tc_post.match(/\w*$/i);
 				for (var i in chat_usrs){
-					var regex = '^' + lastWord;
-					if( i.match(new RegExp(regex, 'i')) ){
-						var replaceRegex = lastWord + '$';
-						$('#send').val( post.replace( new RegExp( replaceRegex, 'i'), i) );
+					var tc_charName = chat_usrs[i]['name'];
+					var tc_regex = '^' + tc_lastWord;
+					if( tc_charName.match(new RegExp(tc_regex, 'i')) ){
+						var tc_replaceRegex = tc_lastWord + '$';
+						$('#send').val( tc_post.replace( new RegExp( tc_replaceRegex, 'i'), tc_charName) );
 					}
 				}
 				return false;
