@@ -42,18 +42,14 @@ class Model_Data_ChatLogProvider extends Model_Data_ChatLogProviderBase
 		$strSql = 'SELECT * FROM `chat_log` 
 WHERE recipient_user_id IS NULL AND recipient_username IS NULL AND ' . implode(' AND ', $whereArr);
 		
-		/*echo $strSql."<br>";
-		echo "<pre>";
-		print_r($params);
-		echo "</pre>";*/
 		return parent::getArrayFromQuery($strSql, $params);
 	}
 	
-	function insertBlogPost(Model_Structure_ChatLog $chatLog){
-		// handle/rand/text should be unique enough for a key
+	function insertChatLog(Model_Structure_ChatLog $chatLog){
+		// handle/rand should be unique enough for a key
 		$strSql = 'SELECT * FROM `chat_log`
-WHERE `handle`= ? AND `chat_rand` = ? and `text` = ?';
-		$params = array($chatLog->getHandle(), $chatLog->getChatRand(), $chatLog->getText());
+WHERE `handle`= ? AND `chat_rand` = ?';
+		$params = array($chatLog->getHandle(), $chatLog->getChatRand());
 		$result = parent::getOneFromQuery($strSql, $params);
 		if(is_object($result)){
 			return true; // it's already here.

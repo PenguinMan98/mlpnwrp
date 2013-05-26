@@ -120,7 +120,6 @@ function chat_login(asuser)
       (document.getElementById('glogin').style.display != 'block') || asuser){ /* guestlogin is hidden OR asuser is true */
 	  if(document.getElementById( 'ajaxChatLogin')){
 		  popup_show('login', 'login_drag', 'login_exit', 'element', 50,  50, 'chat', true);
-		  // popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true); // show the guest login for now
 	  }else{
 		  popup_show('glogin', 'glogin_drag', 'glogin_exit', 'element', 50,  50, 'chat', true);
 	  }
@@ -176,10 +175,6 @@ function chat_priv_switch(user, focus)
 		  chat_private[i]['active'] = false;
 	  hideExitPM();
   }
-  /*if (user == '.')  // if user is '.', I'm exiting.
-      document.getElementById('header_messages').innerHTML = chat_room; // show the room name
-  else // otherwise,  show the link back to the main chat
-	  document.getElementById('header_messages').innerHTML = '<a href="javascript:chat_priv_switch(\'.\', true)">Back to '+chat_room+'</a>'+user;*/
   chat_out_msgs();
 }
 function showExitPM(){
@@ -235,7 +230,6 @@ function chat_reset(room, registered, handle)
   chat_usrs = new Array(); // re-initialize these arrays
   chat_msgs = new Array();
   chat_wait = new Array();
-  //chat_private = {}; // clears private messages
   chat_priv = '.';
 
   chat_temp_msgs = new Array(); // clear the pending messages
@@ -249,15 +243,11 @@ function chat_reset(room, registered, handle)
 
   chat_setup(); // initial run to get things set up
   
-  //console.log("Starting the Ajax");
   if(typeof chat_users_timeout != 'undefined') clearInterval(chat_users_timeout);
   chat_users_timeout = setInterval("chat_users_get()", 5000); // start the ajax
   if(typeof chat_messages_timeout != 'undefined') clearInterval(chat_messages_timeout);
   chat_messages_timeout = setInterval("chat_msgs_get()", 1000); // start the ajax
   
-  /*if(handle){ // if a user is chosen
-	  //chat_timeout = setTimeout("chat_msgs_get();", 1); // start the ajax back up again
-  }*/
 }
 
 function chat_setup(){
@@ -286,7 +276,6 @@ function chat_users_get(){
 		}
 		
 		chat_out_usrs(); // output the users
-		//console.log('chat_users_get.  Handle (now chat_user):',chat_user);
 	});
 }
 
@@ -298,15 +287,11 @@ function handleSort(a, b){
 
 function chat_msgs_add()
 {
-	// first, security pass // unneccesary now
-    //if (!chat_user || !chat_pass) { chat_login(false); return; }
-    
-    // second, check for blank
+    // check for blank
 	var post_text = $('#send').val();
     if (!post_text || post_text == "") return;
 	
-    // third, build the post
-    //chat_rand += 1;
+    // build the post
     var timestamp = Math.round(new Date().getTime() / 100);// I switched the chat rand to a timestamp.  This should fix any guid problems and false duplicate posts.
     var newPost = {
 	    rand: timestamp,
@@ -323,25 +308,13 @@ function chat_msgs_add()
     };
     chat_temp_msgs.push(newPost);
     
-    // fourth, call it!
+    // call it!
 	add_post_ajax(newPost);
 	
-	// fourth, clean up
+	// clean up
 	document.getElementById('send').value = '';
 	if (chat_focu) document.getElementById('send').focus();
 }
-
-/*function resend_dead_posts(){
-	var chat_temp_msgs_length = chat_temp_msgs.length; // get the length of temp messages
-	for(var i = 0; i < chat_temp_msgs_length; i++){ // for each message in temp messages
-		if(chat_temp_msgs[i].tries <= 5){ // try 5 times
-			add_post_ajax(chat_temp_msgs[i]); // try to add it.
-			chat_temp_msgs[i].tries++; // increment tries
-		}else{
-			confirmPostRand(chat_temp_msgs[i].rand);// otherwise, confirm it and throw it away.
-		}
-	}
-}*/
 
 function resend_dead_posts(){
 	for(var i = 0; i < chat_temp_msgs.length; i++){
@@ -364,7 +337,6 @@ function add_post_ajax(newPost)
 	})
 	.done(function(response) {
 		if(response.success){
-			//document.getElementById('log_add').innerHTML = response.text;
 			
 			if(typeof response.messages != 'undefined' && typeof response.messages.length != 'undefined' && response.messages.length > 0){
 				for(var i = 0; i< response.messages.length; i++){
@@ -398,9 +370,6 @@ function chat_msgs_get()
   if(chat_rand % 5 == 0) { resend_dead_posts(); }; // every three seconds or so, retry the dead posts.
   var playDing = false;
   
-  //chat_timeout = setTimeout("chat_msgs_get();", Math.round(1000*chat_timeout));
-  //chat_rand += 1;
-  //console.log(chat_rand, chat_room, chat_user, chat_pass, chat_message_id);
   var rand = chat_rand;
   var room = chat_room;
   var user = chat_user;
@@ -417,9 +386,7 @@ function chat_msgs_get()
 	})
 	.done(function(response) {
 		if(response.success){
-	      //document.getElementById('log_get').innerHTML = response; // Store the whole response
 
-	      //var data = chat_parse(response.text); // parse the response 
 	      if (response.operation == '-' && chat_user && chat_pass) { // If I got a remove event and the username and password are set 
 	    	  chat_api_onload(chat_room, true); // refresh the chat?
 	    	  return; 
@@ -457,8 +424,6 @@ function chat_msgs_get()
 		          }else{
 		        	  message = ":  <span style=\"color: "+line.chat_text_color+";\">"+message+"</span>";
 		          }
-//<b>[04 Mar, 08:38] <a style="color: #FF9191" href="javascript:chat_priv_switch('GT-Tekkie', true);">GT-Tekkie</a></b>:  <span style="color: #63BBFF;">test</span>
-//<b>[09:30] <a style="color: #FF9191" href="javascript:chat_priv_switch('GT-Tek', true);">GT-Tek</a></b> <span style="color: #FF9191;">kicks the server</span>
 
 		          // parse pseudo-html
 		          message = replaceAndBalanceTag(message, /\[i\]/gi, '<i>', /\[\/i\]/gi,'</i>' );
@@ -549,7 +514,7 @@ function room_change(room, registered, handle){
 	})
 	.done(function(response) {
 		if(response.success){
-			chat_api_onload(room, registered, handle)
+			chat_api_onload(room, registered, handle);
 		}else{
 			/*alert('Invalid Room Change');*/
 		}
@@ -557,53 +522,12 @@ function room_change(room, registered, handle){
 
 }
 
-// ***** chat_msgs_log **********************************************************
-// shouldn't need this.  It just checks for a logged in state.
-/*function chat_msgs_log(asuser)
-{
-  clearTimeout(chat_timeout);
-
-  chat_rand += 1;
-  if (asuser)
-       chat_XMLHttp_log.open("get", chat_path+"php/msg_log.php?rand="+chat_rand+
-                                                             "&room="+encodeURIComponent(chat_room)+
-                                                             "&user="+encodeURIComponent(document.getElementById( 'user').value)+
-                                                             "&pass="+encodeURIComponent(document.getElementById( 'pass').value)+
-                                                             "&gues=0");
-  else chat_XMLHttp_log.open("get", chat_path+"php/msg_log.php?rand="+chat_rand+
-                                                             "&room="+encodeURIComponent(chat_room)+
-                                                             "&user="+encodeURIComponent(document.getElementById('guser').value)+
-                                                             "&pass="+encodeURIComponent(chat_pass)+
-                                                             "&gues=1");
-  $.get();
-  chat_XMLHttp_log.send(null);
-  chat_XMLHttp_log.onreadystatechange = function()
-  {
-    if(chat_XMLHttp_log.readyState == 4 && chat_XMLHttp_log.status == 200)
-    {
-      document.getElementById('log_log').innerHTML = chat_XMLHttp_log.responseText;
-
-      var data = chat_parse(chat_XMLHttp_log.responseText);
-      if (data[0] == 'OK')
-      {
-        chat_reset(chat_room, data[1], data[2]);
-        popup_hide( 'login');
-        popup_hide('glogin');
-      }
-      if (data[0] == 'FAILED') { alert(data[1]); chat_login(false); }
-      chat_msgs_get();
-    }
-  };
-}*/
-
-
 // ***** chat_msgs_usr **********************************************************
 /*
  * Takes a user, color, and away status and formats an html dealie for them.
  * */
 function chat_msgs_usr(handle, color, sidebar)
 {
-	//console.log('chat_msgs_usr called with:',handle,color,sidebar);
   sidebar = (typeof sidebar == 'undefined') ? false : sidebar ; // first, are we on the sidebar?,
   // then build a return string
   var retString = "";

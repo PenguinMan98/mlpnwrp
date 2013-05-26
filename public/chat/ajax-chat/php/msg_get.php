@@ -63,17 +63,6 @@ if (isset($_GET['room']) &&
 	
 	  $response->operator .= "+"; // I think this operator system is obsolete
 	  
-	  // this routine won't be called without users being logged in.
-	  /*if (isset($chat_data['user'][$_GET['user']]) &&
-	      isset($chat_data['pass'][$_GET['user']]) &&
-	           ($chat_data['pass'][$_GET['user']]) == $_GET['pass']) { // If the user is logged in, 
-	  	$response->operator .= "+"; // print a + 
-	  }
-	  else {
-	  	$response->operator .= "-";
-	  	//throw new Exception("This user is not logged in!");
-	  }*/
-	  
 	  $chatLogHelper = new Model_Data_ChatLogProvider();
 	  $response->lines = $chatLogHelper->getPosts($roomId, $handle, $lastPostId, $chat_histlen, $registered);
 	  
