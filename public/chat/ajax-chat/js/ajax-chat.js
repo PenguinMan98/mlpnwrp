@@ -82,6 +82,7 @@ function chat_api_smiley(str)
 function chat_api_onload(room, registered, handle)//, focu
 {
 	hideRooms(); // hide the rooms panel
+	$('#character_info_base').css('display','none'); // hide the character hud
 	$('#header_messages').html(roomList[room]); // change the room name
 
 	document.getElementById('send').focus(); // decide if you are going to focus the cursor in the text field or not

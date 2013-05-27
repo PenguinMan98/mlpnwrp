@@ -224,6 +224,7 @@ $chatRoomList = $chatRoomHelper->getChatList();
 			dataType: "JSON"
 		})
 		.done(function(response) {
+			console.log(response);
 			if(response.success && $('#character_info_base').css('display') == 'none'){
 				$('#character_info_base').css('display','block');
 				$('#character_info_base').css('left', linkRect.left-250 );
@@ -241,9 +242,9 @@ $chatRoomList = $chatRoomHelper->getChatList();
 					$('#hud_activity_status').html('Active'); 
 				};
 				
-				$('#hud_room').html(chat_player_rooms[response.characterInfo.name]);
+				$('#hud_room').html(roomList[response.characterInfo.chat_room_id]);
 				$('#hud_room').off('click');
-				$('#hud_room').on('click',function(){chat_api_onload(chat_player_rooms[response.characterInfo.name], true, chat_user, chat_pass);});
+				$('#hud_room').on('click',function(){chat_api_onload(response.characterInfo.chat_room_id, !guest_char, chat_user);});
 				$('#hud_room').css('cursor','pointer');
 
 				$('#hud_chat_status').html('A status');
