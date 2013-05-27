@@ -21,59 +21,60 @@ foreach($tempSplit as $string){
 		$routeSplit[] = $string;
 	}
 }
-
+/*echo "<pre>";
+print_r($routeSplit);*/
 //die("URI: $URI count: ".count($routeSplit));
 $route = null;
-if(count($routeSplit) <= 3){ // action only
+if(count($routeSplit) <= 1){ // action only
 	$route = new Route(
 			"Index", 
 			"Index", 
-			(!empty($routeSplit[2])) ? $routeSplit[2] : "Index", 
+			(!empty($routeSplit[0])) ? $routeSplit[2] : "Index", 
 			array()
 		);
-}elseif(count($routeSplit) == 4){ // controller / action
+}elseif(count($routeSplit) == 2){ // controller / action OR  module/controller/index
 	$route = new Route(
 			"Index", 
-			$routeSplit[2], 
-			$routeSplit[3], 
+			$routeSplit[0], 
+			$routeSplit[1], 
 			array()
 		);
 	if($route->error){
 		$route = new Route(
-				$routeSplit[2],
-				$routeSplit[3],
+				$routeSplit[0],
+				$routeSplit[1],
 				"Index",
 				array()
 			);
 	}
-}elseif(count($routeSplit) == 5){ // module / controller / action
+}elseif(count($routeSplit) == 3){ // module / controller / action
 	$route = new Route(
+			$routeSplit[0], 
+			$routeSplit[1], 
 			$routeSplit[2], 
-			$routeSplit[3], 
-			$routeSplit[4], 
 			array()
 		);
 	// my first routing exception
-	if($route->error && $routeSplit[2] == "character"){
+	if($route->error && $routeSplit[0] == "character"){
 		$route = new Route(
 				"Index",
-				$routeSplit[2],
-				$routeSplit[3],
-				array('c'=>$routeSplit[4])
+				$routeSplit[0],
+				$routeSplit[1],
+				array('c'=>$routeSplit[2])
 		);
 	}
-}elseif(count($routeSplit) > 5){ // module / controller / action / params
+}elseif(count($routeSplit) > 3){ // module / controller / action / params
 	$URI_PARAMS = array();
-	$params = array_slice($routeSplit, 5); // get the params
+	$params = array_slice($routeSplit, 3); // get the params
 	if(count($params)%2 == 1) array_pop($params); // ensure an even count
 	while(count($params) > 1){
 		$URI_PARAMS[$params[0]] = $params[1];
 		$params = array_slice($params,2);
 	}
 	$route = new Route(
+			$routeSplit[0], 
+			$routeSplit[1], 
 			$routeSplit[2], 
-			$routeSplit[3], 
-			$routeSplit[4], 
 			$URI_PARAMS
 		);
 }
