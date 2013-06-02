@@ -123,10 +123,10 @@ function logMeIn(){
 		$('#login_form_error').html('**Enter a Username!<br>');
 		return false;
 	}
-	var pattern = /^[\w_-]*$/i; // accept all alpha characters, underscore and hyphen
+	var pattern = /^[\w_\-\s]*$/i; // accept all alpha characters, underscore, hyphen, and space
 	if( !pattern.test( username ) ){
 		$('#login_form_error').css('display','block');
-		$('#login_form_error').html('**Usernames may only contain letters, numbers, _ and -!<br>');
+		$('#login_form_error').html('**Usernames may only contain letters, numbers, _ , - and space!<br>');
 		return false;
 	}
 	// use ajax call to log into the forum and set the forum cookies and return a list of characters

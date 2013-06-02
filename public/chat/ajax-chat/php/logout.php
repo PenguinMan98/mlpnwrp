@@ -1,13 +1,12 @@
 <?php
 // Copyright (C) 2013 Pengy Programming. All rights reserved.
-
 // must bootstrap the ajax calls
 require_once '../../../../application/Core/Bootstrap.php'; // load everything
 $_bootstrap = Bootstrap::getInstance();
 
 if (empty($_GET['handle'])) // if no username, 
 {
-	header("Location: ../../../../public/login.php");// send them to login.php.
+	header("Location: ../../../login.php");// send them to login.php.
 } 
 $handle = $_GET['handle'];
 $characterId = $_GET['character_id'];
@@ -20,7 +19,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$guestUserHelper = new Model_Data_GuestUsersProvider();
 	$guestUser = $guestUserHelper->getOneByPk($handle);
 	if(!is_object($guestUser)){
-		header("Location: ../../../../public/login.php");// send them to login.php.
+		header("Location: ../../../login.php");// send them to login.php.
 	}
 	$guestUserHelper->deleteOne($guestUser, $arrErrors);
 } elseif(empty($characterId)) {
@@ -28,7 +27,7 @@ if($user->data['user_id'] == ANONYMOUS) {
 	$guestUserHelper = new Model_Data_GuestUsersProvider();
 	$guestUser = $guestUserHelper->getOneByPk($handle);
 	if(!is_object($guestUser)){
-		header("Location: ../../../../public/login.php");// send them to login.php.
+		header("Location: ../../../login.php");// send them to login.php.
 	}
 	$guestUserHelper->deleteOne($guestUser, $arrErrors);
 } else {
@@ -42,4 +41,4 @@ if($user->data['user_id'] == ANONYMOUS) {
 if(!empty($arrErrors)){
 	die(implode('|',$arrErrors));
 }
-header("Location: ../../../../public/login.php");
+header("Location: ../../../login.php");
