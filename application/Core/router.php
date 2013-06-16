@@ -22,14 +22,15 @@ foreach($tempSplit as $string){
 	}
 }
 /*echo "<pre>";
-print_r($routeSplit);*/
+print_r($routeSplit);
+echo "</pre>";*/
 //die("URI: $URI count: ".count($routeSplit));
 $route = null;
 if(count($routeSplit) <= 1){ // action only
 	$route = new Route(
 			"Index", 
 			"Index", 
-			(!empty($routeSplit[0])) ? $routeSplit[2] : "Index", 
+			(!empty($routeSplit[0])) ? $routeSplit[0] : "Index", 
 			array()
 		);
 }elseif(count($routeSplit) == 2){ // controller / action OR  module/controller/index

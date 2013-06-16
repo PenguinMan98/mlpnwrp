@@ -2,7 +2,16 @@
 $htProvider = new Model_Data_Phpbb_TopicsProvider();
 $hotTopics = $htProvider->getHotTopics(7);
 ?>
-				<h2>Hot Forum Threads!</h2>
-				<?php foreach($hotTopics as $ht): ?>
-                <p class="hot_topic"><a href="<?=SITE_ROOT . "/forum/viewtopic.php?f=" . $ht->getForumId() . "&t=" . $ht->getTopicId()?>"><?=$ht->getTopicTitle()?></a></p>
-                <?php endforeach; ?>
+	<div id="hft_container">
+		<div id="hft_head"></div>
+		<div id="hft_content_frame">
+			<div id="hft_content">
+				<div id="hft_inner">
+					<?php foreach($hotTopics as $ht): ?>
+	                <p class="hot_topic"><a href="<?=SITE_ROOT . "/forum/viewtopic.php?f=" . $ht->getForumId() . "&t=" . $ht->getTopicId()?>"><?=$ht->getTopicTitle()?></a></p>
+	                <?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+		<div id="hft_foot"></div>
+	</div>

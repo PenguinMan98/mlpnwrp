@@ -217,6 +217,36 @@ function hideRooms(){
 		});
 }
 
+function togglePreferences(elem){
+	if($('#preferences_container').css('display') == 'block'){
+		hidePreferences(elem);
+	}else{
+		showPreferences(elem);
+	}
+}
+function showPreferences(elem){
+	var prefRect = elem.getBoundingClientRect();
+	// show the element
+	$('#preferences_container').css('display','block');
+	$('#preferences_container').css('left', prefRect.left);
+	$('#preferences_container').css('top', -250);
+	// animate moving right to 0
+	$('#preferences_container').animate({
+			opacity: '1',
+			top: '50px'
+		},1000,'swing',function(){
+		});
+}
+function hidePreferences(){
+	// animate moving left to 0
+	$('#preferences_container').animate({
+			opacity: '0',
+			top: '-250px'
+		},1000,'swing',function(){
+			$('#preferences_container').css('display','none');
+		});
+}
+
 // ***** chat_reset ************************************************************
 // may be called with only a room and null user/pass
 
@@ -435,13 +465,13 @@ function chat_msgs_get()
 		          message = replaceURLWithHTMLLinks(message);
 		          
 		          if (line.recipient_username == null || line.recipient_username == '.'){ // if this message is public
-		        	  chat_msgs['.'] += '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
+		        	  chat_msgs['.'] += '<span id="line_'+line.chat_log_id+'" style="color: #ddd;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
 		          }
 		          else // it's a private message
 		          {
 		        	//console.log('I got a PM from', line.handle, 'to',line.recipient_username, message);
 					chat_priv_prepair(line.handle, line.recipient_username); // not entirely sure what this does
-					var nameLine = '<span id="line_'+line.chat_log_id+'" style="color: white;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
+					var nameLine = '<span id="line_'+line.chat_log_id+'" style="color: #ddd;"><b>['+chat_date(-line.interval)+'] '+chat_msgs_usr(line.handle, line.chat_name_color)+'</b>'+ message +'</span><br />';
 
 					// if it's from somebody to me, (new system)
 					if(line.recipient_username == chat_user){
@@ -598,7 +628,7 @@ function chat_out_usrs()
     if (
     		chat_usrs[i].name != chat_user && // if it's not me
     		chat_usrs[i].chat_room_id != chat_room) // and NOT in my room
-      users += chat_msgs_usr(chat_usrs[i].name, 'white', true)+' <br />'; // format them up
+      users += chat_msgs_usr(chat_usrs[i].name, '#ddd', true)+' <br />'; // format them up
   otherRoom.html(users); // dump them into other.
   otherRoom.css('display', (users ? 'block' : 'none'));  // show it if it needs to be shown.
   // no return value.
@@ -612,7 +642,7 @@ function show_pm(){
 	for(var i in chat_private){
 		//console.log('var: ', typeof chat_private[i]['last_seen'], typeof chat_private[i]['last_seen'] != 'undefined',chat_private[i]['last_seen'], chat_private[i]['last_received'],chat_private[i]['last_seen'] < chat_private[i]['last_received']);
 		if(typeof chat_private[i]['last_seen'] != 'undefined' && chat_private[i]['last_seen'] < chat_private[i]['last_received']){ // if there is a new priv
-			users += chat_msgs_usr(i, 'white', true)+'<br />'; // get the formated html and then we append it to users
+			users += chat_msgs_usr(i, '#ddd', true)+'<br />'; // get the formated html and then we append it to users
 		}
 	}
 	pmNotice.html(users); // dump them into other.
